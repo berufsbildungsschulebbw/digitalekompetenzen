@@ -376,8 +376,9 @@
 
     <script>
         function navigateTo(page) {
-            window.location.href = page;
-        }
+    // Ändere diese Zeile in deiner index.html
+    window.location.href = 'pages/' + page;
+}
 
         // Smooth hover effects
         document.querySelectorAll('.main-card').forEach(card => {
