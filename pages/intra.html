@@ -3,15 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grundlagen & Konzepte - BBW Digitale Kompetenzen</title>
+    <title>Intra - BBW Digitale Kompetenzen</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            margin: 0;
             padding: 20px;
         }
+
         .container {
             max-width: 1200px;
             margin: 0 auto;
@@ -19,7 +25,14 @@
             border-radius: 20px;
             padding: 40px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            min-height: calc(100vh - 40px);
         }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
         .back-button {
             display: inline-block;
             padding: 10px 20px;
@@ -28,39 +41,1229 @@
             text-decoration: none;
             border-radius: 8px;
             margin-bottom: 20px;
+            transition: background 0.3s;
         }
+
         .back-button:hover {
             background: #5a67d8;
         }
+
         h1 {
             color: #2d3748;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #718096;
+            font-size: 1.1em;
+        }
+
+        /* Login Section */
+        .login-section {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 40px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .login-section h2 {
+            color: #495057;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .form-group {
             margin-bottom: 20px;
         }
-        .coming-soon {
-            background: #f7fafc;
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            color: #495057;
+            font-weight: 500;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 1em;
+            background: white;
+            cursor: pointer;
+        }
+
+        .login-button {
+            width: 100%;
+            padding: 14px;
+            background: #9C27B0;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .login-button:hover {
+            background: #7B1FA2;
+            transform: translateY(-2px);
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        /* Dashboard Section */
+        .dashboard-section {
+            display: none;
+        }
+
+        .dashboard-section.active {
+            display: block;
+        }
+
+        .user-info {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .user-details h3 {
+            margin-bottom: 5px;
+        }
+
+        .logout-button {
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .logout-button:hover {
+            background: white;
+            color: #667eea;
+        }
+
+        /* Tab Navigation */
+        .tab-navigation {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .tab-button {
+            padding: 12px 24px;
+            background: transparent;
+            border: none;
+            color: #6c757d;
+            font-size: 1em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+        }
+
+        .tab-button:hover {
+            color: #495057;
+        }
+
+        .tab-button.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        /* Tab Content */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Code Management */
+        .code-generator {
+            background: #f8f9fa;
             padding: 30px;
             border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .code-form {
+            display: flex;
+            gap: 15px;
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .code-form .form-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .generate-button {
+            padding: 12px 30px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .generate-button:hover {
+            background: #218838;
+        }
+
+        .code-list {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .code-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .code-table th {
+            background: #f8f9fa;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #495057;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .code-table td {
+            padding: 12px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .code-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .code-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: #e3f2fd;
+            color: #1565c0;
+            border-radius: 20px;
+            font-weight: 500;
+            font-family: monospace;
+            font-size: 1.1em;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 500;
+        }
+
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-used {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .action-button {
+            padding: 6px 12px;
+            margin: 0 2px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s;
+        }
+
+        .view-button {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .view-button:hover {
+            background: #138496;
+        }
+
+        .delete-button {
+            background: #dc3545;
+            color: white;
+        }
+
+        .delete-button:hover {
+            background: #c82333;
+        }
+
+        /* Results Section */
+        .results-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
             text-align: center;
-            margin: 40px 0;
+            border-left: 4px solid #667eea;
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            color: #6c757d;
+            margin-top: 5px;
+        }
+
+        /* Department Stats */
+        .department-chart {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .chart-header {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 20px;
+        }
+
+        .chart-bars {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .chart-bar {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .bar-label {
+            width: 200px;
+            font-weight: 500;
+            color: #495057;
+        }
+
+        .bar-container {
+            flex: 1;
+            background: #e9ecef;
+            border-radius: 5px;
+            height: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 5px;
+            transition: width 1s ease;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 10px;
+            color: white;
+            font-weight: bold;
+        }
+
+        /* Individual Results */
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .results-table th {
+            background: #f8f9fa;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #495057;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .results-table td {
+            padding: 12px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .score-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .score-high { background: #28a745; }
+        .score-medium { background: #ffc107; }
+        .score-low { background: #dc3545; }
+
+        /* Export Button */
+        .export-button {
+            padding: 12px 30px;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 20px;
+        }
+
+        .export-button:hover {
+            background: #5a6268;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: #6c757d;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .tab-navigation {
+                flex-wrap: wrap;
+            }
+
+            .code-form {
+                flex-direction: column;
+            }
+
+            .user-info {
+                flex-direction: column;
+                text-align: center;
+                gap: 15px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <a href="../index.html" class="back-button">← Zurück zur Startseite</a>
-        <h1>Grundlagen & Konzepte</h1>
         
-        <div class="coming-soon">
-            <h2>🚧 In Entwicklung</h2>
-            <p>Diese Seite wird die detaillierten Grundlagen und Konzepte der digitalen Kompetenzen enthalten.</p>
-            <p>Geplante Inhalte:</p>
-            <ul style="list-style: none; padding: 0;">
-                <li>✓ Die 5 Kompetenzbereiche im Detail</li>
-                <li>✓ IKT-Konzept Verknüpfungen</li>
-                <li>✓ Pädagogisch-didaktische Grundlagen</li>
-                <li>✓ Interaktive Konzeptdarstellung</li>
-            </ul>
+        <div class="header">
+            <h1>Intra-Bereich</h1>
+            <p class="subtitle">Verwaltung und Auswertung digitaler Kompetenzen</p>
+        </div>
+
+        <!-- Login Section -->
+        <div id="loginSection" class="login-section">
+            <h2>🔐 Anmeldung</h2>
+            <div id="errorMessage" class="error-message">
+                Ungültige Anmeldedaten. Bitte versuchen Sie es erneut.
+            </div>
+            <form onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label class="form-label">Abteilung</label>
+                    <select id="department" class="form-select" required>
+                        <option value="">Bitte wählen...</option>
+                        <option value="bau">Bau</option>
+                        <option value="technik">Technik | Ernährung</option>
+                        <option value="maschinenbau">Maschinenbau</option>
+                        <option value="informatik">Informatik | Naturwissenschaften</option>
+                        <option value="admin">Administration</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Benutzername</label>
+                    <input type="text" id="username" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Passwort</label>
+                    <input type="password" id="password" class="form-input" required>
+                </div>
+                <button type="submit" class="login-button">Anmelden</button>
+            </form>
+            <p style="margin-top: 20px; color: #6c757d; font-size: 0.9em; text-align: center;">
+                Demo-Login: Wählen Sie eine Abteilung und verwenden Sie<br>
+                Benutzername: <strong>demo</strong> / Passwort: <strong>demo123</strong>
+            </p>
+        </div>
+
+        <!-- Dashboard Section -->
+        <div id="dashboardSection" class="dashboard-section">
+            <!-- User Info Bar -->
+            <div class="user-info">
+                <div class="user-details">
+                    <h3 id="userDepartment">Abteilung</h3>
+                    <p id="userName">Benutzer</p>
+                </div>
+                <button class="logout-button" onclick="handleLogout()">Abmelden</button>
+            </div>
+
+            <!-- Tab Navigation -->
+            <div class="tab-navigation">
+                <button class="tab-button active" onclick="switchTab('codes')">
+                    📝 Code-Verwaltung
+                </button>
+                <button class="tab-button" onclick="switchTab('results')">
+                    📊 Ergebnisse
+                </button>
+                <button class="tab-button" onclick="switchTab('statistics')">
+                    📈 Statistiken
+                </button>
+                <button id="adminTab" class="tab-button" onclick="switchTab('admin')" style="display: none;">
+                    ⚙️ Administration
+                </button>
+            </div>
+
+            <!-- Tab: Code Management -->
+            <div id="codesTab" class="tab-content active">
+                <div class="code-generator">
+                    <h3>Neuen Test-Code generieren</h3>
+                    <div class="code-form">
+                        <div class="form-group">
+                            <label class="form-label">Beschreibung</label>
+                            <input type="text" id="codeDescription" class="form-input" 
+                                   placeholder="z.B. Q1 2024 Assessment">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Gültig bis</label>
+                            <input type="date" id="codeExpiry" class="form-input">
+                        </div>
+                        <button class="generate-button" onclick="generateCode()">
+                            Code generieren
+                        </button>
+                    </div>
+                </div>
+
+                <div class="code-list">
+                    <table class="code-table">
+                        <thead>
+                            <tr>
+                                <th>Code</th>
+                                <th>Beschreibung</th>
+                                <th>Erstellt am</th>
+                                <th>Gültig bis</th>
+                                <th>Status</th>
+                                <th>Teilnehmer</th>
+                                <th>Aktionen</th>
+                            </tr>
+                        </thead>
+                        <tbody id="codeTableBody">
+                            <!-- Codes will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tab: Results -->
+            <div id="resultsTab" class="tab-content">
+                <div class="results-overview">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalTests">0</div>
+                        <div class="stat-label">Durchgeführte Tests</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="avgScore">0%</div>
+                        <div class="stat-label">Durchschnittlicher Score</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="activeCodes">0</div>
+                        <div class="stat-label">Aktive Codes</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="completionRate">0%</div>
+                        <div class="stat-label">Abschlussrate</div>
+                    </div>
+                </div>
+
+                <h3 style="margin: 30px 0 20px;">Individuelle Ergebnisse nach Code</h3>
+                <div style="margin-bottom: 20px;">
+                    <select id="codeFilter" class="form-select" onchange="filterResults()" style="width: auto;">
+                        <option value="">Alle Codes</option>
+                    </select>
+                </div>
+
+                <table class="results-table">
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>Datum</th>
+                            <th>Gesamtscore</th>
+                            <th>Bereich 1</th>
+                            <th>Bereich 2</th>
+                            <th>Bereich 3</th>
+                            <th>Bereich 4</th>
+                            <th>Bereich 5</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsTableBody">
+                        <!-- Results will be inserted here -->
+                    </tbody>
+                </table>
+
+                <button class="export-button" onclick="exportResults()">
+                    📥 Ergebnisse exportieren (CSV)
+                </button>
+            </div>
+
+            <!-- Tab: Statistics -->
+            <div id="statisticsTab" class="tab-content">
+                <div class="department-chart">
+                    <div class="chart-header">Durchschnittliche Scores nach Kompetenzbereich</div>
+                    <div class="chart-bars">
+                        <div class="chart-bar">
+                            <div class="bar-label">Grundkenntnisse IKT</div>
+                            <div class="bar-container">
+                                <div class="bar-fill" id="bar1" style="width: 0%;">0%</div>
+                            </div>
+                        </div>
+                        <div class="chart-bar">
+                            <div class="bar-label">Anwendung im Unterricht</div>
+                            <div class="bar-container">
+                                <div class="bar-fill" id="bar2" style="width: 0%;">0%</div>
+                            </div>
+                        </div>
+                        <div class="chart-bar">
+                            <div class="bar-label">Medien- und Informationskompetenz</div>
+                            <div class="bar-container">
+                                <div class="bar-fill" id="bar3" style="width: 0%;">0%</div>
+                            </div>
+                        </div>
+                        <div class="chart-bar">
+                            <div class="bar-label">Datenverwaltung und Datensicherheit</div>
+                            <div class="bar-container">
+                                <div class="bar-fill" id="bar4" style="width: 0%;">0%</div>
+                            </div>
+                        </div>
+                        <div class="chart-bar">
+                            <div class="bar-label">Kommunikation und Kollaboration</div>
+                            <div class="bar-container">
+                                <div class="bar-fill" id="bar5" style="width: 0%;">0%</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="department-chart">
+                    <div class="chart-header">Entwicklung über Zeit</div>
+                    <p style="color: #6c757d; text-align: center; padding: 40px;">
+                        Hier würde ein Liniendiagramm mit der zeitlichen Entwicklung der Kompetenzen angezeigt werden.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Tab: Admin (only for admin users) -->
+            <div id="adminTab" class="tab-content">
+                <h3>Abteilungsübersicht</h3>
+                <div class="results-overview">
+                    <div class="stat-card">
+                        <div class="stat-number">4</div>
+                        <div class="stat-label">Aktive Abteilungen</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalTestsAdmin">0</div>
+                        <div class="stat-label">Tests Gesamt</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="avgScoreAdmin">0%</div>
+                        <div class="stat-label">Gesamt-Durchschnitt</div>
+                    </div>
+                </div>
+
+                <h3 style="margin: 30px 0 20px;">Abteilungsvergleich</h3>
+                <table class="results-table">
+                    <thead>
+                        <tr>
+                            <th>Abteilung</th>
+                            <th>Anzahl Tests</th>
+                            <th>Ø Score</th>
+                            <th>Beste Kompetenz</th>
+                            <th>Schwächste Kompetenz</th>
+                            <th>Trend</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminTableBody">
+                        <tr>
+                            <td>Bau</td>
+                            <td>12</td>
+                            <td><span class="score-badge score-medium">72%</span></td>
+                            <td>Grundkenntnisse IKT</td>
+                            <td>Medien- und Informationskompetenz</td>
+                            <td>📈 +5%</td>
+                        </tr>
+                        <tr>
+                            <td>Technik | Ernährung</td>
+                            <td>8</td>
+                            <td><span class="score-badge score-high">81%</span></td>
+                            <td>Anwendung im Unterricht</td>
+                            <td>Datenverwaltung</td>
+                            <td>📊 ±0%</td>
+                        </tr>
+                        <tr>
+                            <td>Maschinenbau</td>
+                            <td>15</td>
+                            <td><span class="score-badge score-medium">68%</span></td>
+                            <td>Kommunikation</td>
+                            <td>Medien- und Informationskompetenz</td>
+                            <td>📉 -3%</td>
+                        </tr>
+                        <tr>
+                            <td>Informatik | Naturwissenschaften</td>
+                            <td>22</td>
+                            <td><span class="score-badge score-high">88%</span></td>
+                            <td>Datenverwaltung</td>
+                            <td>Kommunikation</td>
+                            <td>📈 +7%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Modal for Details -->
+        <div id="detailModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Test-Details</h3>
+                    <button class="modal-close" onclick="closeModal()">×</button>
+                </div>
+                <div id="modalBody">
+                    <!-- Details will be inserted here -->
+                </div>
+            </div>
         </div>
     </div>
+
+    <script>
+        // State Management
+        let currentUser = null;
+        let currentDepartment = null;
+        let generatedCodes = [];
+        let testResults = [];
+
+        // Initialize with demo data
+        function initializeDemoData() {
+            // Load existing codes from localStorage or create demo codes
+            const storedCodes = localStorage.getItem('intra_codes');
+            if (storedCodes) {
+                generatedCodes = JSON.parse(storedCodes);
+            } else {
+                generatedCodes = [
+                    {
+                        code: 'DEMO-2024',
+                        description: 'Demo Test Q1 2024',
+                        department: 'demo',
+                        created: '2024-01-15',
+                        expiry: '2024-12-31',
+                        participants: 5
+                    }
+                ];
+            }
+
+            // Load test results
+            const storedResults = localStorage.getItem('bbw_test_results');
+            if (storedResults) {
+                testResults = JSON.parse(storedResults);
+            }
+        }
+
+        // Login Handler
+        function handleLogin(event) {
+            event.preventDefault();
+            
+            const department = document.getElementById('department').value;
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            // Simple demo authentication
+            if (username === 'demo' && password === 'demo123') {
+                currentUser = username;
+                currentDepartment = department;
+                
+                // Show dashboard
+                document.getElementById('loginSection').style.display = 'none';
+                document.getElementById('dashboardSection').classList.add('active');
+                
+                // Update user info
+                const deptNames = {
+                    'bau': 'Abteilung Bau',
+                    'technik': 'Abteilung Technik | Ernährung',
+                    'maschinenbau': 'Abteilung Maschinenbau',
+                    'informatik': 'Abteilung Informatik | Naturwissenschaften',
+                    'admin': 'Administration'
+                };
+                
+                document.getElementById('userDepartment').textContent = deptNames[department] || department;
+                document.getElementById('userName').textContent = `Benutzer: ${username}`;
+                
+                // Show admin tab if admin
+                if (department === 'admin') {
+                    document.getElementById('adminTab').style.display = 'block';
+                }
+                
+                // Load data
+                loadDashboardData();
+            } else {
+                document.getElementById('errorMessage').style.display = 'block';
+                setTimeout(() => {
+                    document.getElementById('errorMessage').style.display = 'none';
+                }, 3000);
+            }
+        }
+
+        // Logout Handler
+        function handleLogout() {
+            currentUser = null;
+            currentDepartment = null;
+            document.getElementById('dashboardSection').classList.remove('active');
+            document.getElementById('loginSection').style.display = 'block';
+            document.getElementById('adminTab').style.display = 'none';
+            
+            // Reset form
+            document.getElementById('department').value = '';
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+        }
+
+        // Tab Switching
+        function switchTab(tabName) {
+            // Update buttons
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Update content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(tabName + 'Tab').classList.add('active');
+            
+            // Load specific tab data
+            if (tabName === 'results') {
+                loadResultsData();
+            } else if (tabName === 'statistics') {
+                loadStatisticsData();
+            }
+        }
+
+        // Generate Code
+        function generateCode() {
+            const description = document.getElementById('codeDescription').value || 'Test';
+            const expiry = document.getElementById('codeExpiry').value || '2024-12-31';
+            
+            // Generate unique code
+            const prefix = currentDepartment.toUpperCase().substring(0, 4);
+            const random = Math.floor(Math.random() * 9000) + 1000;
+            const code = `${prefix}-${random}`;
+            
+            // Add to list
+            const newCode = {
+                code: code,
+                description: description,
+                department: currentDepartment,
+                created: new Date().toISOString().split('T')[0],
+                expiry: expiry,
+                participants: 0
+            };
+            
+            generatedCodes.push(newCode);
+            
+            // Save to localStorage
+            localStorage.setItem('intra_codes', JSON.stringify(generatedCodes));
+            
+            // Update display
+            loadDashboardData();
+            
+            // Clear form
+            document.getElementById('codeDescription').value = '';
+            document.getElementById('codeExpiry').value = '';
+            
+            // Show success message
+            alert(`Code generiert: ${code}`);
+        }
+
+        // Load Dashboard Data
+        function loadDashboardData() {
+            // Load codes table
+            const codeTableBody = document.getElementById('codeTableBody');
+            const departmentCodes = currentDepartment === 'admin' 
+                ? generatedCodes 
+                : generatedCodes.filter(c => c.department === currentDepartment || c.department === 'demo');
+            
+            codeTableBody.innerHTML = departmentCodes.map(code => {
+                const isExpired = new Date(code.expiry) < new Date();
+                const status = isExpired ? 'Abgelaufen' : code.participants > 0 ? 'Verwendet' : 'Aktiv';
+                const statusClass = isExpired ? 'status-used' : code.participants > 0 ? 'status-used' : 'status-active';
+                
+                return `
+                    <tr>
+                        <td><span class="code-badge">${code.code}</span></td>
+                        <td>${code.description}</td>
+                        <td>${code.created}</td>
+                        <td>${code.expiry}</td>
+                        <td><span class="status-badge ${statusClass}">${status}</span></td>
+                        <td>${code.participants}</td>
+                        <td>
+                            <button class="action-button view-button" onclick="viewCodeDetails('${code.code}')">
+                                Ansehen
+                            </button>
+                            <button class="action-button delete-button" onclick="deleteCode('${code.code}')">
+                                Löschen
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+            
+            // Update statistics
+            updateStatistics();
+        }
+
+        // Load Results Data
+        function loadResultsData() {
+            // Get results for department codes
+            const departmentCodes = currentDepartment === 'admin' 
+                ? generatedCodes 
+                : generatedCodes.filter(c => c.department === currentDepartment || c.department === 'demo');
+            
+            const codeList = departmentCodes.map(c => c.code);
+            
+            // Filter test results
+            const relevantResults = testResults.filter(r => codeList.includes(r.testCode));
+            
+            // Update code filter dropdown
+            const codeFilter = document.getElementById('codeFilter');
+            codeFilter.innerHTML = '<option value="">Alle Codes</option>' + 
+                codeList.map(code => `<option value="${code}">${code}</option>`).join('');
+            
+            // Display results
+            displayResults(relevantResults);
+        }
+
+        // Display Results
+        function displayResults(results) {
+            const resultsTableBody = document.getElementById('resultsTableBody');
+            
+            if (results.length === 0) {
+                resultsTableBody.innerHTML = '<tr><td colspan="9" style="text-align: center; color: #6c757d;">Keine Ergebnisse vorhanden</td></tr>';
+                return;
+            }
+            
+            resultsTableBody.innerHTML = results.map(result => {
+                const scoreClass = result.totalPercentage >= 80 ? 'score-high' : 
+                                  result.totalPercentage >= 60 ? 'score-medium' : 'score-low';
+                
+                return `
+                    <tr>
+                        <td><span class="code-badge">${result.testCode}</span></td>
+                        <td>${new Date(result.timestamp).toLocaleDateString('de-DE')}</td>
+                        <td><span class="score-badge ${scoreClass}">${result.totalPercentage}%</span></td>
+                        <td>${result.categoryPercentages[1]}%</td>
+                        <td>${result.categoryPercentages[2]}%</td>
+                        <td>${result.categoryPercentages[3]}%</td>
+                        <td>${result.categoryPercentages[4]}%</td>
+                        <td>${result.categoryPercentages[5]}%</td>
+                        <td>
+                            <button class="action-button view-button" onclick="viewResultDetails('${result.timestamp}')">
+                                Details
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Load Statistics Data
+        function loadStatisticsData() {
+            const departmentCodes = currentDepartment === 'admin' 
+                ? generatedCodes 
+                : generatedCodes.filter(c => c.department === currentDepartment || c.department === 'demo');
+            
+            const codeList = departmentCodes.map(c => c.code);
+            const relevantResults = testResults.filter(r => codeList.includes(r.testCode));
+            
+            if (relevantResults.length > 0) {
+                // Calculate average scores per category
+                const categoryAverages = {};
+                for (let i = 1; i <= 5; i++) {
+                    const scores = relevantResults.map(r => r.categoryPercentages[i]);
+                    categoryAverages[i] = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
+                }
+                
+                // Update bars with animation
+                setTimeout(() => {
+                    for (let i = 1; i <= 5; i++) {
+                        const bar = document.getElementById(`bar${i}`);
+                        bar.style.width = categoryAverages[i] + '%';
+                        bar.textContent = categoryAverages[i] + '%';
+                    }
+                }, 100);
+            }
+        }
+
+        // Update Statistics
+        function updateStatistics() {
+            const departmentCodes = currentDepartment === 'admin' 
+                ? generatedCodes 
+                : generatedCodes.filter(c => c.department === currentDepartment || c.department === 'demo');
+            
+            const codeList = departmentCodes.map(c => c.code);
+            const relevantResults = testResults.filter(r => codeList.includes(r.testCode));
+            
+            // Update overview stats
+            document.getElementById('totalTests').textContent = relevantResults.length;
+            document.getElementById('activeCodes').textContent = departmentCodes.filter(c => new Date(c.expiry) > new Date()).length;
+            
+            if (relevantResults.length > 0) {
+                const avgScore = Math.round(relevantResults.reduce((sum, r) => sum + r.totalPercentage, 0) / relevantResults.length);
+                document.getElementById('avgScore').textContent = avgScore + '%';
+                
+                const totalCodes = departmentCodes.length;
+                const usedCodes = departmentCodes.filter(c => c.participants > 0).length;
+                const completionRate = Math.round((usedCodes / totalCodes) * 100);
+                document.getElementById('completionRate').textContent = completionRate + '%';
+            }
+            
+            // Update admin stats if admin
+            if (currentDepartment === 'admin') {
+                document.getElementById('totalTestsAdmin').textContent = testResults.length;
+                if (testResults.length > 0) {
+                    const avgScoreAdmin = Math.round(testResults.reduce((sum, r) => sum + r.totalPercentage, 0) / testResults.length);
+                    document.getElementById('avgScoreAdmin').textContent = avgScoreAdmin + '%';
+                }
+            }
+        }
+
+        // Filter Results
+        function filterResults() {
+            const selectedCode = document.getElementById('codeFilter').value;
+            const relevantResults = selectedCode 
+                ? testResults.filter(r => r.testCode === selectedCode)
+                : testResults.filter(r => {
+                    const departmentCodes = currentDepartment === 'admin' 
+                        ? generatedCodes 
+                        : generatedCodes.filter(c => c.department === currentDepartment || c.department === 'demo');
+                    const codeList = departmentCodes.map(c => c.code);
+                    return codeList.includes(r.testCode);
+                });
+            
+            displayResults(relevantResults);
+        }
+
+        // View Code Details
+        function viewCodeDetails(code) {
+            const codeData = generatedCodes.find(c => c.code === code);
+            const codeResults = testResults.filter(r => r.testCode === code);
+            
+            const modalBody = document.getElementById('modalBody');
+            modalBody.innerHTML = `
+                <h4>Code: ${code}</h4>
+                <p><strong>Beschreibung:</strong> ${codeData.description}</p>
+                <p><strong>Erstellt:</strong> ${codeData.created}</p>
+                <p><strong>Gültig bis:</strong> ${codeData.expiry}</p>
+                <p><strong>Teilnehmer:</strong> ${codeResults.length}</p>
+                
+                ${codeResults.length > 0 ? `
+                    <h4 style="margin-top: 20px;">Durchschnittliche Scores:</h4>
+                    <ul>
+                        <li>Gesamt: ${Math.round(codeResults.reduce((sum, r) => sum + r.totalPercentage, 0) / codeResults.length)}%</li>
+                        <li>Grundkenntnisse IKT: ${Math.round(codeResults.reduce((sum, r) => sum + r.categoryPercentages[1], 0) / codeResults.length)}%</li>
+                        <li>Anwendung im Unterricht: ${Math.round(codeResults.reduce((sum, r) => sum + r.categoryPercentages[2], 0) / codeResults.length)}%</li>
+                        <li>Medien- und Informationskompetenz: ${Math.round(codeResults.reduce((sum, r) => sum + r.categoryPercentages[3], 0) / codeResults.length)}%</li>
+                        <li>Datenverwaltung: ${Math.round(codeResults.reduce((sum, r) => sum + r.categoryPercentages[4], 0) / codeResults.length)}%</li>
+                        <li>Kommunikation: ${Math.round(codeResults.reduce((sum, r) => sum + r.categoryPercentages[5], 0) / codeResults.length)}%</li>
+                    </ul>
+                ` : '<p style="color: #6c757d;">Noch keine Testergebnisse vorhanden.</p>'}
+            `;
+            
+            document.getElementById('detailModal').classList.add('active');
+        }
+
+        // View Result Details
+        function viewResultDetails(timestamp) {
+            const result = testResults.find(r => r.timestamp === timestamp);
+            
+            const modalBody = document.getElementById('modalBody');
+            modalBody.innerHTML = `
+                <h4>Test-Details</h4>
+                <p><strong>Code:</strong> ${result.testCode}</p>
+                <p><strong>Datum:</strong> ${new Date(result.timestamp).toLocaleString('de-DE')}</p>
+                <p><strong>Testdauer:</strong> ${Math.round(result.duration / 60)} Minuten</p>
+                <p><strong>Gesamtscore:</strong> ${result.totalPercentage}%</p>
+                
+                <h4 style="margin-top: 20px;">Einzelergebnisse:</h4>
+                <ul>
+                    <li>Grundkenntnisse IKT: ${result.categoryPercentages[1]}%</li>
+                    <li>Anwendung im Unterricht: ${result.categoryPercentages[2]}%</li>
+                    <li>Medien- und Informationskompetenz: ${result.categoryPercentages[3]}%</li>
+                    <li>Datenverwaltung und Datensicherheit: ${result.categoryPercentages[4]}%</li>
+                    <li>Kommunikation und Kollaboration: ${result.categoryPercentages[5]}%</li>
+                </ul>
+                
+                <h4 style="margin-top: 20px;">Empfohlene Maßnahmen:</h4>
+                <p style="color: #6c757d;">
+                    ${result.totalPercentage >= 80 ? 'Ausgezeichnete Leistung! Unterstützen Sie Kollegen als Digital-Mentor.' :
+                      result.totalPercentage >= 60 ? 'Gute Grundlagen vorhanden. Fokussieren Sie sich auf die schwächeren Bereiche.' :
+                      'Grundlegende Schulungen in mehreren Bereichen empfohlen.'}
+                </p>
+            `;
+            
+            document.getElementById('detailModal').classList.add('active');
+        }
+
+        // Delete Code
+        function deleteCode(code) {
+            if (confirm(`Möchten Sie den Code ${code} wirklich löschen?`)) {
+                generatedCodes = generatedCodes.filter(c => c.code !== code);
+                localStorage.setItem('intra_codes', JSON.stringify(generatedCodes));
+                loadDashboardData();
+            }
+        }
+
+        // Close Modal
+        function closeModal() {
+            document.getElementById('detailModal').classList.remove('active');
+        }
+
+        // Export Results
+        function exportResults() {
+            const departmentCodes = currentDepartment === 'admin' 
+                ? generatedCodes 
+                : generatedCodes.filter(c => c.department === currentDepartment || c.department === 'demo');
+            
+            const codeList = departmentCodes.map(c => c.code);
+            const relevantResults = testResults.filter(r => codeList.includes(r.testCode));
+            
+            if (relevantResults.length === 0) {
+                alert('Keine Ergebnisse zum Exportieren vorhanden.');
+                return;
+            }
+            
+            // Create CSV content
+            let csv = 'Code,Datum,Gesamtscore,Bereich 1,Bereich 2,Bereich 3,Bereich 4,Bereich 5\n';
+            
+            relevantResults.forEach(result => {
+                csv += `${result.testCode},${new Date(result.timestamp).toLocaleDateString('de-DE')},`;
+                csv += `${result.totalPercentage}%,`;
+                csv += `${result.categoryPercentages[1]}%,`;
+                csv += `${result.categoryPercentages[2]}%,`;
+                csv += `${result.categoryPercentages[3]}%,`;
+                csv += `${result.categoryPercentages[4]}%,`;
+                csv += `${result.categoryPercentages[5]}%\n`;
+            });
+            
+            // Download CSV
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `kompetenzen_export_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeDemoData();
+        });
+    </script>
 </body>
 </html>
