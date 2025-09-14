@@ -5,22 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kompetenzbereiche - BBW Digitale Kompetenzen</title>
     <style>
-        /* Gleicher Style wie grundlagen.html */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            margin: 0;
             padding: 20px;
         }
+
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             background: white;
             border-radius: 20px;
             padding: 40px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
         }
+
+        .header {
+            margin-bottom: 40px;
+        }
+
         .back-button {
             display: inline-block;
             padding: 10px 20px;
@@ -29,17 +39,791 @@
             text-decoration: none;
             border-radius: 8px;
             margin-bottom: 20px;
+            transition: background 0.3s;
         }
+
         .back-button:hover {
             background: #5a67d8;
+        }
+
+        h1 {
+            color: #2d3748;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #718096;
+            font-size: 1.1em;
+            margin-bottom: 30px;
+        }
+
+        /* Kompetenzbereich Accordion */
+        .kompetenz-accordion {
+            margin-bottom: 20px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .kompetenz-header {
+            padding: 25px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: white;
+            font-weight: bold;
+            font-size: 1.3em;
+            transition: all 0.3s;
+        }
+
+        .kompetenz-header:hover {
+            filter: brightness(1.1);
+        }
+
+        .kompetenz-header .icon {
+            font-size: 1.5em;
+            margin-right: 15px;
+        }
+
+        .kompetenz-header .arrow {
+            transition: transform 0.3s;
+            font-size: 1.2em;
+        }
+
+        .kompetenz-header.active .arrow {
+            transform: rotate(180deg);
+        }
+
+        .kompetenz-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-out;
+            background: white;
+        }
+
+        .kompetenz-content.active {
+            max-height: 3000px;
+            transition: max-height 0.5s ease-in;
+        }
+
+        .kompetenz-inner {
+            padding: 30px;
+        }
+
+        .description {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            border-left: 4px solid;
+            font-style: italic;
+            color: #4a5568;
+        }
+
+        /* Unterbereiche */
+        .subbereich {
+            margin-bottom: 30px;
+        }
+
+        .subbereich h3 {
+            color: #2d3748;
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #e9ecef;
+            border-radius: 6px;
+        }
+
+        .kompetenz-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .kompetenz-table th,
+        .kompetenz-table td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #dee2e6;
+        }
+
+        .kompetenz-table th {
+            background: #f8f9fa;
+            font-weight: bold;
+            color: #495057;
+        }
+
+        .kompetenz-table th:nth-child(1) { width: 60%; }
+        .kompetenz-table th:nth-child(2) { width: 20%; }
+        .kompetenz-table th:nth-child(3) { width: 20%; }
+
+        .kompetenz-table td {
+            background: white;
+        }
+
+        .kompetenz-table tr:hover td {
+            background: #f8f9fa;
+        }
+
+        .konzept-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            font-weight: bold;
+            margin: 2px;
+        }
+
+        .ikt-badge {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+
+        .paed-badge {
+            background: #f3e5f5;
+            color: #7b1fa2;
+        }
+
+        /* Farbschema für Bereiche */
+        .grundkenntnisse {
+            --bereich-color: #3887be;
+            --bereich-light: #e3f2fd;
+        }
+
+        .anwendung {
+            --bereich-color: #28a745;
+            --bereich-light: #d4f5de;
+        }
+
+        .medien {
+            --bereich-color: #e74c3c;
+            --bereich-light: #fadbd8;
+        }
+
+        .datenverwaltung {
+            --bereich-color: #8e44ad;
+            --bereich-light: #e8daef;
+        }
+
+        .kommunikation {
+            --bereich-color: #e67e22;
+            --bereich-light: #fae5d3;
+        }
+
+        .grundkenntnisse .kompetenz-header { background: #3887be; }
+        .anwendung .kompetenz-header { background: #28a745; }
+        .medien .kompetenz-header { background: #e74c3c; }
+        .datenverwaltung .kompetenz-header { background: #8e44ad; }
+        .kommunikation .kompetenz-header { background: #e67e22; }
+
+        .grundkenntnisse .description { border-left-color: #3887be; }
+        .anwendung .description { border-left-color: #28a745; }
+        .medien .description { border-left-color: #e74c3c; }
+        .datenverwaltung .description { border-left-color: #8e44ad; }
+        .kommunikation .description { border-left-color: #e67e22; }
+
+        /* Stats Box */
+        .stats-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 10px;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .kompetenz-header {
+                font-size: 1.1em;
+                padding: 20px;
+            }
+
+            .kompetenz-table th:nth-child(1) { width: 50%; }
+            .kompetenz-table th:nth-child(2) { width: 25%; }
+            .kompetenz-table th:nth-child(3) { width: 25%; }
+
+            .stats-box {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <a href="../index.html" class="back-button">← Zurück zur Startseite</a>
-        <h1>Kompetenzbereiche</h1>
-        <p>Hier werden alle 5 Kompetenzbereiche detailliert dargestellt...</p>
+        <div class="header">
+            <a href="../index.html" class="back-button">← Zurück zur Startseite</a>
+            <h1>Digitale Kompetenzbereiche</h1>
+            <p class="subtitle">Detaillierte Übersicht aller erwarteten digitalen Kompetenzen für Lehrpersonen</p>
+        </div>
+
+        <!-- Statistik Box -->
+        <div class="stats-box">
+            <div class="stat-item">
+                <div class="stat-number">5</div>
+                <div class="stat-label">Kompetenzbereiche</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">15</div>
+                <div class="stat-label">Unterbereiche</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">30+</div>
+                <div class="stat-label">Einzelkompetenzen</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">9/6</div>
+                <div class="stat-label">IKT/Päd. Konzepte</div>
+            </div>
+        </div>
+
+        <!-- KOMPETENZBEREICH 1: GRUNDKENNTNISSE IKT -->
+        <div class="kompetenz-accordion grundkenntnisse">
+            <div class="kompetenz-header" onclick="toggleAccordion(this)">
+                <div style="display: flex; align-items: center;">
+                    <span class="icon">💻</span>
+                    <span>1. GRUNDKENNTNISSE IKT</span>
+                </div>
+                <span class="arrow">▼</span>
+            </div>
+            <div class="kompetenz-content">
+                <div class="kompetenz-inner">
+                    <div class="description">
+                        Grundlegende technische Fähigkeiten zum Umgang mit digitalen Geräten, Anwendungen und Systemen als Fundament für digitale Lehr- und Lernszenarien.
+                    </div>
+
+                    <div class="subbereich">
+                        <h3>1.1 Geräte und Systeme</h3>
+                        <table class="kompetenz-table">
+                            <thead>
+                                <tr>
+                                    <th>Erwartete Kompetenz</th>
+                                    <th>IKT-Konzept</th>
+                                    <th>Päd.-did. Konzept</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Lehrpersonen können Grundeinstellungen an technischen Geräten vornehmen und diese mit anderen Geräten verbinden</td>
+                                    <td><span class="konzept-badge ikt-badge">RE 💚</span></td>
+                                    <td><span class="konzept-badge paed-badge">PDM 🛠️</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Lehrpersonen können das eigene Handy mit der Schulumgebung verbinden und Apps für die Schulorganisation und den Unterricht einrichten</td>
+                                    <td><span class="konzept-badge ikt-badge">KN 🌐</span></td>
+                                    <td><span class="konzept-badge paed-badge">PDM 🛠️</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="subbereich">
+                        <h3>1.2 Software und Anwendungen</h3>
+                        <table class="kompetenz-table">
+                            <thead>
+                                <tr>
+                                    <th>Erwartete Kompetenz</th>
+                                    <th>IKT-Konzept</th>
+                                    <th>Päd.-did. Konzept</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Lehrpersonen können Funktionen von Office-Programmen gezielt für die Erstellung von Unterrichtsmaterialien einsetzen</td>
+                                    <td><span class="konzept-badge ikt-badge">MV 🔄</span></td>
+                                    <td><span class="konzept-badge paed-badge">PDM 🛠️</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Lehrpersonen können fachspezifische Software gezielt für Aufgabenstellungen und Demonstrationen im Unterricht einsetzen</td>
+                                    <td><span class="konzept-badge ikt-badge">HE 💡</span></td>
+                                    <td><span class="konzept-badge paed-badge">PU 📚</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="subbereich">
+                        <h3>1.3 Cloud und digitale Ressourcen</h3>
+                        <table class="kompetenz-table">
+                            <thead>
+                                <tr>
+                                    <th>Erwartete Kompetenz</th>
+                                    <th>IKT-Konzept</th>
+                                    <th>Päd.-did. Konzept</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Lehrpersonen können Cloud-Dienste für die Erstellung und Verwaltung von Unterrichtsressourcen einsetzen</td>
+                                    <td><span class="konzept-badge ikt-badge">KN 🌐</span></td>
+                                    <td><span class="konzept-badge paed-badge">PDM 🛠️</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Lehrpersonen können aus den verfügbaren Ed-Tech-Lizenzen der Schule zielgerichtet auswählen und die jeweiligen Kernfunktionen anwenden</td>
+                                    <td><span class="konzept-badge ikt-badge">MV 🔄</span></td>
+                                    <td><span class="konzept-badge paed-badge">PDM 🛠️</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- KOMPETENZBEREICH 2: ANWENDUNG IM UNTERRICHT -->
+        <div class="kompetenz-accordion anwendung">
+            <div class="kompetenz-header" onclick="toggleAccordion(this)">
+                <div style="display: flex; align-items: center;">
+                    <span class="icon">🎓</span>
+                    <span>2. ANWENDUNG IM UNTERRICHT</span>
+                </div>
+                <span class="arrow">▼</span>
+            </div>
+            <div class="kompetenz-content">
+                <div class="kompetenz-inner">
+                    <div class="description">
+                        Praktische Implementierung digitaler Medien in den Unterrichtsprozess. Digitale Technologien didaktisch sinnvoll in allen Phasen des Unterrichts einsetzen.
+                    </div>
+
+                    <div class="subbereich">
+                        <h3>2.1 Unterrichtsvorbereitung</h3>
+                        <table class="kompetenz-table">
+                            <thead>
+                                <tr>
+                                    <th>Erwartete Kompetenz</th>
+                                    <th>IKT-Konzept</th>
+                                    <th>Päd.-did. Konzept</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Die Lehrperson kann digitale Werkzeuge und KI-Tools einsetzen, um Lernmaterialien zu erstellen</td>
+                                    <td><span class="konzept-badge ikt-badge">RE 💚</span></td>
+                                    <td><span class="konzept-badge paed-badge">PDM 🛠️</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Die Lehrperson entwickelt digitale Lerneinheiten</td>
+                                    <td><span class="konzept-badge ikt-badge">HE 💡</span></td>
+                                    <td><span class="konzept-badge paed-badge">PL 🎓</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="subbereich">
+                        <h3>2.2 Unterrichtsdurchführung</h3>
+                        <table class="kompetenz-table">
+                            <thead>
+                                <tr>
+                                    <th>Erwartete Kompetenz</th>
+                                    <th>IKT-Konzept</th>
+                                    <th>Päd.-did. Konzept</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Die Lehrperson setzt schulintern lizenzierte Ed-Tech-Tools ein, um das Lernen interaktiver zu machen</td>
+                                    <td><span class="konzept-badge ikt-badge">HE 💡</span></td>
+                                    <td><span class="konzept-badge paed-badge">PL 🎓</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Die Lehrperson ermöglicht den Lernenden interaktiv in digitalen Kommunikationstools wie Teams Fragen zu stellen</td>
+                                    <td><span class="konzept-badge ikt-badge">KN 🌐</span></td>
+                                    <td><span class="konzept-badge paed-badge">PLL 👥</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="subbereich">
+                        <h3>2.3 Leistungserfassung und Feedback</h3>
+                        <table class="kompetenz-table">
+                            <thead>
+                                <tr>
+                                    <th>Erwartete Kompetenz</th>
+                                    <th>IKT-Konzept</th>
+                                    <th>Päd.-did. Konzept</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Die Lehrperson erfasst Rückmeldungen/Feedbacks mit digitalen Hilfsmitteln</td>
+                                    <td><span class="konzept-badge ikt-badge">MG 🛠️</span></td>
+                                    <td><span class="konzept-badge paed-badge">PLL 👥</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Die Lehrperson erfasst mit summativen und formativen E-Assessments die Leistung der Lernenden</td>
+                                    <td><span class="konzept-badge ikt-badge">KM ⚙️</span></td>
+                                    <td><span class="konzept-badge paed-badge">PL 🎓</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- KOMPETENZBEREICH 3: MEDIEN- UND INFORMATIONSKOMPETENZ -->
+        <div class="kompetenz-accordion medien">
+            <div class="kompetenz-header" onclick="toggleAccordion(this)">
+                <div style="display: flex; align-items: center;">
+                    <span class="icon">📱</span>
+                    <span>3. MEDIEN- UND INFORMATIONSKOMPETENZ</span>
+                </div>
+                <span class="arrow">▼</span>
+            </div>
+            <div class="kompetenz-content">
+                <div class="kompetenz-inner">
+                    <div class="description">
+                        Informationen kritisch bewerten, Medien reflektiert nutzen und neue Medieninhalte gezielt erstellen. Lernende bei der Orientierung in der digitalen Informationsflut unterstützen.
+                    </div>
+
+                    <div class="subbereich">
+                        <h3>3.1 Informationskompetenz</h3>
+                        <table class="kompetenz-table">
+                            <thead>
+                                <tr>
+                                    <th>Erwartete Kompetenz</th>
+                                    <th>IKT-Konzept</th>
+                                    <th>Päd.-did. Konzept</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Die Lehrperson kennt die Funktionsweise von Social Media und mögliche Einsatzorte im Unterricht</td>
+                                    <td><span class="konzept-badge ikt-badge">KR 🔍</span></td>
+                                    <td><span class="konzept-badge paed-badge">PL 🎓</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Die Lehrperson wendet mit den Lernenden digitale Hilfsmittel und KI für die Suche von Quellen an</td>
+                                    <td><span class="konzept-badge ikt-badge">HE 💡</span></td>
+                                    <td><span class="konzept-badge paed-badge">PU 📚</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="subbereich">
+                        <h3>3.2 Medienkompetenz</h3>
+                        <table class="kompetenz-table">
+                            <thead>
+                                <tr>
+                                    <th>Erwartete Kompetenz</th>
+                                    <th>IKT-Konzept</th>
+                                    <th>Päd.-did. Konzept</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Die Lehrperson kann unterschiedliche Medienformate wie Audio, Texte, Videos und KI-Anwendungen im Unterricht einsetzen</td>
+                                    <td><span class="konzept-badge ikt-badge">MV 🔄</span></td>
+                                    <td><span class="konzept-badge paed-badge">PU 📚</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Die Lehrperson kann multimediale Inhalte für ihren Unterricht erstellen (z.B. KI-Bots, Umfragen, Quizzes, Tonbeiträge, Lernvideos)</td>
+                                    <td><span class="konzept-badge ikt-badge">MF 🔓</span></td>
+                                    <td><span class="konzept-badge paed-badge">PDM 🛠️</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="subbereich">
+                        <h3>3.3 Kommunikation mit digitalen Medien</h3>
+                        <table class="kompetenz-table">
+                            <thead>
+                                <tr>
+                                    <th>Erwartete Kompetenz</th>
+                                    <th>IKT-Konzept</th>
+                                    <th>Päd.-did. Konzept</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Die Lehrperson kann im Kollegium und im Unterricht digitale Medien für die Kommunikation nutzen</td>
+                                    <td><span class="konzept-badge ikt-badge">KA 🤝</span></td>
+                                    <td><span class="konzept-badge paed-badge">PLK 🏫</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- KOMPETENZBEREICH 4: DATENVERWALTUNG UND DATENSICHERHEIT -->
+        <div class="kompetenz-accordion datenverwaltung">
+            <div class="kompetenz-header" onclick="toggleAccordion(this)">
+                <div style="display: flex; align-items: center;">
+                    <span class="icon">🔒</span>
+                    <span>4. DATENVERWALTUNG UND DATENSICHERHEIT</span>
+                </div>
+                <span class="arrow">▼</span>
+            </div>
+            <div class="kompetenz-content">
+                <div class="kompetenz-inner">
+                    <div class="description">
+                        Verantwortungsvoller Umgang mit digitalen Daten sowie die Fähigkeit, personenbezogene und sensible Informationen im schulischen Kontext zu schützen. Kenntnisse über rechtliche Grundlagen, technische Schutzmassnahmen und ethische Aspekte des Datenschutzes.
+                    </div>
+
+                    <div class="subbereich">
+                        <h3>4.1 Datenschutz und Datensicherheit</h3>
+                        <table class="kompetenz-table">
+                            <thead>
+                                <tr>
+                                    <th>Erwartete Kompetenz</th>
+                                    <th>IKT-Konzept</th>
+                                    <th>Päd.-did. Konzept</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Die Lehrperson hält die rechtlichen Grundlagen zum Datenschutz ein</td>
+                                    <td><span class="konzept-badge ikt-badge">KR 🔍</span></td>
+                                    <td><span class="konzept-badge paed-badge">PLL 👥</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Die Lehrperson kann sichere Passwörter setzen und Zugangsdaten verwalten</td>
+                                    <td><span class="konzept-badge ikt-badge">DS 🔒</span></td>
+                                    <td><span class="konzept-badge paed-badge">PU 📚</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="subbereich">
+                        <h3>4.2 Datenmanagement</h3>
+                        <table class="kompetenz-table">
+                            <thead>
+                                <tr>
+                                    <th>Erwartete Kompetenz</th>
+                                    <th>IKT-Konzept</th>
+                                    <th>Päd.-did. Konzept</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Die Lehrperson kann digitale Daten strukturieren, organisieren und zugänglich machen</td>
+                                    <td><span class="konzept-badge ikt-badge">RE 💚</span></td>
+                                    <td><span class="konzept-badge paed-badge">PLK 🏫</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Die Lehrperson kann KI für das Datenmanagement einsetzen</td>
+                                    <td><span class="konzept-badge ikt-badge">RE 💚</span></td>
+                                    <td><span class="konzept-badge paed-badge">PDM 🛠️</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="subbereich">
+                        <h3>4.3 Rechtliche und ethische Aspekte</h3>
+                        <table class="kompetenz-table">
+                            <thead>
+                                <tr>
+                                    <th>Erwartete Kompetenz</th>
+                                    <th>IKT-Konzept</th>
+                                    <th>Päd.-did. Konzept</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Die Lehrperson wendet das Urheberrecht an</td>
+                                    <td><span class="konzept-badge ikt-badge">KR 🔍</span></td>
+                                    <td><span class="konzept-badge paed-badge">PU 📚</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Die Lehrperson überprüft KI-Outputs und entscheidet wie er eingesetzt wird</td>
+                                    <td><span class="konzept-badge ikt-badge">KR 🔍</span></td>
+                                    <td><span class="konzept-badge paed-badge">PDM 🛠️</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- KOMPETENZBEREICH 5: KOMMUNIKATION UND KOLLABORATION -->
+        <div class="kompetenz-accordion kommunikation">
+            <div class="kompetenz-header" onclick="toggleAccordion(this)">
+                <div style="display: flex; align-items: center;">
+                    <span class="icon">🤝</span>
+                    <span>5. KOMMUNIKATION UND KOLLABORATION</span>
+                </div>
+                <span class="arrow">▼</span>
+            </div>
+            <div class="kompetenz-content">
+                <div class="kompetenz-inner">
+                    <div class="description">
+                        Alle Fähigkeiten zur digitalen Interaktion, Zusammenarbeit und Kommunikation. Lehrpersonen nutzen digitale Medien für den professionellen Austausch mit Kollegium, Lernenden und externen Partnern und gestalten kollaborative Lernprozesse digital.
+                    </div>
+
+                    <div class="subbereich">
+                        <h3>5.1 Digitale Kommunikation</h3>
+                        <table class="kompetenz-table">
+                            <thead>
+                                <tr>
+                                    <th>Erwartete Kompetenz</th>
+                                    <th>IKT-Konzept</th>
+                                    <th>Päd.-did. Konzept</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Die Lehrperson nutzt digitale Kommunikationstools für den Austausch mit Kollegium und Lernenden</td>
+                                    <td><span class="konzept-badge ikt-badge">KN 🌐</span></td>
+                                    <td><span class="konzept-badge paed-badge">PL 🎓</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Die Lehrperson wendet Netiquette-Regeln in der digitalen Kommunikation an</td>
+                                    <td><span class="konzept-badge ikt-badge">MG 🛠️</span></td>
+                                    <td><span class="konzept-badge paed-badge">PLL 👥</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="subbereich">
+                        <h3>5.2 Digitale Kollaboration</h3>
+                        <table class="kompetenz-table">
+                            <thead>
+                                <tr>
+                                    <th>Erwartete Kompetenz</th>
+                                    <th>IKT-Konzept</th>
+                                    <th>Päd.-did. Konzept</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Die Lehrperson nutzt kollaborative Dokumente für die gemeinsame Arbeit</td>
+                                    <td><span class="konzept-badge ikt-badge">KA 🤝</span></td>
+                                    <td><span class="konzept-badge paed-badge">PU 📚</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Die Lehrperson koordiniert digitale Gruppenarbeiten und Teamprojekte</td>
+                                    <td><span class="konzept-badge ikt-badge">MG 🛠️</span></td>
+                                    <td><span class="konzept-badge paed-badge">PDM 🛠️</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="subbereich">
+                        <h3>5.3 Digitale Partizipation</h3>
+                        <table class="kompetenz-table">
+                            <thead>
+                                <tr>
+                                    <th>Erwartete Kompetenz</th>
+                                    <th>IKT-Konzept</th>
+                                    <th>Päd.-did. Konzept</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Die Lehrperson beantwortet Nachrichten zeitnah und professionell</td>
+                                    <td><span class="konzept-badge ikt-badge">RE 💚</span></td>
+                                    <td><span class="konzept-badge paed-badge">PLK 🏫</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Die Lehrperson verfolgt Informationen in Teams und OpenOlat aktiv</td>
+                                    <td><span class="konzept-badge ikt-badge">KN 🌐</span></td>
+                                    <td><span class="konzept-badge paed-badge">PLK 🏫</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info Box -->
+        <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin-top: 30px; border-left: 4px solid #667eea;">
+            <h3 style="color: #495057; margin-bottom: 10px;">Legende der Konzepte</h3>
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+                <div>
+                    <h4 style="color: #1565c0;">IKT-Konzepte:</h4>
+                    <ul style="list-style: none; padding: 0;">
+                        <li>RE 💚 - Ressourceneffizienz</li>
+                        <li>KN 🌐 - Kommunikation & Vernetzung</li>
+                        <li>KA 🤝 - Kollaboration</li>
+                        <li>HE 💡 - Heterogenität</li>
+                        <li>MV 🔄 - Medienvielfalt</li>
+                        <li>MG 🛠️ - Mediengestaltung</li>
+                        <li>KR 🔍 - Kritische Reflexion</li>
+                        <li>DS 🔒 - Datensicherheit</li>
+                        <li>KM ⚙️ - Komplexitätsmanagement</li>
+                        <li>MF 🔓 - Medienfreiheit</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 style="color: #7b1fa2;">Pädagogisch-didaktische Konzepte:</h4>
+                    <ul style="list-style: none; padding: 0;">
+                        <li>PL 🎓 - Projektbasiertes Lernen</li>
+                        <li>PLL 👥 - Lehrperson-Lernende-Beziehung</li>
+                        <li>PU 📚 - Praxisorientierter Unterricht</li>
+                        <li>PDM 🛠️ - Digitale Methodenvielfalt</li>
+                        <li>PLK 🏫 - Lehrperson-Kollegium</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
     </div>
+
+    <script>
+        function toggleAccordion(header) {
+            const content = header.nextElementSibling;
+            const isActive = content.classList.contains('active');
+            
+            // Schließe alle anderen Accordions
+            document.querySelectorAll('.kompetenz-content').forEach(c => {
+                c.classList.remove('active');
+            });
+            document.querySelectorAll('.kompetenz-header').forEach(h => {
+                h.classList.remove('active');
+            });
+            
+            // Toggle das aktuelle Accordion
+            if (!isActive) {
+                content.classList.add('active');
+                header.classList.add('active');
+            }
+        }
+
+        // Optional: Öffne den ersten Bereich beim Laden
+        document.addEventListener('DOMContentLoaded', function() {
+            const firstHeader = document.querySelector('.kompetenz-header');
+            if (firstHeader) {
+                toggleAccordion(firstHeader);
+            }
+        });
+    </script>
 </body>
 </html>
