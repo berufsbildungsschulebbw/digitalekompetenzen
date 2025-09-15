@@ -53,6 +53,11 @@
             font-size: 2.5em;
             margin-bottom: 10px;
         }
+        
+        h3 {
+             color: #2d3748;
+             margin-bottom: 15px;
+        }
 
         .subtitle {
             color: #718096;
@@ -159,6 +164,7 @@
 
         .user-details h3 {
             margin-bottom: 5px;
+            color: white;
         }
 
         .logout-button {
@@ -232,7 +238,8 @@
 
         .code-form .form-group {
             flex: 1;
-            min-width: 200px;
+            min-width: 180px;
+            margin-bottom: 0;
         }
 
         .generate-button {
@@ -250,6 +257,33 @@
             background: #218838;
         }
 
+        .code-list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .download-button {
+             padding: 10px 20px;
+             background: #007bff;
+             color: white;
+             border: none;
+             border-radius: 8px;
+             font-weight: bold;
+             cursor: pointer;
+             transition: all 0.3s;
+        }
+        
+        .download-button:hover {
+            background: #0056b3;
+        }
+        
+        .download-button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+
         .code-list {
             background: white;
             border: 1px solid #dee2e6;
@@ -261,19 +295,27 @@
             width: 100%;
             border-collapse: collapse;
         }
+        
+        .code-table th, .code-table td {
+            padding: 12px;
+            border-bottom: 1px solid #dee2e6;
+            text-align: left;
+        }
+        
+        .code-table th:first-child, .code-table td:first-child {
+            width: 40px;
+            text-align: center;
+        }
 
         .code-table th {
             background: #f8f9fa;
-            padding: 12px;
-            text-align: left;
             font-weight: 600;
             color: #495057;
             border-bottom: 2px solid #dee2e6;
         }
 
-        .code-table td {
-            padding: 12px;
-            border-bottom: 1px solid #dee2e6;
+        .code-table tr:last-child td {
+            border-bottom: none;
         }
 
         .code-table tr:hover {
@@ -307,6 +349,11 @@
         .status-used {
             background: #fff3cd;
             color: #856404;
+        }
+        
+        .status-expired {
+            background: #f8d7da;
+            color: #721c24;
         }
 
         .action-button {
@@ -430,18 +477,21 @@
             overflow: hidden;
         }
 
+        .results-table th, .results-table td {
+            padding: 12px;
+            border-bottom: 1px solid #dee2e6;
+            text-align: left;
+        }
+
         .results-table th {
             background: #f8f9fa;
-            padding: 12px;
-            text-align: left;
             font-weight: 600;
             color: #495057;
             border-bottom: 2px solid #dee2e6;
         }
-
-        .results-table td {
-            padding: 12px;
-            border-bottom: 1px solid #dee2e6;
+        
+        .results-table tr:last-child td {
+            border-bottom: none;
         }
 
         .score-badge {
@@ -496,6 +546,7 @@
             padding: 30px;
             border-radius: 15px;
             max-width: 600px;
+            width: 90%;
             max-height: 80vh;
             overflow-y: auto;
         }
@@ -505,6 +556,10 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
+        }
+        
+        .modal-header h3 {
+             color: #2d3748;
         }
 
         .modal-close {
@@ -531,6 +586,11 @@
 
             .code-form {
                 flex-direction: column;
+                align-items: stretch;
+            }
+            
+             .code-form .form-group {
+                margin-bottom: 15px;
             }
 
             .user-info {
@@ -579,8 +639,8 @@
                 <button type="submit" class="login-button">Anmelden</button>
             </form>
             <p style="margin-top: 20px; color: #6c757d; font-size: 0.9em; text-align: center;">
-                Demo-Login: Wählen Sie eine Abteilung und verwenden Sie<br>
-                Benutzername: <strong>demo</strong> / Passwort: <strong>demo123</strong>
+                Demo-Login: Wählen Sie eine Abteilung, Benutzer: <strong>demo</strong>, PW: <strong>demo123</strong><br>
+                Admin-Login: Abteilung Admin, Benutzer: <strong>admin</strong>, PW: <strong>admin123</strong>
             </p>
         </div>
 
@@ -597,16 +657,16 @@
 
             <!-- Tab Navigation -->
             <div class="tab-navigation">
-                <button class="tab-button active" onclick="switchTab('codes')">
+                <button class="tab-button active" onclick="switchTab(event, 'codes')">
                     📝 Code-Verwaltung
                 </button>
-                <button class="tab-button" onclick="switchTab('results')">
+                <button class="tab-button" onclick="switchTab(event, 'results')">
                     📊 Ergebnisse
                 </button>
-                <button class="tab-button" onclick="switchTab('statistics')">
+                <button class="tab-button" onclick="switchTab(event, 'statistics')">
                     📈 Statistiken
                 </button>
-                <button id="adminTab" class="tab-button" onclick="switchTab('admin')" style="display: none;">
+                <button id="adminTabButton" class="tab-button" onclick="switchTab(event, 'admin')" style="display: none;">
                     ⚙️ Administration
                 </button>
             </div>
@@ -614,27 +674,54 @@
             <!-- Tab: Code Management -->
             <div id="codesTab" class="tab-content active">
                 <div class="code-generator">
-                    <h3>Neuen Test-Code generieren</h3>
+                    <h3>Neue Test-Codes generieren</h3>
                     <div class="code-form">
+                        <div class="form-group" id="adminDepartmentSelector" style="display: none;">
+                            <label class="form-label">Für Abteilung</label>
+                             <select id="adminDepartmentSelect" class="form-select">
+                                <option value="bau">Bau</option>
+                                <option value="technik">Technik | Ernährung</option>
+                                <option value="maschinenbau">Maschinenbau</option>
+                                <option value="informatik">Informatik | Naturwissenschaften</option>
+                            </select>
+                        </div>
                         <div class="form-group">
                             <label class="form-label">Beschreibung</label>
                             <input type="text" id="codeDescription" class="form-input" 
-                                   placeholder="z.B. Q1 2024 Assessment">
+                                   placeholder="z.B. Q1 2025 Assessment">
                         </div>
                         <div class="form-group">
                             <label class="form-label">Gültig bis</label>
                             <input type="date" id="codeExpiry" class="form-input">
                         </div>
-                        <button class="generate-button" onclick="generateCode()">
-                            Code generieren
+                        <div class="form-group">
+                            <label class="form-label">Anzahl</label>
+                            <select id="codeQuantity" class="form-select">
+                                <option value="10">10 Codes</option>
+                                <option value="20">20 Codes</option>
+                                <option value="30">30 Codes</option>
+                                <option value="40">40 Codes</option>
+                                <option value="50">50 Codes</option>
+                            </select>
+                        </div>
+                        <button class="generate-button" onclick="generateCodes()">
+                            Codes generieren
                         </button>
                     </div>
+                </div>
+
+                <div class="code-list-header">
+                     <h3>Generierte Codes</h3>
+                     <button id="downloadCodesBtn" class="download-button" onclick="downloadSelectedCodes()" disabled>
+                        📥 Ausgewählte herunterladen
+                     </button>
                 </div>
 
                 <div class="code-list">
                     <table class="code-table">
                         <thead>
                             <tr>
+                                <th><input type="checkbox" id="selectAllCheckbox" onchange="toggleAllCheckboxes(this)"></th>
                                 <th>Code</th>
                                 <th>Beschreibung</th>
                                 <th>Erstellt am</th>
@@ -721,19 +808,19 @@
                             </div>
                         </div>
                         <div class="chart-bar">
-                            <div class="bar-label">Medien- und Informationskompetenz</div>
+                            <div class="bar-label">Medien- & Infokompetenz</div>
                             <div class="bar-container">
                                 <div class="bar-fill" id="bar3" style="width: 0%;">0%</div>
                             </div>
                         </div>
                         <div class="chart-bar">
-                            <div class="bar-label">Datenverwaltung und Datensicherheit</div>
+                            <div class="bar-label">Daten & Sicherheit</div>
                             <div class="bar-container">
                                 <div class="bar-fill" id="bar4" style="width: 0%;">0%</div>
                             </div>
                         </div>
                         <div class="chart-bar">
-                            <div class="bar-label">Kommunikation und Kollaboration</div>
+                            <div class="bar-label">Kommunikation</div>
                             <div class="bar-container">
                                 <div class="bar-fill" id="bar5" style="width: 0%;">0%</div>
                             </div>
@@ -751,6 +838,28 @@
 
             <!-- Tab: Admin (only for admin users) -->
             <div id="adminTab" class="tab-content">
+                 <div class="code-generator">
+                    <h3>Passwort zurücksetzen</h3>
+                    <div class="code-form">
+                        <div class="form-group">
+                             <label class="form-label">Abteilung</label>
+                             <select id="resetPwDepartment" class="form-select">
+                                <option value="bau">Bau</option>
+                                <option value="technik">Technik | Ernährung</option>
+                                <option value="maschinenbau">Maschinenbau</option>
+                                <option value="informatik">Informatik | Naturwissenschaften</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                             <label class="form-label">Neues Passwort</label>
+                            <input type="text" id="newPassword" class="form-input" placeholder="Mind. 6 Zeichen">
+                        </div>
+                         <button class="generate-button" style="background: #ffc107;" onclick="resetPassword()">
+                            Passwort ändern
+                        </button>
+                    </div>
+                </div>
+            
                 <h3>Abteilungsübersicht</h3>
                 <div class="results-overview">
                     <div class="stat-card">
@@ -776,42 +885,10 @@
                             <th>Ø Score</th>
                             <th>Beste Kompetenz</th>
                             <th>Schwächste Kompetenz</th>
-                            <th>Trend</th>
                         </tr>
                     </thead>
                     <tbody id="adminTableBody">
-                        <tr>
-                            <td>Bau</td>
-                            <td>12</td>
-                            <td><span class="score-badge score-medium">72%</span></td>
-                            <td>Grundkenntnisse IKT</td>
-                            <td>Medien- und Informationskompetenz</td>
-                            <td>📈 +5%</td>
-                        </tr>
-                        <tr>
-                            <td>Technik | Ernährung</td>
-                            <td>8</td>
-                            <td><span class="score-badge score-high">81%</span></td>
-                            <td>Anwendung im Unterricht</td>
-                            <td>Datenverwaltung</td>
-                            <td>📊 ±0%</td>
-                        </tr>
-                        <tr>
-                            <td>Maschinenbau</td>
-                            <td>15</td>
-                            <td><span class="score-badge score-medium">68%</span></td>
-                            <td>Kommunikation</td>
-                            <td>Medien- und Informationskompetenz</td>
-                            <td>📉 -3%</td>
-                        </tr>
-                        <tr>
-                            <td>Informatik | Naturwissenschaften</td>
-                            <td>22</td>
-                            <td><span class="score-badge score-high">88%</span></td>
-                            <td>Datenverwaltung</td>
-                            <td>Kommunikation</td>
-                            <td>📈 +7%</td>
-                        </tr>
+                       <!-- Admin data will be populated here -->
                     </tbody>
                 </table>
             </div>
@@ -821,14 +898,31 @@
         <div id="detailModal" class="modal">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h3>Test-Details</h3>
-                    <button class="modal-close" onclick="closeModal()">×</button>
+                    <h3 id="modalTitle">Test-Details</h3>
+                    <button class="modal-close" onclick="closeModal('detailModal')">×</button>
                 </div>
                 <div id="modalBody">
                     <!-- Details will be inserted here -->
                 </div>
             </div>
         </div>
+        
+        <!-- General Purpose Modal for Alerts/Confirms -->
+        <div id="alertModal" class="modal">
+            <div class="modal-content" style="max-width: 450px;">
+                 <div class="modal-header">
+                    <h3 id="alertModalTitle">Hinweis</h3>
+                    <button class="modal-close" onclick="closeModal('alertModal')">×</button>
+                </div>
+                <div id="alertModalBody" style="margin: 10px 0 20px; color: #495057; line-height: 1.6;">
+                    <!-- Alert/Confirm message goes here -->
+                </div>
+                <div id="alertModalFooter" style="text-align: right;">
+                    <!-- Buttons go here -->
+                </div>
+            </div>
+        </div>
+        
     </div>
 
     <script>
@@ -837,9 +931,33 @@
         let currentDepartment = null;
         let generatedCodes = [];
         let testResults = [];
+        let userAccounts = {};
+        
+        const deptNames = {
+            'bau': 'Bau',
+            'technik': 'Technik | Ernährung',
+            'maschinenbau': 'Maschinenbau',
+            'informatik': 'Informatik | Naturwissenschaften',
+            'admin': 'Administration'
+        };
 
         // Initialize with demo data
         function initializeDemoData() {
+            // Load user accounts or set defaults
+            const storedAccounts = localStorage.getItem('intra_user_accounts');
+            if (storedAccounts) {
+                userAccounts = JSON.parse(storedAccounts);
+            } else {
+                 userAccounts = {
+                    'bau': { user: 'demo', pass: 'demo123' },
+                    'technik': { user: 'demo', pass: 'demo123' },
+                    'maschinenbau': { user: 'demo', pass: 'demo123' },
+                    'informatik': { user: 'demo', pass: 'demo123' },
+                    'admin': { user: 'admin', pass: 'admin123' }
+                };
+                localStorage.setItem('intra_user_accounts', JSON.stringify(userAccounts));
+            }
+        
             // Load existing codes from localStorage or create demo codes
             const storedCodes = localStorage.getItem('intra_codes');
             if (storedCodes) {
@@ -847,11 +965,11 @@
             } else {
                 generatedCodes = [
                     {
-                        code: 'DEMO-2024',
-                        description: 'Demo Test Q1 2024',
+                        code: 'DEMO-2025',
+                        description: 'Demo Test Q1 2025',
                         department: 'demo',
-                        created: '2024-01-15',
-                        expiry: '2024-12-31',
+                        created: '2025-01-15',
+                        expiry: '2025-12-31',
                         participants: 5
                     }
                 ];
@@ -872,38 +990,28 @@
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
             
-            // Simple demo authentication
-            if (username === 'demo' && password === 'demo123') {
+            // Authentication
+            const account = userAccounts[department];
+            if (account && username === account.user && password === account.pass && department) {
                 currentUser = username;
                 currentDepartment = department;
                 
-                // Show dashboard
                 document.getElementById('loginSection').style.display = 'none';
                 document.getElementById('dashboardSection').classList.add('active');
-                
-                // Update user info
-                const deptNames = {
-                    'bau': 'Abteilung Bau',
-                    'technik': 'Abteilung Technik | Ernährung',
-                    'maschinenbau': 'Abteilung Maschinenbau',
-                    'informatik': 'Abteilung Informatik | Naturwissenschaften',
-                    'admin': 'Administration'
-                };
                 
                 document.getElementById('userDepartment').textContent = deptNames[department] || department;
                 document.getElementById('userName').textContent = `Benutzer: ${username}`;
                 
-                // Show admin tab if admin
-                if (department === 'admin') {
-                    document.getElementById('adminTab').style.display = 'block';
-                }
-                
-                // Load data
+                const isAdmin = department === 'admin';
+                document.getElementById('adminTabButton').style.display = isAdmin ? 'block' : 'none';
+                document.getElementById('adminDepartmentSelector').style.display = isAdmin ? 'block' : 'none';
+
                 loadDashboardData();
             } else {
-                document.getElementById('errorMessage').style.display = 'block';
+                const errorMessage = document.getElementById('errorMessage');
+                errorMessage.style.display = 'block';
                 setTimeout(() => {
-                    document.getElementById('errorMessage').style.display = 'none';
+                   errorMessage.style.display = 'none';
                 }, 3000);
             }
         }
@@ -914,87 +1022,90 @@
             currentDepartment = null;
             document.getElementById('dashboardSection').classList.remove('active');
             document.getElementById('loginSection').style.display = 'block';
-            document.getElementById('adminTab').style.display = 'none';
+            document.getElementById('adminTabButton').style.display = 'none';
             
-            // Reset form
             document.getElementById('department').value = '';
             document.getElementById('username').value = '';
             document.getElementById('password').value = '';
         }
 
         // Tab Switching
-        function switchTab(tabName) {
-            // Update buttons
-            document.querySelectorAll('.tab-button').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            event.target.classList.add('active');
+        function switchTab(event, tabName) {
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            event.currentTarget.classList.add('active');
             
-            // Update content
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.remove('active');
-            });
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
             document.getElementById(tabName + 'Tab').classList.add('active');
             
-            // Load specific tab data
-            if (tabName === 'results') {
-                loadResultsData();
-            } else if (tabName === 'statistics') {
-                loadStatisticsData();
-            }
+            if (tabName === 'results') loadResultsData();
+            if (tabName === 'statistics') loadStatisticsData();
+            if (tabName === 'admin') loadAdminData();
         }
 
-        // Generate Code
-        function generateCode() {
-            const description = document.getElementById('codeDescription').value || 'Test';
-            const expiry = document.getElementById('codeExpiry').value || '2024-12-31';
+        // Generate Codes in Batches
+        function generateCodes() {
+            const description = document.getElementById('codeDescription').value || 'Standard Test';
+            const expiryInput = document.getElementById('codeExpiry').value;
+            const quantity = parseInt(document.getElementById('codeQuantity').value, 10);
+            const isAdmin = currentDepartment === 'admin';
+            const targetDepartment = isAdmin ? document.getElementById('adminDepartmentSelect').value : currentDepartment;
             
-            // Generate unique code
-            const prefix = currentDepartment.toUpperCase().substring(0, 4);
-            const random = Math.floor(Math.random() * 9000) + 1000;
-            const code = `${prefix}-${random}`;
+            const expiry = expiryInput || new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split('T')[0];
             
-            // Add to list
-            const newCode = {
-                code: code,
-                description: description,
-                department: currentDepartment,
-                created: new Date().toISOString().split('T')[0],
-                expiry: expiry,
-                participants: 0
-            };
+            const generatedBatch = [];
+            for (let i = 0; i < quantity; i++) {
+                let code, isUnique = false;
+                while (!isUnique) {
+                    const prefix = targetDepartment.toUpperCase().substring(0, 4);
+                    const random = Math.floor(Math.random() * 90000) + 10000;
+                    code = `${prefix}-${random}`;
+                    if (!generatedCodes.some(c => c.code === code)) isUnique = true;
+                }
+                
+                generatedBatch.push({
+                    code: code,
+                    description: description,
+                    department: targetDepartment,
+                    created: new Date().toISOString().split('T')[0],
+                    expiry: expiry,
+                    participants: 0
+                });
+            }
             
-            generatedCodes.push(newCode);
-            
-            // Save to localStorage
+            generatedCodes.push(...generatedBatch);
             localStorage.setItem('intra_codes', JSON.stringify(generatedCodes));
             
-            // Update display
             loadDashboardData();
             
-            // Clear form
             document.getElementById('codeDescription').value = '';
             document.getElementById('codeExpiry').value = '';
             
-            // Show success message
-            alert(`Code generiert: ${code}`);
+            showCustomAlert(`${quantity} Codes für die Abteilung '${deptNames[targetDepartment]}' wurden erfolgreich generiert.`);
         }
 
         // Load Dashboard Data
         function loadDashboardData() {
-            // Load codes table
             const codeTableBody = document.getElementById('codeTableBody');
             const departmentCodes = currentDepartment === 'admin' 
                 ? generatedCodes 
                 : generatedCodes.filter(c => c.department === currentDepartment || c.department === 'demo');
             
+            document.getElementById('selectAllCheckbox').checked = false;
+            updateDownloadButtonState();
+
+            if (departmentCodes.length === 0) {
+                 codeTableBody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: #6c757d; padding: 20px;">Keine Codes für diese Abteilung vorhanden.</td></tr>`;
+                 return;
+            }
+
             codeTableBody.innerHTML = departmentCodes.map(code => {
-                const isExpired = new Date(code.expiry) < new Date();
-                const status = isExpired ? 'Abgelaufen' : code.participants > 0 ? 'Verwendet' : 'Aktiv';
-                const statusClass = isExpired ? 'status-used' : code.participants > 0 ? 'status-used' : 'status-active';
+                const isExpired = new Date() > new Date(code.expiry);
+                const status = isExpired ? 'Abgelaufen' : 'Aktiv';
+                const statusClass = isExpired ? 'status-expired' : 'status-active';
                 
                 return `
                     <tr>
+                        <td><input type="checkbox" class="code-checkbox" value="${code.code}" onchange="updateDownloadButtonState()"></td>
                         <td><span class="code-badge">${code.code}</span></td>
                         <td>${code.description}</td>
                         <td>${code.created}</td>
@@ -1002,39 +1113,29 @@
                         <td><span class="status-badge ${statusClass}">${status}</span></td>
                         <td>${code.participants}</td>
                         <td>
-                            <button class="action-button view-button" onclick="viewCodeDetails('${code.code}')">
-                                Ansehen
-                            </button>
-                            <button class="action-button delete-button" onclick="deleteCode('${code.code}')">
-                                Löschen
-                            </button>
+                            <button class="action-button view-button" onclick="viewCodeDetails('${code.code}')">Ansehen</button>
+                            <button class="action-button delete-button" onclick="deleteCode('${code.code}')">Löschen</button>
                         </td>
                     </tr>
                 `;
             }).join('');
             
-            // Update statistics
             updateStatistics();
         }
 
         // Load Results Data
         function loadResultsData() {
-            // Get results for department codes
             const departmentCodes = currentDepartment === 'admin' 
                 ? generatedCodes 
                 : generatedCodes.filter(c => c.department === currentDepartment || c.department === 'demo');
             
             const codeList = departmentCodes.map(c => c.code);
-            
-            // Filter test results
             const relevantResults = testResults.filter(r => codeList.includes(r.testCode));
             
-            // Update code filter dropdown
             const codeFilter = document.getElementById('codeFilter');
             codeFilter.innerHTML = '<option value="">Alle Codes</option>' + 
                 codeList.map(code => `<option value="${code}">${code}</option>`).join('');
             
-            // Display results
             displayResults(relevantResults);
         }
 
@@ -1043,13 +1144,13 @@
             const resultsTableBody = document.getElementById('resultsTableBody');
             
             if (results.length === 0) {
-                resultsTableBody.innerHTML = '<tr><td colspan="9" style="text-align: center; color: #6c757d;">Keine Ergebnisse vorhanden</td></tr>';
+                resultsTableBody.innerHTML = '<tr><td colspan="9" style="text-align: center; color: #6c757d; padding: 20px;">Keine Ergebnisse vorhanden</td></tr>';
                 return;
             }
             
             resultsTableBody.innerHTML = results.map(result => {
                 const scoreClass = result.totalPercentage >= 80 ? 'score-high' : 
-                                  result.totalPercentage >= 60 ? 'score-medium' : 'score-low';
+                                     result.totalPercentage >= 60 ? 'score-medium' : 'score-low';
                 
                 return `
                     <tr>
@@ -1062,9 +1163,7 @@
                         <td>${result.categoryPercentages[4]}%</td>
                         <td>${result.categoryPercentages[5]}%</td>
                         <td>
-                            <button class="action-button view-button" onclick="viewResultDetails('${result.timestamp}')">
-                                Details
-                            </button>
+                            <button class="action-button view-button" onclick="viewResultDetails('${result.timestamp}')">Details</button>
                         </td>
                     </tr>
                 `;
@@ -1081,14 +1180,12 @@
             const relevantResults = testResults.filter(r => codeList.includes(r.testCode));
             
             if (relevantResults.length > 0) {
-                // Calculate average scores per category
                 const categoryAverages = {};
                 for (let i = 1; i <= 5; i++) {
                     const scores = relevantResults.map(r => r.categoryPercentages[i]);
                     categoryAverages[i] = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
                 }
                 
-                // Update bars with animation
                 setTimeout(() => {
                     for (let i = 1; i <= 5; i++) {
                         const bar = document.getElementById(`bar${i}`);
@@ -1097,6 +1194,27 @@
                     }
                 }, 100);
             }
+        }
+        
+        // Load Admin specific data
+        function loadAdminData() {
+             const adminTableBody = document.getElementById('adminTableBody');
+             // In a real app, this data would be dynamically calculated
+             const sampleData = `
+                <tr>
+                    <td>Bau</td><td>12</td><td><span class="score-badge score-medium">72%</span></td><td>Grundkenntnisse IKT</td><td>Medien- & Infokompetenz</td>
+                </tr>
+                <tr>
+                    <td>Technik | Ernährung</td><td>8</td><td><span class="score-badge score-high">81%</span></td><td>Anwendung im Unterricht</td><td>Daten & Sicherheit</td>
+                </tr>
+                 <tr>
+                    <td>Maschinenbau</td><td>15</td><td><span class="score-badge score-medium">68%</span></td><td>Kommunikation</td><td>Medien- & Infokompetenz</td>
+                </tr>
+                 <tr>
+                    <td>Informatik | Naturwissenschaften</td><td>22</td><td><span class="score-badge score-high">88%</span></td><td>Daten & Sicherheit</td><td>Kommunikation</td>
+                </tr>`;
+             adminTableBody.innerHTML = sampleData;
+             updateStatistics();
         }
 
         // Update Statistics
@@ -1108,21 +1226,19 @@
             const codeList = departmentCodes.map(c => c.code);
             const relevantResults = testResults.filter(r => codeList.includes(r.testCode));
             
-            // Update overview stats
             document.getElementById('totalTests').textContent = relevantResults.length;
-            document.getElementById('activeCodes').textContent = departmentCodes.filter(c => new Date(c.expiry) > new Date()).length;
+            document.getElementById('activeCodes').textContent = departmentCodes.filter(c => new Date(c.expiry) >= new Date()).length;
             
             if (relevantResults.length > 0) {
                 const avgScore = Math.round(relevantResults.reduce((sum, r) => sum + r.totalPercentage, 0) / relevantResults.length);
                 document.getElementById('avgScore').textContent = avgScore + '%';
                 
                 const totalCodes = departmentCodes.length;
-                const usedCodes = departmentCodes.filter(c => c.participants > 0).length;
-                const completionRate = Math.round((usedCodes / totalCodes) * 100);
+                const usedCodes = new Set(relevantResults.map(r => r.testCode)).size;
+                const completionRate = totalCodes > 0 ? Math.round((usedCodes / totalCodes) * 100) : 0;
                 document.getElementById('completionRate').textContent = completionRate + '%';
             }
             
-            // Update admin stats if admin
             if (currentDepartment === 'admin') {
                 document.getElementById('totalTestsAdmin').textContent = testResults.length;
                 if (testResults.length > 0) {
@@ -1135,15 +1251,16 @@
         // Filter Results
         function filterResults() {
             const selectedCode = document.getElementById('codeFilter').value;
-            const relevantResults = selectedCode 
-                ? testResults.filter(r => r.testCode === selectedCode)
-                : testResults.filter(r => {
-                    const departmentCodes = currentDepartment === 'admin' 
-                        ? generatedCodes 
-                        : generatedCodes.filter(c => c.department === currentDepartment || c.department === 'demo');
-                    const codeList = departmentCodes.map(c => c.code);
-                    return codeList.includes(r.testCode);
-                });
+            const departmentCodes = currentDepartment === 'admin' 
+                ? generatedCodes 
+                : generatedCodes.filter(c => c.department === currentDepartment || c.department === 'demo');
+            
+            const codeList = departmentCodes.map(c => c.code);
+            let relevantResults = testResults.filter(r => codeList.includes(r.testCode));
+
+            if (selectedCode) {
+                 relevantResults = relevantResults.filter(r => r.testCode === selectedCode)
+            }
             
             displayResults(relevantResults);
         }
@@ -1153,9 +1270,9 @@
             const codeData = generatedCodes.find(c => c.code === code);
             const codeResults = testResults.filter(r => r.testCode === code);
             
+            document.getElementById('modalTitle').textContent = `Details für Code: ${code}`;
             const modalBody = document.getElementById('modalBody');
             modalBody.innerHTML = `
-                <h4>Code: ${code}</h4>
                 <p><strong>Beschreibung:</strong> ${codeData.description}</p>
                 <p><strong>Erstellt:</strong> ${codeData.created}</p>
                 <p><strong>Gültig bis:</strong> ${codeData.expiry}</p>
@@ -1163,15 +1280,15 @@
                 
                 ${codeResults.length > 0 ? `
                     <h4 style="margin-top: 20px;">Durchschnittliche Scores:</h4>
-                    <ul>
+                    <ul style="list-style-position: inside;">
                         <li>Gesamt: ${Math.round(codeResults.reduce((sum, r) => sum + r.totalPercentage, 0) / codeResults.length)}%</li>
                         <li>Grundkenntnisse IKT: ${Math.round(codeResults.reduce((sum, r) => sum + r.categoryPercentages[1], 0) / codeResults.length)}%</li>
                         <li>Anwendung im Unterricht: ${Math.round(codeResults.reduce((sum, r) => sum + r.categoryPercentages[2], 0) / codeResults.length)}%</li>
-                        <li>Medien- und Informationskompetenz: ${Math.round(codeResults.reduce((sum, r) => sum + r.categoryPercentages[3], 0) / codeResults.length)}%</li>
-                        <li>Datenverwaltung: ${Math.round(codeResults.reduce((sum, r) => sum + r.categoryPercentages[4], 0) / codeResults.length)}%</li>
+                        <li>Medien- & Infokompetenz: ${Math.round(codeResults.reduce((sum, r) => sum + r.categoryPercentages[3], 0) / codeResults.length)}%</li>
+                        <li>Daten & Sicherheit: ${Math.round(codeResults.reduce((sum, r) => sum + r.categoryPercentages[4], 0) / codeResults.length)}%</li>
                         <li>Kommunikation: ${Math.round(codeResults.reduce((sum, r) => sum + r.categoryPercentages[5], 0) / codeResults.length)}%</li>
                     </ul>
-                ` : '<p style="color: #6c757d;">Noch keine Testergebnisse vorhanden.</p>'}
+                ` : '<p style="margin-top:20px; color: #6c757d;">Noch keine Testergebnisse vorhanden.</p>'}
             `;
             
             document.getElementById('detailModal').classList.add('active');
@@ -1179,30 +1296,30 @@
 
         // View Result Details
         function viewResultDetails(timestamp) {
-            const result = testResults.find(r => r.timestamp === timestamp);
+            const result = testResults.find(r => r.timestamp.toString() === timestamp);
             
+            document.getElementById('modalTitle').textContent = 'Test-Ergebnis Details';
             const modalBody = document.getElementById('modalBody');
             modalBody.innerHTML = `
-                <h4>Test-Details</h4>
                 <p><strong>Code:</strong> ${result.testCode}</p>
                 <p><strong>Datum:</strong> ${new Date(result.timestamp).toLocaleString('de-DE')}</p>
                 <p><strong>Testdauer:</strong> ${Math.round(result.duration / 60)} Minuten</p>
                 <p><strong>Gesamtscore:</strong> ${result.totalPercentage}%</p>
                 
                 <h4 style="margin-top: 20px;">Einzelergebnisse:</h4>
-                <ul>
+                <ul style="list-style-position: inside;">
                     <li>Grundkenntnisse IKT: ${result.categoryPercentages[1]}%</li>
                     <li>Anwendung im Unterricht: ${result.categoryPercentages[2]}%</li>
-                    <li>Medien- und Informationskompetenz: ${result.categoryPercentages[3]}%</li>
-                    <li>Datenverwaltung und Datensicherheit: ${result.categoryPercentages[4]}%</li>
-                    <li>Kommunikation und Kollaboration: ${result.categoryPercentages[5]}%</li>
+                    <li>Medien- & Infokompetenz: ${result.categoryPercentages[3]}%</li>
+                    <li>Daten & Sicherheit: ${result.categoryPercentages[4]}%</li>
+                    <li>Kommunikation: ${result.categoryPercentages[5]}%</li>
                 </ul>
                 
                 <h4 style="margin-top: 20px;">Empfohlene Maßnahmen:</h4>
                 <p style="color: #6c757d;">
-                    ${result.totalPercentage >= 80 ? 'Ausgezeichnete Leistung! Unterstützen Sie Kollegen als Digital-Mentor.' :
-                      result.totalPercentage >= 60 ? 'Gute Grundlagen vorhanden. Fokussieren Sie sich auf die schwächeren Bereiche.' :
-                      'Grundlegende Schulungen in mehreren Bereichen empfohlen.'}
+                    ${result.totalPercentage >= 80 ? 'Ausgezeichnete Leistung!' :
+                      result.totalPercentage >= 60 ? 'Gute Grundlagen vorhanden.' :
+                      'Grundlegende Schulungen empfohlen.'}
                 </p>
             `;
             
@@ -1211,19 +1328,113 @@
 
         // Delete Code
         function deleteCode(code) {
-            if (confirm(`Möchten Sie den Code ${code} wirklich löschen?`)) {
-                generatedCodes = generatedCodes.filter(c => c.code !== code);
-                localStorage.setItem('intra_codes', JSON.stringify(generatedCodes));
-                loadDashboardData();
+             showCustomConfirm(
+                `Möchten Sie den Code <strong>${code}</strong> wirklich löschen?`,
+                "Löschen",
+                () => {
+                    generatedCodes = generatedCodes.filter(c => c.code !== code);
+                    localStorage.setItem('intra_codes', JSON.stringify(generatedCodes));
+                    loadDashboardData();
+                    showCustomAlert(`Code ${code} wurde gelöscht.`);
+                }
+            );
+        }
+        
+        // Admin: Reset Password
+        function resetPassword() {
+            const departmentToReset = document.getElementById('resetPwDepartment').value;
+            const newPassword = document.getElementById('newPassword').value;
+
+            if (newPassword.length < 6) {
+                showCustomAlert('Das Passwort muss mindestens 6 Zeichen lang sein.');
+                return;
             }
+
+            showCustomConfirm(
+                `Möchten Sie das Passwort für die Abteilung <strong>${deptNames[departmentToReset]}</strong> wirklich ändern?`,
+                "Ja, ändern",
+                () => {
+                    userAccounts[departmentToReset].pass = newPassword;
+                    localStorage.setItem('intra_user_accounts', JSON.stringify(userAccounts));
+                    document.getElementById('newPassword').value = '';
+                    showCustomAlert(`Das Passwort für ${deptNames[departmentToReset]} wurde erfolgreich geändert.`);
+                }
+            );
         }
 
         // Close Modal
-        function closeModal() {
-            document.getElementById('detailModal').classList.remove('active');
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+        
+        // Custom Alert
+        function showCustomAlert(message) {
+            const modal = document.getElementById('alertModal');
+            document.getElementById('alertModalTitle').textContent = 'Hinweis';
+            document.getElementById('alertModalBody').innerHTML = `<p>${message}</p>`;
+            document.getElementById('alertModalFooter').innerHTML = 
+                `<button class="login-button" style="width: auto; padding: 10px 30px;" onclick="closeModal('alertModal')">OK</button>`;
+            modal.classList.add('active');
         }
 
-        // Export Results
+        // Custom Confirm
+        function showCustomConfirm(message, confirmText, onConfirm) {
+            const modal = document.getElementById('alertModal');
+            document.getElementById('alertModalTitle').textContent = 'Bestätigung erforderlich';
+            document.getElementById('alertModalBody').innerHTML = `<p>${message}</p>`;
+            document.getElementById('alertModalFooter').innerHTML = `
+                <button class="logout-button" style="background: #6c757d; color: white; border: none; margin-right: 10px;" onclick="window.confirmCallback(false)">Abbrechen</button>
+                <button class="login-button" style="background: #dc3545;" onclick="window.confirmCallback(true)">${confirmText}</button>
+            `;
+
+            window.confirmCallback = (result) => {
+                closeModal('alertModal');
+                if (result) onConfirm();
+                delete window.confirmCallback;
+            };
+
+            modal.classList.add('active');
+        }
+
+        // Checkbox handling for download
+        function updateDownloadButtonState() {
+            const checkedBoxes = document.querySelectorAll('.code-checkbox:checked');
+            document.getElementById('downloadCodesBtn').disabled = checkedBoxes.length === 0;
+        }
+
+        function toggleAllCheckboxes(source) {
+            const checkboxes = document.querySelectorAll('.code-checkbox');
+            checkboxes.forEach(checkbox => checkbox.checked = source.checked);
+            updateDownloadButtonState();
+        }
+
+        // Download selected codes
+        function downloadSelectedCodes() {
+            const checkedBoxes = document.querySelectorAll('.code-checkbox:checked');
+            const codesToDownload = Array.from(checkedBoxes).map(cb => cb.value);
+            
+            const relevantCodesData = generatedCodes.filter(c => codesToDownload.includes(c.code));
+            
+            if (relevantCodesData.length === 0) {
+                showCustomAlert('Keine Codes zum Herunterladen ausgewählt.');
+                return;
+            }
+            
+            let csv = 'Code,Beschreibung,GueltigBis\n';
+            relevantCodesData.forEach(c => {
+                csv += `${c.code},"${c.description}",${c.expiry}\n`;
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `test-codes_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        // Export All Results
         function exportResults() {
             const departmentCodes = currentDepartment === 'admin' 
                 ? generatedCodes 
@@ -1233,25 +1444,18 @@
             const relevantResults = testResults.filter(r => codeList.includes(r.testCode));
             
             if (relevantResults.length === 0) {
-                alert('Keine Ergebnisse zum Exportieren vorhanden.');
+                showCustomAlert('Keine Ergebnisse zum Exportieren vorhanden.');
                 return;
             }
             
-            // Create CSV content
-            let csv = 'Code,Datum,Gesamtscore,Bereich 1,Bereich 2,Bereich 3,Bereich 4,Bereich 5\n';
+            let csv = 'Code,Datum,Gesamtscore,Grundkenntnisse IKT,Anwendung im Unterricht,Medien- & Infokompetenz,Daten & Sicherheit,Kommunikation\n';
             
             relevantResults.forEach(result => {
                 csv += `${result.testCode},${new Date(result.timestamp).toLocaleDateString('de-DE')},`;
-                csv += `${result.totalPercentage}%,`;
-                csv += `${result.categoryPercentages[1]}%,`;
-                csv += `${result.categoryPercentages[2]}%,`;
-                csv += `${result.categoryPercentages[3]}%,`;
-                csv += `${result.categoryPercentages[4]}%,`;
-                csv += `${result.categoryPercentages[5]}%\n`;
+                csv += `${result.totalPercentage},${result.categoryPercentages[1]},${result.categoryPercentages[2]},${result.categoryPercentages[3]},${result.categoryPercentages[4]},${result.categoryPercentages[5]}\n`;
             });
             
-            // Download CSV
-            const blob = new Blob([csv], { type: 'text/csv' });
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
@@ -1267,3 +1471,4 @@
     </script>
 </body>
 </html>
+
