@@ -766,7 +766,7 @@
             progressBar.style.width = progress + '%';
             progressBar.textContent = progress + '%';
             
-            // Create question HTML
+            // Create question HTML with info button
             const questionHTML = `
                 <div class="question-card active">
                     <div class="question-header">
@@ -778,7 +778,25 @@
                         </span>
                     </div>
                     <div class="question-text">
-                        ${question.text}
+                        <span style="flex: 1;">${question.text}</span>
+                        <button class="info-button" onclick="toggleInfo(${question.id})" title="Mehr Informationen">
+                            ?
+                        </button>
+                    </div>
+                    <div id="info-${question.id}" class="info-box">
+                        <h4>📍 Praktische Beispiele</h4>
+                        <p>${question.info.examples}</p>
+                        
+                        <h4 style="margin-top: 15px;">🛠️ Empfohlene Tools</h4>
+                        <p>${question.info.tools}</p>
+                        
+                        <h4 style="margin-top: 15px;">💡 Tipp</h4>
+                        <p>${question.info.tips}</p>
+                        
+                        <div class="concept-tags">
+                            <span class="concept-tag ikt-tag">${question.info.ikt}</span>
+                            <span class="concept-tag paed-tag">${question.info.paed}</span>
+                        </div>
                     </div>
                     <div class="answer-options">
                         ${question.options.map((option, i) => `
@@ -801,6 +819,14 @@
             document.getElementById('prevButton').style.display = index === 0 ? 'none' : 'block';
             document.getElementById('nextButton').style.display = index === questions.length - 1 ? 'none' : 'block';
             document.getElementById('submitButton').style.display = index === questions.length - 1 ? 'block' : 'none';
+        }
+
+        // Toggle Info Box Function
+        function toggleInfo(questionId) {
+            const infoBox = document.getElementById(`info-${questionId}`);
+            if (infoBox) {
+                infoBox.classList.toggle('active');
+            }
         }
 
         // Select Answer Function
