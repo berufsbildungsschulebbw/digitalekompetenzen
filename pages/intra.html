@@ -1086,41 +1086,26 @@ window.loadDashboardData = loadDashboardData;
             }
         }
 
-        // Login Handler
-        async function handleLogin(event) {
-            event.preventDefault();
-            
-            const department = document.getElementById('department').value;
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            
-            const account = userAccounts[department];
+       // Manuelle Funktion zum Laden der Codes aus Firebase
+async function manualLoadCodes() {
+    if (!firebaseReady || !db) {
+        console.log("Firebase nicht verfügbar");
+        return;
+    }
+    
+    try {
+        const { getDocs } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
+        const snapshot = await getDocs(codesCollection);
+        generatedCodes = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        console.log("Codes manuell geladen:", generatedCodes.length);
+        loadDashboardData();
+    } catch (error) {
+        console.error("Fehler beim manuellen Laden:", error);
+    }
+}
 
-            // Allow login if credentials match Firestore DB OR if it's the standard demo login (for non-admin departments)
-            if ((account && username === account.user && password === account.pass && department) || 
-                (username === 'demo' && password === 'demo123' && department && department !== 'admin')) {
-                currentUser = username;
-                currentDepartment = department;
-                
-                document.getElementById('loginSection').style.display = 'none';
-                document.getElementById('dashboardSection').classList.add('active');
-                
-                document.getElementById('userDepartment').textContent = deptNames[department] || department;
-                document.getElementById('userName').textContent = `Benutzer: ${username}`;
-                
-                const isAdmin = department === 'admin';
-                document.getElementById('adminTabButton').style.display = isAdmin ? 'block' : 'none';
-                document.getElementById('adminDepartmentSelector').style.display = isAdmin ? 'block' : 'none';
-
-                loadDashboardData();
-            } else {
-                const errorMessage = document.getElementById('errorMessage');
-                errorMessage.style.display = 'block';
-                setTimeout(() => {
-                   errorMessage.style.display = 'none';
-                }, 3000);
-            }
-        }
+// Global verfügbar machen
+window.manualLoadCodes = manualLoadCodes;
 
         // Logout Handler
         function handleLogout() {
