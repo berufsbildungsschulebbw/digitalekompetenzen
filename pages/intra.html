@@ -1491,8 +1491,27 @@
         };
 
         // Event Listeners Setup
-        document.addEventListener('DOMContentLoaded', () => {
-            initializeAppWithFirebase();
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Login-Button während des Ladens deaktivieren
+const loginButton = document.querySelector('.login-button');
+if (loginButton) {
+    loginButton.disabled = true;
+    loginButton.textContent = 'Lädt...';
+}
+
+try {
+    await initializeAppWithFirebase();
+    
+    // Login-Button wieder aktivieren
+    if (loginButton) {
+        loginButton.disabled = false;
+        loginButton.textContent = 'Anmelden';
+    }
+} catch (error) {
+    console.error('Fehler bei der Firebase-Initialisierung:', error);
+    // Fehlermeldung anzeigen
+}
+            await initializeAppWithFirebase();
 
             document.getElementById('loginForm').addEventListener('submit', handleLogin);
             document.getElementById('logoutBtn').addEventListener('click', handleLogout);
