@@ -712,9 +712,14 @@
 
                 <div class="code-list-header">
                      <h3>Generierte Codes</h3>
-                     <button id="downloadCodesBtn" class="download-button" disabled>
-                        📥 Ausgewählte herunterladen
-                     </button>
+                     <div style="display: flex; gap: 10px;">
+                         <button id="downloadCodesBtn" class="download-button" disabled>
+                            📥 Ausgewählte herunterladen
+                         </button>
+                         <button id="deleteSelectedBtn" class="delete-button" style="padding: 10px 20px; border-radius: 8px; font-weight: bold;" disabled>
+                            🗑️ Ausgewählte löschen
+                         </button>
+                     </div>
                 </div>
 
                 <div class="code-list">
@@ -1529,28 +1534,113 @@
             document.getElementById('detailModal').classList.add('active');
         }
 
-        // Delete Code
+        // Delete Code - Korrigierte Version
         async function deleteCode(docId, code) {
-             showCustomConfirm(
+            showCustomConfirm(
                 `Möchten Sie den Code <strong>${code}</strong> wirklich löschen? Alle zugehörigen Ergebnisse werden ebenfalls entfernt.`,
                 "Löschen",
                 async () => {
-                    if (firebaseReady && db) {
-                        await deleteDoc(doc(db, "codes", docId));
-                        const q = query(resultsCollection, where("testCode", "==", code));
-                        const querySnapshot = await getDocs(q);
-                        const batch = writeBatch(db);
-                        querySnapshot.forEach((doc) => batch.delete(doc.ref));
-                        await batch.commit();
-                    } else {
-                        // Local mode: remove from array
-                        generatedCodes = generatedCodes.filter(c => c.id !== docId);
-                        testResults = testResults.filter(r => r.testCode !== code);
-                        window.generatedCodes = generatedCodes;
-                        window.testResults = testResults;
-                        loadDashboardData();
+                    try {
+                        if (firebaseReady && db) {
+                            // Firebase Mode
+                            await deleteDoc(doc(db, "codes", docId));
+                            
+                            // Auch zugehörige Results löschen
+                            const q = query(resultsCollection, where("testCode", "==", code));
+                            const querySnapshot = await getDocs(q);
+                            const batch = writeBatch(db);
+                            querySnapshot.forEach((doc) => batch.delete(doc.ref));
+                            await batch.commit();
+                            
+                            // Arrays aktualisieren
+                            generatedCodes = generatedCodes.filter(c => c.id !== docId);
+                            testResults = testResults.filter(r => r.testCode !== code);
+                            window.generatedCodes = generatedCodes;
+                            window.testResults = testResults;
+                            
+                            loadDashboardData();
+                            showCustomAlert(`Code ${code} wurde gelöscht.`);
+                        } else {
+                            // Local mode: remove from array
+                            generatedCodes = generatedCodes.filter(c => c.id !== docId);
+                            testResults = testResults.filter(r => r.testCode !== code);
+                            window.generatedCodes = generatedCodes;
+                            window.testResults = testResults;
+                            loadDashboardData();
+                            showCustomAlert(`Code ${code} wurde lokal gelöscht.`);
+                        }
+                    } catch (error) {
+                        console.error("Fehler beim Löschen:", error);
+                        showCustomAlert(`Fehler beim Löschen: ${error.message}`);
                     }
-                    showCustomAlert(`Code ${code} und alle Ergebnisse wurden gelöscht.`);
+                }
+            );
+        }
+
+        // Neue Funktion: Mehrere Codes löschen
+        async function deleteSelectedCodes() {
+            const checkedBoxes = document.querySelectorAll('.code-checkbox:checked');
+            const selectedCodes = Array.from(checkedBoxes).map(cb => {
+                const row = cb.closest('tr');
+                return {
+                    id: row.dataset.docId,
+                    code: cb.value
+                };
+            });
+
+            if (selectedCodes.length === 0) return;
+
+            const codeList = selectedCodes.map(c => c.code).join(', ');
+            
+            showCustomConfirm(
+                `Möchten Sie wirklich <strong>${selectedCodes.length}</strong> Code(s) löschen?<br><br>Codes: ${codeList}<br><br>Alle zugehörigen Ergebnisse werden ebenfalls entfernt.`,
+                "Alle löschen",
+                async () => {
+                    try {
+                        if (firebaseReady && db) {
+                            // Firebase Mode - Batch-Löschung
+                            const batch = writeBatch(db);
+                            
+                            // Codes löschen
+                            for (const codeObj of selectedCodes) {
+                                const docRef = doc(db, "codes", codeObj.id);
+                                batch.delete(docRef);
+                                
+                                // Zugehörige Results finden und löschen
+                                const q = query(resultsCollection, where("testCode", "==", codeObj.code));
+                                const querySnapshot = await getDocs(q);
+                                querySnapshot.forEach((resultDoc) => {
+                                    batch.delete(resultDoc.ref);
+                                });
+                            }
+                            
+                            await batch.commit();
+                            
+                            // Arrays aktualisieren
+                            const codeIds = selectedCodes.map(c => c.id);
+                            const codes = selectedCodes.map(c => c.code);
+                            generatedCodes = generatedCodes.filter(c => !codeIds.includes(c.id));
+                            testResults = testResults.filter(r => !codes.includes(r.testCode));
+                            window.generatedCodes = generatedCodes;
+                            window.testResults = testResults;
+                            
+                            loadDashboardData();
+                            showCustomAlert(`${selectedCodes.length} Code(s) wurden gelöscht.`);
+                        } else {
+                            // Local mode
+                            const codeIds = selectedCodes.map(c => c.id);
+                            const codes = selectedCodes.map(c => c.code);
+                            generatedCodes = generatedCodes.filter(c => !codeIds.includes(c.id));
+                            testResults = testResults.filter(r => !codes.includes(r.testCode));
+                            window.generatedCodes = generatedCodes;
+                            window.testResults = testResults;
+                            loadDashboardData();
+                            showCustomAlert(`${selectedCodes.length} Code(s) wurden lokal gelöscht.`);
+                        }
+                    } catch (error) {
+                        console.error("Fehler beim Batch-Löschen:", error);
+                        showCustomAlert(`Fehler beim Löschen: ${error.message}`);
+                    }
                 }
             );
         }
@@ -1619,7 +1709,14 @@
 
         function updateDownloadButtonState() {
             const checkedBoxes = document.querySelectorAll('.code-checkbox:checked');
-            document.getElementById('downloadCodesBtn').disabled = checkedBoxes.length === 0;
+            const hasChecked = checkedBoxes.length > 0;
+            document.getElementById('downloadCodesBtn').disabled = !hasChecked;
+            
+            // Auch den Delete-Button aktualisieren
+            const deleteBtn = document.getElementById('deleteSelectedBtn');
+            if (deleteBtn) {
+                deleteBtn.disabled = !hasChecked;
+            }
         }
 
         function toggleAllCheckboxes(source) {
@@ -1716,6 +1813,7 @@
             document.getElementById('resetPasswordBtn').addEventListener('click', resetPassword);
             document.getElementById('selectAllCheckbox').addEventListener('change', (e) => toggleAllCheckboxes(e.target));
             document.getElementById('downloadCodesBtn').addEventListener('click', downloadSelectedCodes);
+            document.getElementById('deleteSelectedBtn').addEventListener('click', deleteSelectedCodes);
             document.getElementById('exportResultsBtn').addEventListener('click', exportResults);
             document.getElementById('codeFilter').addEventListener('change', filterResults);
 
@@ -1729,30 +1827,34 @@
                 btn.addEventListener('click', (e) => closeModal(e.target.dataset.modalId));
             });
 
-            document.getElementById('codeTableBody').addEventListener('click', e => {
-                const row = e.target.closest('tr');
-                if (!row) return;
+            // Event Delegation für dynamische Buttons
+            document.addEventListener('click', e => {
+                // Handle Code Table Actions
+                if (e.target.closest('#codeTableBody')) {
+                    const row = e.target.closest('tr');
+                    if (!row) return;
 
-                const docId = row.dataset.docId;
-                const code = row.dataset.code;
+                    const docId = row.dataset.docId;
+                    const code = row.dataset.code;
 
-                if (e.target.matches('.view-button')) {
-                    viewCodeDetails(docId);
-                } else if (e.target.matches('.delete-button')) {
-                    deleteCode(docId, code);
+                    if (e.target.classList.contains('view-button')) {
+                        viewCodeDetails(docId);
+                    } else if (e.target.classList.contains('delete-button')) {
+                        deleteCode(docId, code);
+                    }
                 }
-            });
 
-             document.getElementById('resultsTableBody').addEventListener('click', e => {
-                if(e.target.matches('.view-button')) {
+                // Handle Results Table Actions
+                if (e.target.closest('#resultsTableBody') && e.target.classList.contains('view-button')) {
                     const row = e.target.closest('tr');
                     const docId = row.dataset.docId;
                     viewResultDetails(docId);
                 }
             });
             
-             document.getElementById('codeTableBody').addEventListener('change', e => {
-                if (e.target.matches('.code-checkbox')) {
+            // Checkbox Change Handler
+            document.addEventListener('change', e => {
+                if (e.target.classList.contains('code-checkbox')) {
                     updateDownloadButtonState();
                 }
             });
