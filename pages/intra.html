@@ -924,148 +924,162 @@
         </div>
         
     </div>
+    
     <script>
-  window.__firebase_config = JSON.stringify({
-  apiKey: "AIzaSyCHhycjQmHU00_dQl5Xdo5PZCTn8JODk20",
-  authDomain: "ikt-komp-bbw.firebaseapp.com",
-  projectId: "ikt-komp-bbw",
-  storageBucket: "ikt-komp-bbw.firebasestorage.app",
-  messagingSenderId: "154620660911",
-  appId: "1:154620660911:web:20d389d699d2f0d2c2d85a",
-  measurementId: "G-JZ1VC46184"
-  });
-</script>
+        window.__firebase_config = JSON.stringify({
+            apiKey: "AIzaSyCHhycjQmHU00_dQl5Xdo5PZCTn8JODk20",
+            authDomain: "ikt-komp-bbw.firebaseapp.com",
+            projectId: "ikt-komp-bbw",
+            storageBucket: "ikt-komp-bbw.firebasestorage.app",
+            messagingSenderId: "154620660911",
+            appId: "1:154620660911:web:20d389d699d2f0d2c2d85a",
+            measurementId: "G-JZ1VC46184"
+        });
+    </script>
 
     <script type="module">
         // Firebase Imports
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, addDoc, deleteDoc, onSnapshot, collection, query, writeBatch, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { 
+            getFirestore, 
+            doc, 
+            getDoc, 
+            setDoc, 
+            addDoc, 
+            deleteDoc, 
+            onSnapshot, 
+            collection, 
+            query, 
+            writeBatch, 
+            where, 
+            getDocs,
+            serverTimestamp 
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // Firebase configuration is provided by the environment
-const rawFirebaseConfig = (typeof __firebase_config !== "undefined" && __firebase_config)
-  ? JSON.parse(__firebase_config)
-  : null;
+        const rawFirebaseConfig = (typeof __firebase_config !== "undefined" && __firebase_config)
+            ? JSON.parse(__firebase_config)
+            : null;
 
-const hasValidFirebaseConfig = rawFirebaseConfig && rawFirebaseConfig.apiKey && rawFirebaseConfig.projectId;
+        const hasValidFirebaseConfig = rawFirebaseConfig && rawFirebaseConfig.apiKey && rawFirebaseConfig.projectId;
 
-// Initialize Firebase guarded
-let app = null, db = null, auth = null;
-let firebaseReady = false;
+        // Initialize Firebase guarded
+        let app = null, db = null, auth = null;
+        let firebaseReady = false;
 
-try {
-  if (hasValidFirebaseConfig) {
-    app = initializeApp(rawFirebaseConfig);
-    db = getFirestore(app);
-    auth = getAuth(app);
-    firebaseReady = true;
-  } else {
-    console.warn("Kein gültiges Firebase-Config gefunden – starte im Local-Mode.");
-  }
-} catch (e) {
-  console.warn("Firebase-Initialisierung übersprungen (fehlende/ungültige Config):", e);
-  firebaseReady = false;
-}
-
-// Firestore Collection References (nur wenn verfügbar)
-let codesCollection = null;
-let resultsCollection = null;
-let accountsDocRef = null;
-if (db) {
-  codesCollection = collection(db, 'codes');
-  resultsCollection = collection(db, 'results');
-  accountsDocRef = doc(db, 'config', 'userAccounts');
-}
-
-// State Management
-let currentUser = null;
-let currentDepartment = null;
-let generatedCodes = [];
-let testResults = [];
-let userAccounts = {};
-
-const deptNames = {
-    'bau': 'Bau',
-    'technik': 'Technik | Ernährung',
-    'maschinenbau': 'Maschinenbau',
-    'informatik': 'Informatik | Naturwissenschaften',
-    'admin': 'Administration'
-};
-
-        async function initializeAppWithFirebase() 
-{
-  // Wenn Firebase nicht bereit ist: Local-Mode mit Demologins
-  if (!firebaseReady || !auth || !db || !accountsDocRef) {
-    console.warn("Initialize: Firebase nicht verfügbar – Demologins aktiv.");
-    userAccounts = {
-      'bau': { user: 'demo', pass: 'demo123' },
-      'technik': { user: 'demo', pass: 'demo123' },
-      'maschinenbau': { user: 'demo', pass: 'demo123' },
-      'informatik': { user: 'demo', pass: 'demo123' },
-      'admin': { user: 'admin', pass: 'admin123' }
-    };
-    return;
-  }
-
-  try {
-    // Sign in using the provided token or anonymously
-    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-      await signInWithCustomToken(auth, __initial_auth_token);
-    } else {
-      await signInAnonymously(auth);
-    }
-
-    const docSnap = await getDoc(accountsDocRef);
-    if (docSnap.exists()) {
-      userAccounts = docSnap.data();
-    } else {
-      console.log("No account config found, creating default accounts...");
-      userAccounts = {
-        'bau': { user: 'demo', pass: 'demo123' },
-        'technik': { user: 'demo', pass: 'demo123' },
-        'maschinenbau': { user: 'demo', pass: 'demo123' },
-        'informatik': { user: 'demo', pass: 'demo123' },
-        'admin': { user: 'admin', pass: 'admin123' }
-      };
-      await setDoc(accountsDocRef, userAccounts);
-    }
-
-    // Real-time listeners nur starten, wenn Collections verfügbar
-    if (codesCollection) {
-      onSnapshot(codesCollection, (snapshot) => {
-        generatedCodes = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        if (currentUser) {
-          loadDashboardData();
+        try {
+            if (hasValidFirebaseConfig) {
+                app = initializeApp(rawFirebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                firebaseReady = true;
+                console.log("Firebase erfolgreich initialisiert");
+            } else {
+                console.warn("Kein gültiges Firebase-Config gefunden – starte im Local-Mode.");
+            }
+        } catch (e) {
+            console.warn("Firebase-Initialisierung übersprungen (fehlende/ungültige Config):", e);
+            firebaseReady = false;
         }
-      });
-    }
 
-    if (resultsCollection) {
-      onSnapshot(resultsCollection, (snapshot) => {
-        testResults = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        if (currentUser) {
-          updateStatistics();
-          if (document.getElementById('resultsTab').classList.contains('active')) {
-            loadResultsData();
-          }
+        // Firestore Collection References (nur wenn verfügbar)
+        let codesCollection = null;
+        let resultsCollection = null;
+        let accountsDocRef = null;
+        if (db) {
+            codesCollection = collection(db, 'codes');
+            resultsCollection = collection(db, 'results');
+            accountsDocRef = doc(db, 'config', 'userAccounts');
         }
-      });
-    }
-  } catch (error) {
-    console.error('Fehler bei der Firebase-Initialisierung:', error);
-    // Fallback auf Local-Mode
-    if (!userAccounts || Object.keys(userAccounts).length === 0) {
-      userAccounts = {
-        'bau': { user: 'demo', pass: 'demo123' },
-        'technik': { user: 'demo', pass: 'demo123' },
-        'maschinenbau': { user: 'demo', pass: 'demo123' },
-        'informatik': { user: 'demo', pass: 'demo123' },
-        'admin': { user: 'admin', pass: 'admin123' }
-      };
-    }
-  }
-}
 
+        // State Management
+        let currentUser = null;
+        let currentDepartment = null;
+        let generatedCodes = [];
+        let testResults = [];
+        let userAccounts = {};
+
+        const deptNames = {
+            'bau': 'Bau',
+            'technik': 'Technik | Ernährung',
+            'maschinenbau': 'Maschinenbau',
+            'informatik': 'Informatik | Naturwissenschaften',
+            'admin': 'Administration'
+        };
+
+        async function initializeAppWithFirebase() {
+            // Wenn Firebase nicht bereit ist: Local-Mode mit Demologins
+            if (!firebaseReady || !auth || !db || !accountsDocRef) {
+                console.warn("Initialize: Firebase nicht verfügbar – Demologins aktiv.");
+                userAccounts = {
+                    'bau': { user: 'demo', pass: 'demo123' },
+                    'technik': { user: 'demo', pass: 'demo123' },
+                    'maschinenbau': { user: 'demo', pass: 'demo123' },
+                    'informatik': { user: 'demo', pass: 'demo123' },
+                    'admin': { user: 'admin', pass: 'admin123' }
+                };
+                return;
+            }
+
+            try {
+                // Sign in using the provided token or anonymously
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+                const docSnap = await getDoc(accountsDocRef);
+                if (docSnap.exists()) {
+                    userAccounts = docSnap.data();
+                } else {
+                    console.log("No account config found, creating default accounts...");
+                    userAccounts = {
+                        'bau': { user: 'demo', pass: 'demo123' },
+                        'technik': { user: 'demo', pass: 'demo123' },
+                        'maschinenbau': { user: 'demo', pass: 'demo123' },
+                        'informatik': { user: 'demo', pass: 'demo123' },
+                        'admin': { user: 'admin', pass: 'admin123' }
+                    };
+                    await setDoc(accountsDocRef, userAccounts);
+                }
+
+                // Real-time listeners nur starten, wenn Collections verfügbar
+                if (codesCollection) {
+                    onSnapshot(codesCollection, (snapshot) => {
+                        generatedCodes = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                        if (currentUser) {
+                            loadDashboardData();
+                        }
+                    });
+                }
+
+                if (resultsCollection) {
+                    onSnapshot(resultsCollection, (snapshot) => {
+                        testResults = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                        if (currentUser) {
+                            updateStatistics();
+                            if (document.getElementById('resultsTab').classList.contains('active')) {
+                                loadResultsData();
+                            }
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Fehler bei der Firebase-Initialisierung:', error);
+                // Fallback auf Local-Mode
+                if (!userAccounts || Object.keys(userAccounts).length === 0) {
+                    userAccounts = {
+                        'bau': { user: 'demo', pass: 'demo123' },
+                        'technik': { user: 'demo', pass: 'demo123' },
+                        'maschinenbau': { user: 'demo', pass: 'demo123' },
+                        'informatik': { user: 'demo', pass: 'demo123' },
+                        'admin': { user: 'admin', pass: 'admin123' }
+                    };
+                }
+            }
+        }
 
         // Login Handler
         async function handleLogin(event) {
@@ -1131,53 +1145,92 @@ const deptNames = {
             if (tabName === 'admin') loadAdminData();
         }
 
-        // Generate Codes in Batches
-async function onGenerateCodes() {
-  try {
-    const description = document.getElementById('codeDescription').value.trim();
-    const expiryStr   = document.getElementById('codeExpiry').value; // yyyy-mm-dd
-    const amount      = parseInt(document.getElementById('codeAmount').value || "1", 10);
-    const department  = (document.getElementById('departmentSelect')?.value || "").trim();
+        // Hilfsfunktion zum Generieren eines zufälligen Codes
+        function generateRandomCode() {
+            const part1 = Math.random().toString(36).substring(2, 6).toUpperCase();
+            const part2 = Math.random().toString(36).substring(2, 6).toUpperCase();
+            return `${part1}-${part2}`;
+        }
 
-    if (!description || !expiryStr || isNaN(amount) || amount < 1) {
-      alert("Bitte Beschreibung, Gültig-bis und Anzahl prüfen.");
-      return;
-    }
+        // KORRIGIERTE generateCodes Funktion
+        async function generateCodes() {
+            try {
+                // Korrekte Element-IDs verwenden
+                const description = document.getElementById('codeDescription').value.trim();
+                const expiryStr = document.getElementById('codeExpiry').value;
+                const quantity = parseInt(document.getElementById('codeQuantity').value);
+                
+                // Für Admin: Abteilung aus dem Admin-Selektor holen
+                const isAdmin = currentDepartment === 'admin';
+                const targetDepartment = isAdmin 
+                    ? document.getElementById('adminDepartmentSelect').value 
+                    : currentDepartment;
 
-    // Datum robust parsen (lokal, ohne Zeitzonenstress)
-    const expiry = new Date(`${expiryStr}T23:59:59`);
+                if (!description || !expiryStr) {
+                    showCustomAlert('Bitte alle Felder ausfüllen.');
+                    return;
+                }
 
-    // Firestore-Objekte prüfen
-    if (!window.__fire_db) throw new Error("Firestore (db) ist nicht initialisiert.");
-    const db = window.__fire_db;
+                // Prüfen ob Firebase verfügbar ist
+                if (!firebaseReady || !db) {
+                    // Local Mode - nur in Arrays speichern
+                    const newCodes = [];
+                    for (let i = 0; i < quantity; i++) {
+                        const code = generateRandomCode();
+                        const newCode = {
+                            id: 'local_' + Date.now() + '_' + i,
+                            code: code,
+                            description: description,
+                            department: targetDepartment,
+                            created: new Date().toLocaleDateString('de-DE'),
+                            expiry: new Date(expiryStr).toLocaleDateString('de-DE'),
+                            status: 'Aktiv',
+                            timestamp: Date.now()
+                        };
+                        generatedCodes.push(newCode);
+                        newCodes.push(code);
+                    }
+                    
+                    showCustomAlert(`${quantity} Code(s) wurden lokal generiert: ${newCodes.join(', ')}`);
+                    loadDashboardData();
+                    
+                    // Formular zurücksetzen
+                    document.getElementById('codeDescription').value = '';
+                    document.getElementById('codeExpiry').value = '';
+                    return;
+                }
 
-    // Helfer für Code
-    const makeCode = () =>
-      Math.random().toString(36).slice(2, 6).toUpperCase() + "-" +
-      Math.random().toString(36).slice(2, 6).toUpperCase();
+                // Firebase Mode
+                const newCodes = [];
+                for (let i = 0; i < quantity; i++) {
+                    const code = generateRandomCode();
+                    
+                    const codeData = {
+                        code: code,
+                        description: description,
+                        department: targetDepartment,
+                        created: new Date().toLocaleDateString('de-DE'),
+                        expiry: new Date(expiryStr).toLocaleDateString('de-DE'),
+                        createdTimestamp: serverTimestamp(),
+                        expiryDate: new Date(expiryStr).toISOString(),
+                        status: 'Aktiv'
+                    };
 
-    // n Codes anlegen
-    for (let i = 0; i < amount; i++) {
-      const code = makeCode();
-      await addDoc(collection(db, "codes"), {
-        code,
-        description,
-        department: department || null,
-        createdAt: serverTimestamp(),
-        expiry: expiry.toISOString(),
-        used: false
-      });
-    }
+                    // Verwende die globale codesCollection Variable
+                    await addDoc(codesCollection, codeData);
+                    newCodes.push(code);
+                }
 
-    alert(`${amount} Code(s) gespeichert.`);
-  } catch (e) {
-    console.error("Codes erstellen: ", e);
-    alert("Fehler beim Erstellen der Codes: " + (e?.message || e));
-  }
-}
-
-            descriptionInput.value = '';
-            expiryInputEl.value = '';
+                showCustomAlert(`${quantity} Code(s) wurden erfolgreich generiert: ${newCodes.join(', ')}`);
+                
+                // Formular zurücksetzen
+                document.getElementById('codeDescription').value = '';
+                document.getElementById('codeExpiry').value = '';
+                
+            } catch (error) {
+                console.error('Fehler beim Generieren der Codes:', error);
+                showCustomAlert('Fehler beim Generieren der Codes: ' + error.message);
+            }
         }
 
         // Load Dashboard Data
@@ -1413,12 +1466,19 @@ async function onGenerateCodes() {
                 `Möchten Sie den Code <strong>${code}</strong> wirklich löschen? Alle zugehörigen Ergebnisse werden ebenfalls entfernt.`,
                 "Löschen",
                 async () => {
-                    await deleteDoc(doc(db, "codes", docId));
-                    const q = query(resultsCollection, where("testCode", "==", code));
-                    const querySnapshot = await getDocs(q);
-                    const batch = writeBatch(db);
-                    querySnapshot.forEach((doc) => batch.delete(doc.ref));
-                    await batch.commit();
+                    if (firebaseReady && db) {
+                        await deleteDoc(doc(db, "codes", docId));
+                        const q = query(resultsCollection, where("testCode", "==", code));
+                        const querySnapshot = await getDocs(q);
+                        const batch = writeBatch(db);
+                        querySnapshot.forEach((doc) => batch.delete(doc.ref));
+                        await batch.commit();
+                    } else {
+                        // Local mode: remove from array
+                        generatedCodes = generatedCodes.filter(c => c.id !== docId);
+                        testResults = testResults.filter(r => r.testCode !== code);
+                        loadDashboardData();
+                    }
                     showCustomAlert(`Code ${code} und alle Ergebnisse wurden gelöscht.`);
                 }
             );
@@ -1439,7 +1499,9 @@ async function onGenerateCodes() {
                 "Ja, ändern",
                 async () => {
                     userAccounts[departmentToReset].pass = newPassword;
-                    await setDoc(accountsDocRef, userAccounts);
+                    if (firebaseReady && accountsDocRef) {
+                        await setDoc(accountsDocRef, userAccounts);
+                    }
                     document.getElementById('newPassword').value = '';
                     showCustomAlert(`Das Passwort für ${deptNames[departmentToReset]} wurde geändert.`);
                 }
@@ -1459,6 +1521,7 @@ async function onGenerateCodes() {
                 `<button class="login-button" style="width: auto; padding: 10px 30px;" onclick="document.getElementById('alertModal').classList.remove('active')">OK</button>`;
             modal.classList.add('active');
         };
+        window.showCustomAlert = showCustomAlert; // Globale Verfügbarkeit
         
         function showCustomConfirm(message, confirmText, onConfirm) {
             const modal = document.getElementById('alertModal');
@@ -1481,6 +1544,7 @@ async function onGenerateCodes() {
             cancelBtn.onclick = () => handleConfirm(false);
             okBtn.onclick = () => handleConfirm(true);
         };
+        window.showCustomConfirm = showCustomConfirm; // Globale Verfügbarkeit
 
         function updateDownloadButtonState() {
             const checkedBoxes = document.querySelectorAll('.code-checkbox:checked');
@@ -1507,6 +1571,7 @@ async function onGenerateCodes() {
             a.click();
             window.URL.revokeObjectURL(url);
         };
+
         function exportResults() {
             const isAdmin = currentDepartment === 'admin';
             const departmentCodes = isAdmin
@@ -1536,6 +1601,7 @@ async function onGenerateCodes() {
             a.click();
             window.URL.revokeObjectURL(url);
         };
+
         function filterResults() {
             const selectedCode = document.getElementById('codeFilter').value;
             const isAdmin = currentDepartment === 'admin';
@@ -1555,24 +1621,25 @@ async function onGenerateCodes() {
 
         // Event Listeners Setup
         document.addEventListener('DOMContentLoaded', async () => {
-// Login-Button während des Ladens deaktivieren
-const loginButton = document.querySelector('.login-button');
-if (loginButton) {
-  loginButton.disabled = true;
-  loginButton.textContent = 'Lädt...';
-}
+            // Login-Button während des Ladens deaktivieren
+            const loginButton = document.querySelector('.login-button');
+            if (loginButton) {
+                loginButton.disabled = true;
+                loginButton.textContent = 'Lädt...';
+            }
 
-try {
-  await initializeAppWithFirebase();
-} catch (error) {
-  console.error('Fehler bei der Firebase-Initialisierung:', error);
-} finally {
-  if (loginButton) {
-    loginButton.disabled = false;
-    loginButton.textContent = 'Anmelden';
-  }
-}
-document.getElementById('loginForm').addEventListener('submit', handleLogin);
+            try {
+                await initializeAppWithFirebase();
+            } catch (error) {
+                console.error('Fehler bei der Firebase-Initialisierung:', error);
+            } finally {
+                if (loginButton) {
+                    loginButton.disabled = false;
+                    loginButton.textContent = 'Anmelden';
+                }
+            }
+
+            document.getElementById('loginForm').addEventListener('submit', handleLogin);
             document.getElementById('logoutBtn').addEventListener('click', handleLogout);
             document.getElementById('generateCodesBtn').addEventListener('click', generateCodes);
             document.getElementById('resetPasswordBtn').addEventListener('click', resetPassword);
