@@ -997,6 +997,11 @@
         let currentUser = null;
         let currentDepartment = null;
         let generatedCodes = [];
+        // Variablen global verfügbar machen für Debugging
+window.generatedCodes = generatedCodes;
+window.testResults = testResults;
+window.currentDepartment = currentDepartment;
+window.loadDashboardData = loadDashboardData;
         let testResults = [];
         let userAccounts = {};
 
