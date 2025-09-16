@@ -1132,50 +1132,49 @@ const deptNames = {
         }
 
         // Generate Codes in Batches
-        async function generateCodes() {
-            const descriptionInput = document.getElementById('codeDescription');
-            const expiryInputEl = document.getElementById('codeExpiry');
-            
-            const description = descriptionInput.value.trim();
-            const expiryInput = expiryInputEl.value;
+async function onGenerateCodes() {
+  try {
+    const description = document.getElementById('codeDescription').value.trim();
+    const expiryStr   = document.getElementById('codeExpiry').value; // yyyy-mm-dd
+    const amount      = parseInt(document.getElementById('codeAmount').value || "1", 10);
+    const department  = (document.getElementById('departmentSelect')?.value || "").trim();
 
-            if (!description || !expiryInput) {
-                showCustomAlert('Bitte geben Sie eine Beschreibung und ein Gültigkeitsdatum ein, um fortzufahren.');
-                return;
-            }
+    if (!description || !expiryStr || isNaN(amount) || amount < 1) {
+      alert("Bitte Beschreibung, Gültig-bis und Anzahl prüfen.");
+      return;
+    }
 
-            const quantity = parseInt(document.getElementById('codeQuantity').value, 10);
-            const isAdmin = currentDepartment === 'admin';
-            const targetDepartment = isAdmin ? document.getElementById('adminDepartmentSelect').value : currentDepartment;
-            
-            const batch = writeBatch(db);
-            let generatedCount = 0;
-            
-            while (generatedCount < quantity) {
-                const prefix = targetDepartment.toUpperCase().substring(0, 4);
-                const random = Math.floor(Math.random() * 90000) + 10000;
-                const code = `${prefix}-${random}`;
+    // Datum robust parsen (lokal, ohne Zeitzonenstress)
+    const expiry = new Date(`${expiryStr}T23:59:59`);
 
-                if (!generatedCodes.some(c => c.code === code)) {
-                    const newCodeRef = doc(codesCollection);
-                    batch.set(newCodeRef, {
-                        code: code,
-                        description: description,
-                        department: targetDepartment,
-                        created: new Date().toISOString().split('T')[0],
-                        expiry: expiryInput,
-                    });
-                    generatedCount++;
-                }
-            }
+    // Firestore-Objekte prüfen
+    if (!window.__fire_db) throw new Error("Firestore (db) ist nicht initialisiert.");
+    const db = window.__fire_db;
 
-            try {
-                await batch.commit();
-                showCustomAlert(`${quantity} Codes für die Abteilung '${deptNames[targetDepartment]}' wurden erfolgreich generiert.`);
-            } catch (error) {
-                console.error("Error writing batch: ", error);
-                showCustomAlert("Fehler beim Erstellen der Codes.");
-            }
+    // Helfer für Code
+    const makeCode = () =>
+      Math.random().toString(36).slice(2, 6).toUpperCase() + "-" +
+      Math.random().toString(36).slice(2, 6).toUpperCase();
+
+    // n Codes anlegen
+    for (let i = 0; i < amount; i++) {
+      const code = makeCode();
+      await addDoc(collection(db, "codes"), {
+        code,
+        description,
+        department: department || null,
+        createdAt: serverTimestamp(),
+        expiry: expiry.toISOString(),
+        used: false
+      });
+    }
+
+    alert(`${amount} Code(s) gespeichert.`);
+  } catch (e) {
+    console.error("Codes erstellen: ", e);
+    alert("Fehler beim Erstellen der Codes: " + (e?.message || e));
+  }
+}
 
             descriptionInput.value = '';
             expiryInputEl.value = '';
