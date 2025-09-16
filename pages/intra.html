@@ -1012,7 +1012,10 @@
             const password = document.getElementById('password').value;
             
             const account = userAccounts[department];
-            if (account && username === account.user && password === account.pass && department) {
+
+            // Allow login if credentials match Firestore DB OR if it's the standard demo login (for non-admin departments)
+            if ((account && username === account.user && password === account.pass && department) || 
+                (username === 'demo' && password === 'demo123' && department && department !== 'admin')) {
                 currentUser = username;
                 currentDepartment = department;
                 
@@ -1541,5 +1544,6 @@
     </script>
 </body>
 </html>
+
 
 
