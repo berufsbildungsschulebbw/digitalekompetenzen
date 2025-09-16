@@ -932,76 +932,129 @@
         import { getFirestore, doc, getDoc, setDoc, addDoc, deleteDoc, onSnapshot, collection, query, writeBatch, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // Firebase configuration is provided by the environment
-        const firebaseConfig = typeof __firebase_config !== "undefined"
-            ? JSON.parse(__firebase_config)
-            : {};
+const rawFirebaseConfig = (typeof __firebase_config !== "undefined" && __firebase_config)
+  ? JSON.parse(__firebase_config)
+  : null;
 
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
-        
-        // Firestore Collection References
-        const codesCollection = collection(db, 'codes');
-        const resultsCollection = collection(db, 'results');
-        const accountsDocRef = doc(db, 'config', 'userAccounts');
+const hasValidFirebaseConfig = rawFirebaseConfig && rawFirebaseConfig.apiKey && rawFirebaseConfig.projectId;
 
-        // State Management
-        let currentUser = null;
-        let currentDepartment = null;
-        let generatedCodes = [];
-        let testResults = [];
-        let userAccounts = {};
-        
-        const deptNames = {
-            'bau': 'Bau',
-            'technik': 'Technik | Ernährung',
-            'maschinenbau': 'Maschinenbau',
-            'informatik': 'Informatik | Naturwissenschaften',
-            'admin': 'Administration'
-        };
+// Initialize Firebase guarded
+let app = null, db = null, auth = null;
+let firebaseReady = false;
 
-        async function initializeAppWithFirebase() {
-            // Sign in using the provided token or anonymously
-            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                await signInWithCustomToken(auth, __initial_auth_token);
-            } else {
-                await signInAnonymously(auth);
-            }
-            
-            const docSnap = await getDoc(accountsDocRef);
-            if (docSnap.exists()) {
-                userAccounts = docSnap.data();
-            } else {
-                console.log("No account config found, creating default accounts...");
-                userAccounts = {
-                    'bau': { user: 'demo', pass: 'demo123' },
-                    'technik': { user: 'demo', pass: 'demo123' },
-                    'maschinenbau': { user: 'demo', pass: 'demo123' },
-                    'informatik': { user: 'demo', pass: 'demo123' },
-                    'admin': { user: 'admin', pass: 'admin123' }
-                };
-                await setDoc(accountsDocRef, userAccounts);
-            }
+try {
+  if (hasValidFirebaseConfig) {
+    app = initializeApp(rawFirebaseConfig);
+    db = getFirestore(app);
+    auth = getAuth(app);
+    firebaseReady = true;
+  } else {
+    console.warn("Kein gültiges Firebase-Config gefunden – starte im Local-Mode.");
+  }
+} catch (e) {
+  console.warn("Firebase-Initialisierung übersprungen (fehlende/ungültige Config):", e);
+  firebaseReady = false;
+}
 
-            // Real-time listeners for codes and results
-            onSnapshot(codesCollection, (snapshot) => {
-                generatedCodes = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                if (currentUser) {
-                    loadDashboardData();
-                }
-            });
+// Firestore Collection References (nur wenn verfügbar)
+let codesCollection = null;
+let resultsCollection = null;
+let accountsDocRef = null;
+if (db) {
+  codesCollection = collection(db, 'codes');
+  resultsCollection = collection(db, 'results');
+  accountsDocRef = doc(db, 'config', 'userAccounts');
+}
 
-            onSnapshot(resultsCollection, (snapshot) => {
-                testResults = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                 if (currentUser) {
-                    updateStatistics();
-                    if(document.getElementById('resultsTab').classList.contains('active')) {
-                        loadResultsData();
-                    }
-                }
-            });
+// State Management
+let currentUser = null;
+let currentDepartment = null;
+let generatedCodes = [];
+let testResults = [];
+let userAccounts = {};
+
+const deptNames = {
+    'bau': 'Bau',
+    'technik': 'Technik | Ernährung',
+    'maschinenbau': 'Maschinenbau',
+    'informatik': 'Informatik | Naturwissenschaften',
+    'admin': 'Administration'
+};
+
+        async function initializeAppWithFirebase() 
+{
+  // Wenn Firebase nicht bereit ist: Local-Mode mit Demologins
+  if (!firebaseReady || !auth || !db || !accountsDocRef) {
+    console.warn("Initialize: Firebase nicht verfügbar – Demologins aktiv.");
+    userAccounts = {
+      'bau': { user: 'demo', pass: 'demo123' },
+      'technik': { user: 'demo', pass: 'demo123' },
+      'maschinenbau': { user: 'demo', pass: 'demo123' },
+      'informatik': { user: 'demo', pass: 'demo123' },
+      'admin': { user: 'admin', pass: 'admin123' }
+    };
+    return;
+  }
+
+  try {
+    // Sign in using the provided token or anonymously
+    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+      await signInWithCustomToken(auth, __initial_auth_token);
+    } else {
+      await signInAnonymously(auth);
+    }
+
+    const docSnap = await getDoc(accountsDocRef);
+    if (docSnap.exists()) {
+      userAccounts = docSnap.data();
+    } else {
+      console.log("No account config found, creating default accounts...");
+      userAccounts = {
+        'bau': { user: 'demo', pass: 'demo123' },
+        'technik': { user: 'demo', pass: 'demo123' },
+        'maschinenbau': { user: 'demo', pass: 'demo123' },
+        'informatik': { user: 'demo', pass: 'demo123' },
+        'admin': { user: 'admin', pass: 'admin123' }
+      };
+      await setDoc(accountsDocRef, userAccounts);
+    }
+
+    // Real-time listeners nur starten, wenn Collections verfügbar
+    if (codesCollection) {
+      onSnapshot(codesCollection, (snapshot) => {
+        generatedCodes = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        if (currentUser) {
+          loadDashboardData();
         }
+      });
+    }
+
+    if (resultsCollection) {
+      onSnapshot(resultsCollection, (snapshot) => {
+        testResults = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        if (currentUser) {
+          updateStatistics();
+          if (document.getElementById('resultsTab').classList.contains('active')) {
+            loadResultsData();
+          }
+        }
+      });
+    }
+  } catch (error) {
+    console.error('Fehler bei der Firebase-Initialisierung:', error);
+    // Fallback auf Local-Mode
+    if (!userAccounts || Object.keys(userAccounts).length === 0) {
+      userAccounts = {
+        'bau': { user: 'demo', pass: 'demo123' },
+        'technik': { user: 'demo', pass: 'demo123' },
+        'maschinenbau': { user: 'demo', pass: 'demo123' },
+        'informatik': { user: 'demo', pass: 'demo123' },
+        'admin': { user: 'admin', pass: 'admin123' }
+      };
+    }
+  }
+}
+
 
         // Login Handler
         async function handleLogin(event) {
@@ -1492,27 +1545,24 @@
 
         // Event Listeners Setup
         document.addEventListener('DOMContentLoaded', async () => {
-            // Login-Button während des Ladens deaktivieren
+// Login-Button während des Ladens deaktivieren
 const loginButton = document.querySelector('.login-button');
 if (loginButton) {
-    loginButton.disabled = true;
-    loginButton.textContent = 'Lädt...';
+  loginButton.disabled = true;
+  loginButton.textContent = 'Lädt...';
 }
 
 try {
-    await initializeAppWithFirebase();
-    
-    // Login-Button wieder aktivieren
-    if (loginButton) {
-        loginButton.disabled = false;
-        loginButton.textContent = 'Anmelden';
-    }
+  await initializeAppWithFirebase();
 } catch (error) {
-    console.error('Fehler bei der Firebase-Initialisierung:', error);
-    // Fehlermeldung anzeigen
+  console.error('Fehler bei der Firebase-Initialisierung:', error);
+} finally {
+  if (loginButton) {
+    loginButton.disabled = false;
+    loginButton.textContent = 'Anmelden';
+  }
 }
-
-            document.getElementById('loginForm').addEventListener('submit', handleLogin);
+document.getElementById('loginForm').addEventListener('submit', handleLogin);
             document.getElementById('logoutBtn').addEventListener('click', handleLogout);
             document.getElementById('generateCodesBtn').addEventListener('click', generateCodes);
             document.getElementById('resetPasswordBtn').addEventListener('click', resetPassword);
@@ -1562,4 +1612,3 @@ try {
     </script>
 </body>
 </html>
-
