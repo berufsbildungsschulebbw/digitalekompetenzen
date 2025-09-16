@@ -997,13 +997,13 @@
         let currentUser = null;
         let currentDepartment = null;
         let generatedCodes = [];
-        // Variablen global verfügbar machen für Debugging
-window.generatedCodes = generatedCodes;
-window.testResults = testResults;
-window.currentDepartment = currentDepartment;
-window.loadDashboardData = loadDashboardData;
         let testResults = [];
         let userAccounts = {};
+
+        // Global verfügbar machen für Debugging
+        window.generatedCodes = generatedCodes;
+        window.testResults = testResults;
+        window.currentDepartment = currentDepartment;
 
         const deptNames = {
             'bau': 'Bau',
@@ -1050,27 +1050,45 @@ window.loadDashboardData = loadDashboardData;
                     await setDoc(accountsDocRef, userAccounts);
                 }
 
-                // Real-time listeners nur starten, wenn Collections verfügbar
+                // Real-time listeners mit besserer Fehlerbehandlung
                 if (codesCollection) {
-                    onSnapshot(codesCollection, (snapshot) => {
-                        generatedCodes = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                        if (currentUser) {
-                            loadDashboardData();
+                    const unsubscribeCodes = onSnapshot(codesCollection, 
+                        (snapshot) => {
+                            generatedCodes = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                            window.generatedCodes = generatedCodes; // Global verfügbar machen
+                            console.log("Codes aktualisiert:", generatedCodes.length);
+                            if (currentUser) {
+                                loadDashboardData();
+                            }
+                        },
+                        (error) => {
+                            console.error("Fehler beim Codes-Listener:", error);
                         }
-                    });
+                    );
                 }
 
                 if (resultsCollection) {
-                    onSnapshot(resultsCollection, (snapshot) => {
-                        testResults = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                        if (currentUser) {
-                            updateStatistics();
-                            if (document.getElementById('resultsTab').classList.contains('active')) {
-                                loadResultsData();
+                    const unsubscribeResults = onSnapshot(resultsCollection, 
+                        (snapshot) => {
+                            testResults = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                            window.testResults = testResults; // Global verfügbar machen
+                            console.log("Results aktualisiert:", testResults.length);
+                            if (currentUser) {
+                                updateStatistics();
+                                if (document.getElementById('resultsTab').classList.contains('active')) {
+                                    loadResultsData();
+                                }
                             }
+                        },
+                        (error) => {
+                            console.error("Fehler beim Results-Listener:", error);
                         }
-                    });
+                    );
                 }
+
+                // Initiale Daten laden
+                await loadInitialData();
+                
             } catch (error) {
                 console.error('Fehler bei der Firebase-Initialisierung:', error);
                 // Fallback auf Local-Mode
@@ -1086,31 +1104,71 @@ window.loadDashboardData = loadDashboardData;
             }
         }
 
-       // Manuelle Funktion zum Laden der Codes aus Firebase
-async function manualLoadCodes() {
-    if (!firebaseReady || !db) {
-        console.log("Firebase nicht verfügbar");
-        return;
-    }
-    
-    try {
-        const { getDocs } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
-        const snapshot = await getDocs(codesCollection);
-        generatedCodes = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        console.log("Codes manuell geladen:", generatedCodes.length);
-        loadDashboardData();
-    } catch (error) {
-        console.error("Fehler beim manuellen Laden:", error);
-    }
-}
+        // Neue Funktion: Initiale Daten laden
+        async function loadInitialData() {
+            if (!firebaseReady || !codesCollection || !resultsCollection) return;
+            
+            try {
+                // Codes manuell laden
+                const codesSnapshot = await getDocs(codesCollection);
+                generatedCodes = codesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                window.generatedCodes = generatedCodes;
+                console.log("Initiale Codes geladen:", generatedCodes.length);
+                
+                // Results manuell laden
+                const resultsSnapshot = await getDocs(resultsCollection);
+                testResults = resultsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                window.testResults = testResults;
+                console.log("Initiale Results geladen:", testResults.length);
+            } catch (error) {
+                console.error("Fehler beim initialen Laden:", error);
+            }
+        }
 
-// Global verfügbar machen
-window.manualLoadCodes = manualLoadCodes;
+        // Login Handler
+        async function handleLogin(event) {
+            event.preventDefault();
+            
+            const department = document.getElementById('department').value;
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            const account = userAccounts[department];
+
+            // Allow login if credentials match Firestore DB OR if it's the standard demo login (for non-admin departments)
+            if ((account && username === account.user && password === account.pass && department) || 
+                (username === 'demo' && password === 'demo123' && department && department !== 'admin')) {
+                currentUser = username;
+                currentDepartment = department;
+                window.currentDepartment = department; // Global verfügbar machen
+                
+                document.getElementById('loginSection').style.display = 'none';
+                document.getElementById('dashboardSection').classList.add('active');
+                
+                document.getElementById('userDepartment').textContent = deptNames[department] || department;
+                document.getElementById('userName').textContent = `Benutzer: ${username}`;
+                
+                const isAdmin = department === 'admin';
+                document.getElementById('adminTabButton').style.display = isAdmin ? 'block' : 'none';
+                document.getElementById('adminDepartmentSelector').style.display = isAdmin ? 'block' : 'none';
+
+                // Nach Login: Daten neu laden
+                await loadInitialData();
+                loadDashboardData();
+            } else {
+                const errorMessage = document.getElementById('errorMessage');
+                errorMessage.style.display = 'block';
+                setTimeout(() => {
+                   errorMessage.style.display = 'none';
+                }, 3000);
+            }
+        }
 
         // Logout Handler
         function handleLogout() {
             currentUser = null;
             currentDepartment = null;
+            window.currentDepartment = null;
             document.getElementById('dashboardSection').classList.remove('active');
             document.getElementById('loginSection').style.display = 'block';
             document.getElementById('adminTabButton').style.display = 'none';
@@ -1142,7 +1200,7 @@ window.manualLoadCodes = manualLoadCodes;
             return `${part1}-${part2}`;
         }
 
-        // KORRIGIERTE generateCodes Funktion
+        // KORRIGIERTE generateCodes Funktion mit manuellem Reload
         async function generateCodes() {
             try {
                 // Korrekte Element-IDs verwenden
@@ -1181,6 +1239,7 @@ window.manualLoadCodes = manualLoadCodes;
                         newCodes.push(code);
                     }
                     
+                    window.generatedCodes = generatedCodes;
                     showCustomAlert(`${quantity} Code(s) wurden lokal generiert: ${newCodes.join(', ')}`);
                     loadDashboardData();
                     
@@ -1217,17 +1276,25 @@ window.manualLoadCodes = manualLoadCodes;
                 document.getElementById('codeDescription').value = '';
                 document.getElementById('codeExpiry').value = '';
                 
+                // Nach dem Generieren: Codes manuell neu laden
+                setTimeout(async () => {
+                    await loadInitialData();
+                    loadDashboardData();
+                }, 1500);
+                
             } catch (error) {
                 console.error('Fehler beim Generieren der Codes:', error);
                 showCustomAlert('Fehler beim Generieren der Codes: ' + error.message);
             }
         }
 
-        // Load Dashboard Data
+        // Load Dashboard Data - Global verfügbar machen
         function loadDashboardData() {
             const codeTableBody = document.getElementById('codeTableBody');
             const isAdmin = currentDepartment === 'admin';
             const departmentCodes = isAdmin ? generatedCodes : generatedCodes.filter(c => c.department === currentDepartment);
+
+            console.log("LoadDashboard - Alle Codes:", generatedCodes.length, "Department Codes:", departmentCodes.length);
 
             document.getElementById('selectAllCheckbox').checked = false;
             updateDownloadButtonState();
@@ -1239,8 +1306,14 @@ window.manualLoadCodes = manualLoadCodes;
 
             document.querySelector('.code-table th:nth-child(4)').style.display = isAdmin ? '' : 'none';
 
-            codeTableBody.innerHTML = departmentCodes.sort((a,b) => new Date(b.created) - new Date(a.created)).map(code => {
-                const isExpired = new Date() > new Date(code.expiry);
+            codeTableBody.innerHTML = departmentCodes.sort((a,b) => {
+                // Sortiere nach Timestamp wenn vorhanden, sonst nach created string
+                if (a.timestamp && b.timestamp) {
+                    return b.timestamp - a.timestamp;
+                }
+                return new Date(b.created) - new Date(a.created);
+            }).map(code => {
+                const isExpired = new Date() > new Date(code.expiry || code.expiryDate);
                 const status = isExpired ? 'Abgelaufen' : 'Aktiv';
                 const statusClass = isExpired ? 'status-expired' : 'status-active';
                 const participants = testResults.filter(r => r.testCode === code.code).length;
@@ -1264,6 +1337,9 @@ window.manualLoadCodes = manualLoadCodes;
             
             updateStatistics();
         }
+        
+        // Global verfügbar machen
+        window.loadDashboardData = loadDashboardData;
 
         // Load Results Data
         function loadResultsData() {
@@ -1390,7 +1466,10 @@ window.manualLoadCodes = manualLoadCodes;
             const relevantResults = testResults.filter(r => codeList.includes(r.testCode));
             
             document.getElementById('totalTests').textContent = relevantResults.length;
-            document.getElementById('activeCodes').textContent = departmentCodes.filter(c => new Date(c.expiry) >= new Date()).length;
+            document.getElementById('activeCodes').textContent = departmentCodes.filter(c => {
+                const expiryDate = c.expiry || c.expiryDate;
+                return new Date(expiryDate) >= new Date();
+            }).length;
             
             if (relevantResults.length > 0) {
                 const avgScore = Math.round(relevantResults.reduce((sum, r) => sum + r.totalPercentage, 0) / relevantResults.length);
@@ -1467,6 +1546,8 @@ window.manualLoadCodes = manualLoadCodes;
                         // Local mode: remove from array
                         generatedCodes = generatedCodes.filter(c => c.id !== docId);
                         testResults = testResults.filter(r => r.testCode !== code);
+                        window.generatedCodes = generatedCodes;
+                        window.testResults = testResults;
                         loadDashboardData();
                     }
                     showCustomAlert(`Code ${code} und alle Ergebnisse wurden gelöscht.`);
@@ -1510,7 +1591,7 @@ window.manualLoadCodes = manualLoadCodes;
             document.getElementById('alertModalFooter').innerHTML = 
                 `<button class="login-button" style="width: auto; padding: 10px 30px;" onclick="document.getElementById('alertModal').classList.remove('active')">OK</button>`;
             modal.classList.add('active');
-        };
+        }
         window.showCustomAlert = showCustomAlert; // Globale Verfügbarkeit
         
         function showCustomConfirm(message, confirmText, onConfirm) {
@@ -1533,18 +1614,18 @@ window.manualLoadCodes = manualLoadCodes;
             
             cancelBtn.onclick = () => handleConfirm(false);
             okBtn.onclick = () => handleConfirm(true);
-        };
+        }
         window.showCustomConfirm = showCustomConfirm; // Globale Verfügbarkeit
 
         function updateDownloadButtonState() {
             const checkedBoxes = document.querySelectorAll('.code-checkbox:checked');
             document.getElementById('downloadCodesBtn').disabled = checkedBoxes.length === 0;
-        };
+        }
 
         function toggleAllCheckboxes(source) {
             document.querySelectorAll('.code-checkbox').forEach(cb => cb.checked = source.checked);
             updateDownloadButtonState();
-        };
+        }
 
         function downloadSelectedCodes() {
             const checkedBoxes = document.querySelectorAll('.code-checkbox:checked');
@@ -1560,7 +1641,7 @@ window.manualLoadCodes = manualLoadCodes;
             a.download = `test-codes_${new Date().toISOString().split('T')[0]}.csv`;
             a.click();
             window.URL.revokeObjectURL(url);
-        };
+        }
 
         function exportResults() {
             const isAdmin = currentDepartment === 'admin';
@@ -1590,7 +1671,7 @@ window.manualLoadCodes = manualLoadCodes;
             a.download = `kompetenzen_export_${new Date().toISOString().split('T')[0]}.csv`;
             a.click();
             window.URL.revokeObjectURL(url);
-        };
+        }
 
         function filterResults() {
             const selectedCode = document.getElementById('codeFilter').value;
@@ -1607,7 +1688,7 @@ window.manualLoadCodes = manualLoadCodes;
             }
             
             displayResults(relevantResults);
-        };
+        }
 
         // Event Listeners Setup
         document.addEventListener('DOMContentLoaded', async () => {
