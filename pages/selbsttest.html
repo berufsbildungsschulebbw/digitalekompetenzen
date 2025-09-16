@@ -651,7 +651,39 @@
         </div>
     </div>
 
+    <!-- Firebase Configuration -->
     <script>
+        window.__firebase_config = JSON.stringify({
+            apiKey: "AIzaSyCHhycjQmHU00_dQl5Xdo5PZCTn8JODk20",
+            authDomain: "ikt-komp-bbw.firebaseapp.com",
+            projectId: "ikt-komp-bbw",
+            storageBucket: "ikt-komp-bbw.firebasestorage.app",
+            messagingSenderId: "154620660911",
+            appId: "1:154620660911:web:20d389d699d2f0d2c2d85a",
+            measurementId: "G-JZ1VC46184"
+        });
+    </script>
+
+    <!-- Main Application Script with Firebase -->
+    <script type="module">
+        // Firebase imports
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, collection, query, where, getDocs, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        
+        // Firebase initialisieren
+        let db = null;
+        let firebaseReady = false;
+        
+        try {
+            const firebaseConfig = JSON.parse(window.__firebase_config);
+            const app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            firebaseReady = true;
+            console.log("Firebase initialisiert für Selbsttest");
+        } catch (e) {
+            console.warn("Firebase nicht verfügbar, nutze lokalen Speicher:", e);
+        }
+
         // Test Questions Database with additional info
         const sections = [
             {
@@ -1046,6 +1078,9 @@
             document.getElementById('prevButton').style.display = sectionIndex === 0 ? 'none' : 'block';
             document.getElementById('nextButton').style.display = sectionIndex === sections.length - 1 ? 'none' : 'block';
             document.getElementById('submitButton').style.display = sectionIndex === sections.length - 1 ? 'block' : 'none';
+            
+            // Scroll to top
+            window.scrollTo(0, 0);
         }
 
         // Toggle Info Box Function
@@ -1114,11 +1149,11 @@
             // Calculate results
             const results = calculateResults();
             
+            // Save to Firebase and localStorage
+            saveResults(results);
+            
             // Show results
             showResults(results);
-            
-            // Save to localStorage (simulate backend)
-            saveResults(results);
         }
 
         // Calculate Results Function
@@ -1302,21 +1337,40 @@
             return recommendations.slice(0, 3); // Return max 3 recommendations
         }
 
-        // Save Results Function
-        function saveResults(results) {
-            // Get existing results from localStorage
+        // NEUE saveResults Funktion mit Firebase-Integration
+        async function saveResults(results) {
+            // Lokale Speicherung (Backup)
             let allResults = JSON.parse(localStorage.getItem('bbw_test_results') || '[]');
-            
-            // Add new result
             allResults.push(results);
-            
-            // Save back to localStorage
             localStorage.setItem('bbw_test_results', JSON.stringify(allResults));
             
-            // Also save with code for department analysis
-            const codeResults = JSON.parse(localStorage.getItem(`bbw_results_${results.testCode}`) || '[]');
-            codeResults.push(results);
-            localStorage.setItem(`bbw_results_${results.testCode}`, JSON.stringify(codeResults));
+            // Firebase Speicherung
+            if (firebaseReady && db) {
+                try {
+                    // Prüfe ob Code existiert
+                    const codesRef = collection(db, 'codes');
+                    const q = query(codesRef, where("code", "==", results.testCode));
+                    const querySnapshot = await getDocs(q);
+                    
+                    if (!querySnapshot.empty) {
+                        // Code existiert - speichere Ergebnis
+                        const resultsRef = collection(db, 'results');
+                        await addDoc(resultsRef, {
+                            ...results,
+                            createdAt: serverTimestamp()
+                        });
+                        console.log("Ergebnisse in Firebase gespeichert");
+                    } else {
+                        console.warn("Ungültiger Code - Ergebnisse nur lokal gespeichert");
+                        alert("Hinweis: Der verwendete Code ist ungültig oder abgelaufen. Ihre Ergebnisse wurden nur lokal gespeichert.");
+                    }
+                } catch (error) {
+                    console.error("Fehler beim Speichern in Firebase:", error);
+                    alert("Ihre Ergebnisse konnten nicht online gespeichert werden. Sie wurden nur lokal gespeichert.");
+                }
+            } else {
+                console.log("Firebase nicht verfügbar - nur lokale Speicherung");
+            }
         }
 
         // Restart Test Function
@@ -1333,6 +1387,15 @@
             document.getElementById('codeEntry').style.display = 'block';
             document.getElementById('accessCode').value = '';
         }
+
+        // Mache Funktionen global verfügbar (WICHTIG!)
+        window.startTest = startTest;
+        window.toggleInfo = toggleInfo;
+        window.selectAnswer = selectAnswer;
+        window.previousSection = previousSection;
+        window.nextSection = nextSection;
+        window.submitTest = submitTest;
+        window.restartTest = restartTest;
 
         // Enable Enter key for code input
         document.addEventListener('DOMContentLoaded', function() {
