@@ -1184,11 +1184,11 @@
         }
 
         // Tab Switching
-        function switchTab(event) {
-            const tabName = event.currentTarget.dataset.tab;
+        function switchTab(buttonEl) {
+            const tabName = buttonEl?.dataset?.tab;
 
             document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
-            event.currentTarget.classList.add('active');
+            buttonEl.classList.add('active');
             
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
             document.getElementById(tabName + 'Tab').classList.add('active');
@@ -1818,6 +1818,12 @@
             document.getElementById('codeFilter').addEventListener('change', filterResults);
 
             document.getElementById('tabNav').addEventListener('click', (e) => {
+document.getElementById('tabNav').addEventListener('click', (e) => {
+  const btn = e.target.closest('.tab-button');
+  if (!btn) return;
+  switchTab(btn);
+});
+
                 if (e.target.matches('.tab-button')) {
                     switchTab(e);
                 }
