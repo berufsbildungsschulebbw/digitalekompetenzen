@@ -969,12 +969,18 @@
             serverTimestamp 
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Firebase configuration is provided by the environment
-        const rawFirebaseConfig = (typeof __firebase_config !== "undefined" && __firebase_config)
-            ? JSON.parse(__firebase_config)
-            : null;
+        // Firebase configuration - Direkt eingebettet
+        const firebaseConfig = {
+            apiKey: "AIzaSyCHhycjQmHU00_dQl5Xdo5PZCTn8JODk20",
+            authDomain: "ikt-komp-bbw.firebaseapp.com",
+            projectId: "ikt-komp-bbw",
+            storageBucket: "ikt-komp-bbw.firebasestorage.app",
+            messagingSenderId: "154620660911",
+            appId: "1:154620660911:web:20d389d699d2f0d2c2d85a",
+            measurementId: "G-JZ1VC46184"
+        };
 
-        const hasValidFirebaseConfig = rawFirebaseConfig && rawFirebaseConfig.apiKey && rawFirebaseConfig.projectId;
+        const hasValidFirebaseConfig = firebaseConfig && firebaseConfig.apiKey && firebaseConfig.projectId;
 
         // Initialize Firebase guarded
         let app = null, db = null, auth = null;
@@ -982,7 +988,8 @@
 
         try {
             if (hasValidFirebaseConfig) {
-                app = initializeApp(rawFirebaseConfig);
+                console.log("Initializing Firebase with config:", firebaseConfig.projectId);
+                app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
                 auth = getAuth(app);
                 firebaseReady = true;
@@ -991,7 +998,7 @@
                 console.warn("Kein gültiges Firebase-Config gefunden – starte im Local-Mode.");
             }
         } catch (e) {
-            console.warn("Firebase-Initialisierung übersprungen (fehlende/ungültige Config):", e);
+            console.error("Firebase-Initialisierung fehlgeschlagen:", e);
             firebaseReady = false;
         }
 
@@ -1244,18 +1251,29 @@
             document.getElementById('password').value = '';
         }
 
-        // Tab Switching
-        function switchTab(event) {
+        // Tab Switching - Fixed version
+        function switchTab(tabButton) {
             try {
-                const tabName = event.currentTarget.dataset.tab;
+                const tabName = tabButton.dataset.tab;
                 console.log("Switching to tab:", tabName);
                 
+                if (!tabName) {
+                    console.error("No tab name found on button");
+                    return;
+                }
+                
                 // Remove active class from all buttons
-                document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
-                event.currentTarget.classList.add('active');
+                document.querySelectorAll('.tab-button').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                
+                // Add active to clicked button
+                tabButton.classList.add('active');
                 
                 // Remove active class from all content
-                document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
                 
                 // Add active class to selected tab
                 const targetTab = document.getElementById(tabName + 'Tab');
@@ -1263,14 +1281,21 @@
                     targetTab.classList.add('active');
                     
                     // Load data for specific tabs
-                    if (tabName === 'results') loadResultsData();
-                    if (tabName === 'statistics') loadStatisticsData();
-                    if (tabName === 'admin') loadAdminData();
+                    if (tabName === 'results') {
+                        loadResultsData();
+                    } else if (tabName === 'statistics') {
+                        loadStatisticsData();
+                    } else if (tabName === 'admin') {
+                        loadAdminData();
+                    }
                 } else {
-                    console.error("Tab not found:", tabName + 'Tab');
+                    console.error("Tab content not found:", tabName + 'Tab');
+                    // List all available tabs for debugging
+                    console.log("Available tabs:", Array.from(document.querySelectorAll('.tab-content')).map(el => el.id));
                 }
             } catch (error) {
                 console.error("Error in switchTab:", error);
+                console.error("Error details:", error.stack);
             }
         }
 
@@ -2039,8 +2064,11 @@
             document.getElementById('codeFilter').addEventListener('change', filterResults);
 
             document.getElementById('tabNav').addEventListener('click', (e) => {
-                if (e.target.matches('.tab-button')) {
-                    switchTab(e);
+                // Find the closest tab-button (in case we clicked on a child element)
+                const tabButton = e.target.closest('.tab-button');
+                if (tabButton) {
+                    e.preventDefault();
+                    switchTab(tabButton);
                 }
             });
 
