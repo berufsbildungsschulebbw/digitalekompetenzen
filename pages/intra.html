@@ -1172,7 +1172,8 @@
             } else if (account && typeof account === 'object') {
                 loginOk = (username === account.user && password === account.pass);
             }
-            if ((loginOk && department) || (username === 'demo' && password === 'demo123' && department && department !== 'admin')) {
+            const demoAllowed = ((!account) || (Array.isArray(account) && account.length === 0)) && department && department !== 'admin';
+            if ((loginOk && department) || (demoAllowed && username === 'demo' && password === 'demo123')) {
                 currentUser = username;
                 currentDepartment = department;
                 window.currentDepartment = department; // Global verfügbar machen
