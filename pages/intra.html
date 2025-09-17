@@ -679,7 +679,8 @@
                         <div class="form-group" id="adminDepartmentSelector" style="display: none;">
                             <label class="form-label">Für Abteilung</label>
                              <select id="adminDepartmentSelect" class="form-select">
-                                <option value="bau">Bau</option>
+                                                                <option value="admin">Administration</option>
+<option value="bau">Bau</option>
                                 <option value="technik">Technik | Ernährung</option>
                                 <option value="maschinenbau">Maschinenbau</option>
                                 <option value="informatik">Informatik | Naturwissenschaften</option>
@@ -696,13 +697,7 @@
                         </div>
                         <div class="form-group">
                             <label class="form-label">Anzahl</label>
-                            <select id="codeQuantity" class="form-select">
-                                <option value="10">10 Codes</option>
-                                <option value="20">20 Codes</option>
-                                <option value="30">30 Codes</option>
-                                <option value="40">40 Codes</option>
-                                <option value="50">50 Codes</option>
-                            </select>
+                            <input id="codeQuantity" type="number" class="form-input" min="1" max="1000" step="1" value="10">
                         </div>
                         <button id="generateCodesBtn" class="generate-button">
                             Codes generieren
@@ -1184,11 +1179,11 @@
         }
 
         // Tab Switching
-        function switchTab(buttonEl) {
-            const tabName = buttonEl?.dataset?.tab;
+        function switchTab(event) {
+            const tabName = event.currentTarget.dataset.tab;
 
             document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
-            buttonEl.classList.add('active');
+            event.currentTarget.classList.add('active');
             
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
             document.getElementById(tabName + 'Tab').classList.add('active');
@@ -1818,12 +1813,6 @@
             document.getElementById('codeFilter').addEventListener('change', filterResults);
 
             document.getElementById('tabNav').addEventListener('click', (e) => {
-document.getElementById('tabNav').addEventListener('click', (e) => {
-  const btn = e.target.closest('.tab-button');
-  if (!btn) return;
-  switchTab(btn);
-});
-
                 if (e.target.matches('.tab-button')) {
                     switchTab(e);
                 }
