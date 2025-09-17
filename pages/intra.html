@@ -676,6 +676,36 @@
                 <div class="code-generator">
                     <h3>Neue Test-Codes generieren</h3>
                     <div class="code-form">
+                        <!-- Zugangsdaten verwalten (nur Admin) -->
+                        <div class="form-group" id="adminCredentialsSection" style="display: none; border-top: 1px dashed #ccc; padding-top: 12px; margin-top: 12px;">
+                            <label class="form-label">Zugangsdaten verwalten</label>
+                            <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                                <div style="min-width:220px;">
+                                    <label class="form-label">Abteilung</label>
+                                    <select id="credDepartmentSelect" class="form-select">
+                                        <option value="admin">Administration</option>
+                                        <option value="bau">Bau</option>
+                                        <option value="technik">Technik | Ernährung</option>
+                                        <option value="maschinenbau">Maschinenbau</option>
+                                        <option value="informatik">Informatik | Naturwissenschaften</option>
+                                    </select>
+                                </div>
+                                <div style="min-width:220px;">
+                                    <label class="form-label">Benutzername</label>
+                                    <input id="credUsername" type="text" class="form-input" placeholder="z.B. admin">
+                                </div>
+                                <div style="min-width:220px;">
+                                    <label class="form-label">Passwort</label>
+                                    <input id="credPassword" type="password" class="form-input" placeholder="Neues Passwort">
+                                </div>
+                            </div>
+                            <div style="margin-top:10px; display:flex; gap:10px;">
+                                <button id="loadCredsBtn" class="generate-button" type="button">Aktuelle laden</button>
+                                <button id="saveCredsBtn" class="generate-button" type="button">Zugang speichern</button>
+                            </div>
+                            <small style="opacity:0.7;">Hinweis: Speicherung in Firestore-Dokument <code>config/userAccounts</code>. Fällt automatisch auf Demo-Logins zurück, wenn Firestore fehlt.</small>
+                        </div>
+
                         <div class="form-group" id="adminDepartmentSelector" style="display: none;">
                             <label class="form-label">Für Abteilung</label>
                              <select id="adminDepartmentSelect" class="form-select">
@@ -1136,8 +1166,13 @@
             const account = userAccounts[department];
 
             // Allow login if credentials match Firestore DB OR if it's the standard demo login (for non-admin departments)
-            if ((account && username === account.user && password === account.pass && department) || 
-                (username === 'demo' && password === 'demo123' && department && department !== 'admin')) {
+            let loginOk = false;
+            if (Array.isArray(account)) {
+                loginOk = account.some(acc => username === acc.user && password === acc.pass);
+            } else if (account && typeof account === 'object') {
+                loginOk = (username === account.user && password === account.pass);
+            }
+            if ((loginOk && department) || (username === 'demo' && password === 'demo123' && department && department !== 'admin')) {
                 currentUser = username;
                 currentDepartment = department;
                 window.currentDepartment = department; // Global verfügbar machen
@@ -1151,6 +1186,8 @@
                 const isAdmin = department === 'admin';
                 document.getElementById('adminTabButton').style.display = isAdmin ? 'block' : 'none';
                 document.getElementById('adminDepartmentSelector').style.display = isAdmin ? 'block' : 'none';
+                document.getElementById('adminCredentialsSection').style.display = isAdmin ? 'block' : 'none';
+                if (isAdmin) { try { renderCredUserList(); } catch(_){} }
 
                 // Nach Login: Daten neu laden
                 await loadInitialData();
@@ -1808,6 +1845,158 @@
             document.getElementById('resetPasswordBtn').addEventListener('click', resetPassword);
             document.getElementById('selectAllCheckbox').addEventListener('change', (e) => toggleAllCheckboxes(e.target));
             document.getElementById('downloadCodesBtn').addEventListener('click', downloadSelectedCodes);
+
+            // --- Zugangsdaten-Verwaltung (Admin) ---
+            async function loadCredentials() {
+                try {
+                    const dept = document.getElementById('credDepartmentSelect').value;
+                    const account = userAccounts && userAccounts[dept];
+                    document.getElementById('credUsername').value = account?.user || '';
+                    document.getElementById('credPassword').value = account?.pass || '';
+                } catch (e) {
+                    console.warn('loadCredentials error', e);
+                }
+            }
+            async function saveCredentials() {
+                const dept = document.getElementById('credDepartmentSelect').value;
+                const user = document.getElementById('credUsername').value.trim();
+                const pass = document.getElementById('credPassword').value;
+
+                if (!dept || !user || !pass) {
+                    showCustomAlert('Bitte Abteilung, Benutzername und Passwort ausfüllen.');
+                    return;
+                }
+
+                // Update local object
+                if (!userAccounts) userAccounts = {};
+                userAccounts[dept] = { user, pass };
+
+                try {
+                    if (accountsDocRef) {
+                        await setDoc(accountsDocRef, userAccounts);
+                        showCustomAlert('Zugangsdaten gespeichert.');
+                    } else {
+                        showCustomAlert('Ohne Firestore gespeichert (lokaler Modus).');
+                    }
+                } catch (e) {
+                    console.error('Fehler beim Speichern:', e);
+                    showCustomAlert('Fehler beim Speichern: ' + e.message);
+                }
+            }
+
+            // Buttons verdrahten
+            document.getElementById('loadCredsBtn')?.addEventListener('click', loadCredentials);
+            document.getElementById('saveCredsBtn')?.addEventListener('click', saveCredentials);
+
+            function getDeptUsers(dept) {
+                const acc = userAccounts ? userAccounts[dept] : null;
+                if (Array.isArray(acc)) return acc;
+                if (acc && typeof acc === 'object' && acc.user) return [acc]; // backward compat
+                return [];
+            }
+            function setDeptUsers(dept, arr) {
+                if (!userAccounts) userAccounts = {};
+                userAccounts[dept] = arr;
+            }
+            function renderCredUserList() {
+                const dept = document.getElementById('credDepartmentSelect').value;
+                const users = getDeptUsers(dept);
+                const list = document.getElementById('credUserList');
+                if (!list) return;
+                if (!users.length) {
+                    list.innerHTML = '<div style="opacity:.7">Keine Benutzer erfasst.</div>';
+                    document.getElementById('removeSelectedCredUsersBtn').disabled = true;
+                    return;
+                }
+                let htmlRows = users.map((u, idx) => {
+                    const safeUser = (u.user || '').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+                    return \`
+                        <label style="display:flex; align-items:center; gap:8px; padding:6px 8px; border-bottom:1px solid #eee;">
+                            <input type="checkbox" class="credRowChk" data-idx="\${idx}">
+                            <span style="min-width:200px; font-weight:600;">\${safeUser}</span>
+                            <span style="opacity:.7;">(Passwort gesetzt)</span>
+                        </label>\`;
+                }).join('');
+                list.innerHTML = htmlRows;
+                document.getElementById('removeSelectedCredUsersBtn').disabled = true;
+                list.querySelectorAll('.credRowChk').forEach(chk => {
+                    chk.addEventListener('change', () => {
+                        const any = Array.from(list.querySelectorAll('.credRowChk')).some(c => c.checked);
+                        document.getElementById('removeSelectedCredUsersBtn').disabled = !any;
+                    });
+                });
+            }
+            async function loadCredentials() {
+                try {
+                    const dept = document.getElementById('credDepartmentSelect').value;
+                    const users = getDeptUsers(dept);
+                    document.getElementById('credUsername').value = users[0]?.user || '';
+                    document.getElementById('credPassword').value = users[0]?.pass || '';
+                    renderCredUserList();
+                } catch (e) {
+                    console.warn('loadCredentials error', e);
+                }
+            }
+            async function saveCredentials() {
+                const dept = document.getElementById('credDepartmentSelect').value;
+                const user = document.getElementById('credUsername').value.trim();
+                const pass = document.getElementById('credPassword').value;
+                if (!dept || !user || !pass) {
+                    showCustomAlert('Bitte Abteilung, Benutzername und Passwort ausfüllen.');
+                    return;
+                }
+                const arr = getDeptUsers(dept);
+                // Update or append: if same username exists, replace
+                const idx = arr.findIndex(u => u.user === user);
+                if (idx >= 0) arr[idx] = { user, pass };
+                else arr.push({ user, pass });
+                setDeptUsers(dept, arr);
+                try {
+                    if (accountsDocRef) {
+                        await setDoc(accountsDocRef, userAccounts);
+                        showCustomAlert('Benutzer gespeichert.');
+                    } else {
+                        showCustomAlert('Ohne Firestore gespeichert (lokaler Modus).');
+                    }
+                } catch (e) {
+                    console.error('Fehler beim Speichern:', e);
+                    showCustomAlert('Fehler beim Speichern: ' + e.message);
+                }
+                renderCredUserList();
+            }
+            function removeSelectedCredUsers() {
+                const dept = document.getElementById('credDepartmentSelect').value;
+                const arr = getDeptUsers(dept);
+                const list = document.getElementById('credUserList');
+                const toRemove = Array.from(list.querySelectorAll('.credRowChk'))
+                    .filter(c => c.checked)
+                    .map(c => parseInt(c.dataset.idx,10))
+                    .sort((a,b)=>b-a); // remove from end
+                toRemove.forEach(i => { if (i>=0 && i < arr.length) arr.splice(i,1); });
+                setDeptUsers(dept, arr);
+                if (accountsDocRef) {
+                    setDoc(accountsDocRef, userAccounts).then(()=>{
+                        showCustomAlert('Benutzer entfernt.');
+                        renderCredUserList();
+                    }).catch(e=>{
+                        console.error(e);
+                        showCustomAlert('Fehler beim Speichern: ' + e.message);
+                    });
+                } else {
+                    renderCredUserList();
+                    showCustomAlert('Lokal entfernt (kein Firestore).');
+                }
+            }
+            document.getElementById('addCredUserBtn')?.addEventListener('click', saveCredentials);
+            document.getElementById('removeSelectedCredUsersBtn')?.addEventListener('click', removeSelectedCredUsers);
+            document.getElementById('credDepartmentSelect')?.addEventListener('change', () => {
+                // Beim Wechsel der Abteilung Eingabefelder leeren und Liste rendern
+                document.getElementById('credUsername').value = '';
+                document.getElementById('credPassword').value = '';
+                renderCredUserList();
+            });
+    
+
             document.getElementById('deleteSelectedBtn').addEventListener('click', deleteSelectedCodes);
             document.getElementById('exportResultsBtn').addEventListener('click', exportResults);
             document.getElementById('codeFilter').addEventListener('change', filterResults);
