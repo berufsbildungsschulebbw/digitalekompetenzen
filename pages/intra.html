@@ -1393,25 +1393,32 @@
         function displayResults(results) {
             const resultsTableBody = document.getElementById('resultsTableBody');
             
-            if (results.length === 0) {
+            if (!results || results.length === 0) {
                 resultsTableBody.innerHTML = '<tr><td colspan="9" style="text-align: center; color: #6c757d; padding: 20px;">Keine Ergebnisse vorhanden</td></tr>';
                 return;
             }
             
-            resultsTableBody.innerHTML = results.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp)).map(result => {
+            resultsTableBody.innerHTML = results.sort((a,b) => {
+                const dateA = a.timestamp ? new Date(a.timestamp) : new Date(0);
+                const dateB = b.timestamp ? new Date(b.timestamp) : new Date(0);
+                return dateB - dateA;
+            }).map(result => {
                 const scoreClass = result.totalPercentage >= 80 ? 'score-high' : 
                                      result.totalPercentage >= 60 ? 'score-medium' : 'score-low';
+                
+                // Ensure categoryPercentages exists and has all values
+                const catScores = result.categoryPercentages || {};
                 
                 return `
                     <tr data-doc-id="${result.id}">
                         <td><span class="code-badge">${result.testCode}</span></td>
-                        <td>${new Date(result.timestamp).toLocaleDateString('de-DE')}</td>
-                        <td><span class="score-badge ${scoreClass}">${result.totalPercentage}%</span></td>
-                        <td>${result.categoryPercentages[1]}%</td>
-                        <td>${result.categoryPercentages[2]}%</td>
-                        <td>${result.categoryPercentages[3]}%</td>
-                        <td>${result.categoryPercentages[4]}%</td>
-                        <td>${result.categoryPercentages[5]}%</td>
+                        <td>${result.timestamp ? new Date(result.timestamp).toLocaleDateString('de-DE') : 'N/A'}</td>
+                        <td><span class="score-badge ${scoreClass}">${result.totalPercentage || 0}%</span></td>
+                        <td>${catScores[1] || 0}%</td>
+                        <td>${catScores[2] || 0}%</td>
+                        <td>${catScores[3] || 0}%</td>
+                        <td>${catScores[4] || 0}%</td>
+                        <td>${catScores[5] || 0}%</td>
                         <td>
                             <button class="action-button view-button">Details</button>
                         </td>
@@ -1422,26 +1429,39 @@
 
         // Load Statistics Data
         function loadStatisticsData() {
+            console.log("Loading statistics data...");
             const departmentCodes = currentDepartment === 'admin' 
                 ? generatedCodes 
                 : generatedCodes.filter(c => c.department === currentDepartment);
             
             const codeList = departmentCodes.map(c => c.code);
-            const relevantResults = testResults.filter(r => codeList.includes(r.testCode));
+            const relevantResults = testResults.filter(r => r && r.testCode && codeList.includes(r.testCode));
+            
+            console.log("Statistics - Relevant results:", relevantResults.length);
             
             if (relevantResults.length > 0) {
                 for (let i = 1; i <= 5; i++) {
-                    const scores = relevantResults.map(r => r.categoryPercentages[i]);
-                    const avg = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
+                    const scores = relevantResults
+                        .map(r => (r.categoryPercentages && r.categoryPercentages[i]) || 0)
+                        .filter(score => !isNaN(score));
+                    
+                    const avg = scores.length > 0 
+                        ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
+                        : 0;
+                    
                     const bar = document.getElementById(`bar${i}`);
-                    bar.style.width = avg + '%';
-                    bar.textContent = avg + '%';
+                    if (bar) {
+                        bar.style.width = avg + '%';
+                        bar.textContent = avg + '%';
+                    }
                 }
             } else {
-                 for (let i = 1; i <= 5; i++) {
+                for (let i = 1; i <= 5; i++) {
                     const bar = document.getElementById(`bar${i}`);
-                    bar.style.width = '0%';
-                    bar.textContent = '0%';
+                    if (bar) {
+                        bar.style.width = '0%';
+                        bar.textContent = '0%';
+                    }
                 }
             }
         }
