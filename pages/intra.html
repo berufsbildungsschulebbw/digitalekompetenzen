@@ -676,41 +676,11 @@
                 <div class="code-generator">
                     <h3>Neue Test-Codes generieren</h3>
                     <div class="code-form">
-                        <!-- Zugangsdaten verwalten (nur Admin) -->
-                        <div class="form-group" id="adminCredentialsSection" style="display: none; border-top: 1px dashed #ccc; padding-top: 12px; margin-top: 12px;">
-                            <label class="form-label">Zugangsdaten verwalten</label>
-                            <div style="display:flex; gap:12px; flex-wrap:wrap;">
-                                <div style="min-width:220px;">
-                                    <label class="form-label">Abteilung</label>
-                                    <select id="credDepartmentSelect" class="form-select">
-                                        <option value="admin">Administration</option>
-                                        <option value="bau">Bau</option>
-                                        <option value="technik">Technik | Ernährung</option>
-                                        <option value="maschinenbau">Maschinenbau</option>
-                                        <option value="informatik">Informatik | Naturwissenschaften</option>
-                                    </select>
-                                </div>
-                                <div style="min-width:220px;">
-                                    <label class="form-label">Benutzername</label>
-                                    <input id="credUsername" type="text" class="form-input" placeholder="z.B. admin">
-                                </div>
-                                <div style="min-width:220px;">
-                                    <label class="form-label">Passwort</label>
-                                    <input id="credPassword" type="password" class="form-input" placeholder="Neues Passwort">
-                                </div>
-                            </div>
-                            <div style="margin-top:10px; display:flex; gap:10px;">
-                                <button id="loadCredsBtn" class="generate-button" type="button">Aktuelle laden</button>
-                                <button id="saveCredsBtn" class="generate-button" type="button">Zugang speichern</button>
-                            </div>
-                            <small style="opacity:0.7;">Hinweis: Speicherung in Firestore-Dokument <code>config/userAccounts</code>. Fällt automatisch auf Demo-Logins zurück, wenn Firestore fehlt.</small>
-                        </div>
-
                         <div class="form-group" id="adminDepartmentSelector" style="display: none;">
                             <label class="form-label">Für Abteilung</label>
-                             <select id="adminDepartmentSelect" class="form-select">
-                                                                <option value="admin">Administration</option>
-<option value="bau">Bau</option>
+                            <select id="adminDepartmentSelect" class="form-select">
+                                <option value="admin">Administration</option>
+                                <option value="bau">Bau</option>
                                 <option value="technik">Technik | Ernährung</option>
                                 <option value="maschinenbau">Maschinenbau</option>
                                 <option value="informatik">Informatik | Naturwissenschaften</option>
@@ -868,25 +838,37 @@
 
             <!-- Tab: Admin (only for admin users) -->
             <div id="adminTab" class="tab-content">
-                 <div class="code-generator">
-                    <h3>Passwort zurücksetzen</h3>
+                <div class="code-generator">
+                    <h3>Benutzerverwaltung</h3>
                     <div class="code-form">
                         <div class="form-group">
-                             <label class="form-label">Abteilung</label>
-                             <select id="resetPwDepartment" class="form-select">
+                            <label class="form-label">Abteilung</label>
+                            <select id="userDepartment" class="form-select">
                                 <option value="bau">Bau</option>
                                 <option value="technik">Technik | Ernährung</option>
                                 <option value="maschinenbau">Maschinenbau</option>
                                 <option value="informatik">Informatik | Naturwissenschaften</option>
+                                <option value="admin">Administration</option>
                             </select>
                         </div>
                         <div class="form-group">
-                             <label class="form-label">Neues Passwort</label>
-                            <input type="text" id="newPassword" class="form-input" placeholder="Mind. 6 Zeichen">
+                            <label class="form-label">Benutzername</label>
+                            <input type="text" id="newUsername" class="form-input" placeholder="z.B. mueller">
                         </div>
-                         <button id="resetPasswordBtn" class="generate-button" style="background: #ffc107;">
-                            Passwort ändern
+                        <div class="form-group">
+                            <label class="form-label">Passwort</label>
+                            <input type="password" id="newPassword" class="form-input" placeholder="Mind. 6 Zeichen">
+                        </div>
+                        <button id="addUserBtn" class="generate-button">
+                            Benutzer hinzufügen
                         </button>
+                    </div>
+                    
+                    <div style="margin-top: 20px;">
+                        <h4>Bestehende Benutzer</h4>
+                        <div id="userList" style="margin-top: 10px; background: white; padding: 15px; border-radius: 8px;">
+                            <!-- User list will be populated here -->
+                        </div>
                     </div>
                 </div>
             
@@ -1068,14 +1050,15 @@
                 const docSnap = await getDoc(accountsDocRef);
                 if (docSnap.exists()) {
                     userAccounts = docSnap.data();
+                    console.log("User accounts loaded from Firestore");
                 } else {
                     console.log("No account config found, creating default accounts...");
                     userAccounts = {
-                        'bau': { user: 'demo', pass: 'demo123' },
-                        'technik': { user: 'demo', pass: 'demo123' },
-                        'maschinenbau': { user: 'demo', pass: 'demo123' },
-                        'informatik': { user: 'demo', pass: 'demo123' },
-                        'admin': { user: 'admin', pass: 'admin123' }
+                        'bau': [],
+                        'technik': [],
+                        'maschinenbau': [],
+                        'informatik': [],
+                        'admin': [{ user: 'admin', pass: 'admin123' }]
                     };
                     await setDoc(accountsDocRef, userAccounts);
                 }
@@ -1124,11 +1107,11 @@
                 // Fallback auf Local-Mode
                 if (!userAccounts || Object.keys(userAccounts).length === 0) {
                     userAccounts = {
-                        'bau': { user: 'demo', pass: 'demo123' },
-                        'technik': { user: 'demo', pass: 'demo123' },
-                        'maschinenbau': { user: 'demo', pass: 'demo123' },
-                        'informatik': { user: 'demo', pass: 'demo123' },
-                        'admin': { user: 'admin', pass: 'admin123' }
+                        'bau': [],
+                        'technik': [],
+                        'maschinenbau': [],
+                        'informatik': [],
+                        'admin': [{ user: 'admin', pass: 'admin123' }]
                     };
                 }
             }
@@ -1155,7 +1138,7 @@
             }
         }
 
-        // Login Handler
+        // KORRIGIERTE Login Handler
         async function handleLogin(event) {
             event.preventDefault();
             
@@ -1164,15 +1147,29 @@
             const password = document.getElementById('password').value;
             
             const account = userAccounts[department];
-
-            // Allow login if credentials match Firestore DB OR if it's the standard demo login (for non-admin departments)
+            
+            // Check if login is valid
             let loginOk = false;
+            
+            // If account is an array, check all users
             if (Array.isArray(account)) {
                 loginOk = account.some(acc => username === acc.user && password === acc.pass);
-            } else if (account && typeof account === 'object') {
+            } 
+            // If account is a single object (legacy format)
+            else if (account && typeof account === 'object' && account.user) {
                 loginOk = (username === account.user && password === account.pass);
             }
-            const demoAllowed = ((!account) || (Array.isArray(account) && account.length === 0)) && department && department !== 'admin';
+            
+            // Demo login is allowed if:
+            // 1. No users exist for the department (empty array or no account)
+            // 2. Department is not admin
+            const demoAllowed = (
+                (!account || (Array.isArray(account) && account.length === 0)) && 
+                department && 
+                department !== 'admin'
+            );
+            
+            // Accept login if either regular login is valid OR demo login is allowed
             if ((loginOk && department) || (demoAllowed && username === 'demo' && password === 'demo123')) {
                 currentUser = username;
                 currentDepartment = department;
@@ -1187,12 +1184,15 @@
                 const isAdmin = department === 'admin';
                 document.getElementById('adminTabButton').style.display = isAdmin ? 'block' : 'none';
                 document.getElementById('adminDepartmentSelector').style.display = isAdmin ? 'block' : 'none';
-                document.getElementById('adminCredentialsSection').style.display = isAdmin ? 'block' : 'none';
-                if (isAdmin) { try { renderCredUserList(); } catch(_){} }
-
+                
                 // Nach Login: Daten neu laden
                 await loadInitialData();
                 loadDashboardData();
+                
+                // If admin, load user list
+                if (isAdmin) {
+                    loadUserList();
+                }
             } else {
                 const errorMessage = document.getElementById('errorMessage');
                 errorMessage.style.display = 'block';
@@ -1238,15 +1238,13 @@
             return `${part1}-${part2}`;
         }
 
-        // KORRIGIERTE generateCodes Funktion mit manuellem Reload
+        // Generate Codes Function
         async function generateCodes() {
             try {
-                // Korrekte Element-IDs verwenden
                 const description = document.getElementById('codeDescription').value.trim();
                 const expiryStr = document.getElementById('codeExpiry').value;
                 const quantity = parseInt(document.getElementById('codeQuantity').value);
                 
-                // Für Admin: Abteilung aus dem Admin-Selektor holen
                 const isAdmin = currentDepartment === 'admin';
                 const targetDepartment = isAdmin 
                     ? document.getElementById('adminDepartmentSelect').value 
@@ -1257,7 +1255,7 @@
                     return;
                 }
 
-                // Prüfen ob Firebase verfügbar ist
+                // Check if Firebase is available
                 if (!firebaseReady || !db) {
                     // Local Mode - nur in Arrays speichern
                     const newCodes = [];
@@ -1281,7 +1279,7 @@
                     showCustomAlert(`${quantity} Code(s) wurden lokal generiert: ${newCodes.join(', ')}`);
                     loadDashboardData();
                     
-                    // Formular zurücksetzen
+                    // Reset form
                     document.getElementById('codeDescription').value = '';
                     document.getElementById('codeExpiry').value = '';
                     return;
@@ -1303,18 +1301,17 @@
                         status: 'Aktiv'
                     };
 
-                    // Verwende die globale codesCollection Variable
                     await addDoc(codesCollection, codeData);
                     newCodes.push(code);
                 }
 
                 showCustomAlert(`${quantity} Code(s) wurden erfolgreich generiert: ${newCodes.join(', ')}`);
                 
-                // Formular zurücksetzen
+                // Reset form
                 document.getElementById('codeDescription').value = '';
                 document.getElementById('codeExpiry').value = '';
                 
-                // Nach dem Generieren: Codes manuell neu laden
+                // Reload data
                 setTimeout(async () => {
                     await loadInitialData();
                     loadDashboardData();
@@ -1326,7 +1323,7 @@
             }
         }
 
-        // Load Dashboard Data - Global verfügbar machen
+        // Load Dashboard Data
         function loadDashboardData() {
             const codeTableBody = document.getElementById('codeTableBody');
             const isAdmin = currentDepartment === 'admin';
@@ -1345,7 +1342,6 @@
             document.querySelector('.code-table th:nth-child(4)').style.display = isAdmin ? '' : 'none';
 
             codeTableBody.innerHTML = departmentCodes.sort((a,b) => {
-                // Sortiere nach Timestamp wenn vorhanden, sonst nach created string
                 if (a.timestamp && b.timestamp) {
                     return b.timestamp - a.timestamp;
                 }
@@ -1376,7 +1372,6 @@
             updateStatistics();
         }
         
-        // Global verfügbar machen
         window.loadDashboardData = loadDashboardData;
 
         // Load Results Data
@@ -1494,7 +1489,122 @@
             
             adminTableBody.innerHTML = tableRows;
             updateStatistics();
+            
+            // Load user list for admin
+            loadUserList();
         }
+
+        // Load User List for Admin
+        function loadUserList() {
+            if (currentDepartment !== 'admin') return;
+            
+            const userList = document.getElementById('userList');
+            if (!userList) return;
+            
+            let html = '';
+            for (const [dept, users] of Object.entries(userAccounts)) {
+                html += `<div style="margin-bottom: 15px;">`;
+                html += `<strong>${deptNames[dept] || dept}:</strong><br>`;
+                
+                if (Array.isArray(users) && users.length > 0) {
+                    users.forEach(user => {
+                        html += `<div style="margin-left: 20px; padding: 5px;">`;
+                        html += `${user.user} `;
+                        html += `<button class="action-button delete-button" onclick="removeUser('${dept}', '${user.user}')">Entfernen</button>`;
+                        html += `</div>`;
+                    });
+                } else if (users && typeof users === 'object' && users.user) {
+                    html += `<div style="margin-left: 20px; padding: 5px;">`;
+                    html += `${users.user} `;
+                    html += `<button class="action-button delete-button" onclick="removeUser('${dept}', '${users.user}')">Entfernen</button>`;
+                    html += `</div>`;
+                } else {
+                    html += `<div style="margin-left: 20px; color: #6c757d; padding: 5px;">Keine Benutzer (Demo-Login aktiv)</div>`;
+                }
+                html += `</div>`;
+            }
+            userList.innerHTML = html;
+        }
+
+        // Add User Function
+        async function addUser() {
+            const dept = document.getElementById('userDepartment').value;
+            const username = document.getElementById('newUsername').value.trim();
+            const password = document.getElementById('newPassword').value;
+
+            if (!username || password.length < 6) {
+                showCustomAlert('Benutzername darf nicht leer sein und Passwort muss mindestens 6 Zeichen haben.');
+                return;
+            }
+
+            // Convert to array format if needed
+            if (!Array.isArray(userAccounts[dept])) {
+                if (userAccounts[dept] && userAccounts[dept].user) {
+                    userAccounts[dept] = [userAccounts[dept]];
+                } else {
+                    userAccounts[dept] = [];
+                }
+            }
+
+            // Check if user already exists
+            if (userAccounts[dept].some(u => u.user === username)) {
+                showCustomAlert('Benutzer existiert bereits für diese Abteilung.');
+                return;
+            }
+
+            // Add new user
+            userAccounts[dept].push({ user: username, pass: password });
+
+            // Save to Firestore if available
+            if (firebaseReady && accountsDocRef) {
+                try {
+                    await setDoc(accountsDocRef, userAccounts);
+                    showCustomAlert(`Benutzer ${username} wurde erfolgreich hinzugefügt.`);
+                } catch (error) {
+                    console.error('Fehler beim Speichern:', error);
+                    showCustomAlert('Fehler beim Speichern: ' + error.message);
+                }
+            } else {
+                showCustomAlert(`Benutzer ${username} wurde lokal hinzugefügt.`);
+            }
+
+            // Clear form
+            document.getElementById('newUsername').value = '';
+            document.getElementById('newPassword').value = '';
+            
+            // Reload user list
+            loadUserList();
+        }
+
+        // Remove User Function (global for inline onclick)
+        window.removeUser = async function(dept, username) {
+            showCustomConfirm(
+                `Möchten Sie den Benutzer <strong>${username}</strong> aus der Abteilung <strong>${deptNames[dept]}</strong> wirklich entfernen?`,
+                "Entfernen",
+                async () => {
+                    if (Array.isArray(userAccounts[dept])) {
+                        userAccounts[dept] = userAccounts[dept].filter(u => u.user !== username);
+                    } else if (userAccounts[dept] && userAccounts[dept].user === username) {
+                        userAccounts[dept] = [];
+                    }
+
+                    // Save to Firestore if available
+                    if (firebaseReady && accountsDocRef) {
+                        try {
+                            await setDoc(accountsDocRef, userAccounts);
+                            showCustomAlert(`Benutzer ${username} wurde entfernt.`);
+                        } catch (error) {
+                            console.error('Fehler beim Speichern:', error);
+                            showCustomAlert('Fehler beim Speichern: ' + error.message);
+                        }
+                    } else {
+                        showCustomAlert(`Benutzer ${username} wurde lokal entfernt.`);
+                    }
+
+                    loadUserList();
+                }
+            );
+        };
 
         // Update Statistics
         function updateStatistics() {
@@ -1567,7 +1677,7 @@
             document.getElementById('detailModal').classList.add('active');
         }
 
-        // Delete Code - Korrigierte Version
+        // Delete Code
         async function deleteCode(docId, code) {
             showCustomConfirm(
                 `Möchten Sie den Code <strong>${code}</strong> wirklich löschen? Alle zugehörigen Ergebnisse werden ebenfalls entfernt.`,
@@ -1578,14 +1688,13 @@
                             // Firebase Mode
                             await deleteDoc(doc(db, "codes", docId));
                             
-                            // Auch zugehörige Results löschen
+                            // Delete related results
                             const q = query(resultsCollection, where("testCode", "==", code));
                             const querySnapshot = await getDocs(q);
                             const batch = writeBatch(db);
                             querySnapshot.forEach((doc) => batch.delete(doc.ref));
                             await batch.commit();
                             
-                            // Arrays aktualisieren
                             generatedCodes = generatedCodes.filter(c => c.id !== docId);
                             testResults = testResults.filter(r => r.testCode !== code);
                             window.generatedCodes = generatedCodes;
@@ -1594,7 +1703,7 @@
                             loadDashboardData();
                             showCustomAlert(`Code ${code} wurde gelöscht.`);
                         } else {
-                            // Local mode: remove from array
+                            // Local mode
                             generatedCodes = generatedCodes.filter(c => c.id !== docId);
                             testResults = testResults.filter(r => r.testCode !== code);
                             window.generatedCodes = generatedCodes;
@@ -1610,7 +1719,7 @@
             );
         }
 
-        // Neue Funktion: Mehrere Codes löschen
+        // Delete Selected Codes
         async function deleteSelectedCodes() {
             const checkedBoxes = document.querySelectorAll('.code-checkbox:checked');
             const selectedCodes = Array.from(checkedBoxes).map(cb => {
@@ -1631,15 +1740,12 @@
                 async () => {
                     try {
                         if (firebaseReady && db) {
-                            // Firebase Mode - Batch-Löschung
                             const batch = writeBatch(db);
                             
-                            // Codes löschen
                             for (const codeObj of selectedCodes) {
                                 const docRef = doc(db, "codes", codeObj.id);
                                 batch.delete(docRef);
                                 
-                                // Zugehörige Results finden und löschen
                                 const q = query(resultsCollection, where("testCode", "==", codeObj.code));
                                 const querySnapshot = await getDocs(q);
                                 querySnapshot.forEach((resultDoc) => {
@@ -1649,7 +1755,6 @@
                             
                             await batch.commit();
                             
-                            // Arrays aktualisieren
                             const codeIds = selectedCodes.map(c => c.id);
                             const codes = selectedCodes.map(c => c.code);
                             generatedCodes = generatedCodes.filter(c => !codeIds.includes(c.id));
@@ -1660,7 +1765,6 @@
                             loadDashboardData();
                             showCustomAlert(`${selectedCodes.length} Code(s) wurden gelöscht.`);
                         } else {
-                            // Local mode
                             const codeIds = selectedCodes.map(c => c.id);
                             const codes = selectedCodes.map(c => c.code);
                             generatedCodes = generatedCodes.filter(c => !codeIds.includes(c.id));
@@ -1674,30 +1778,6 @@
                         console.error("Fehler beim Batch-Löschen:", error);
                         showCustomAlert(`Fehler beim Löschen: ${error.message}`);
                     }
-                }
-            );
-        }
-        
-        // Admin: Reset Password
-        async function resetPassword() {
-            const departmentToReset = document.getElementById('resetPwDepartment').value;
-            const newPassword = document.getElementById('newPassword').value;
-
-            if (newPassword.length < 6) {
-                showCustomAlert('Das Passwort muss mindestens 6 Zeichen lang sein.');
-                return;
-            }
-
-            showCustomConfirm(
-                `Möchten Sie das Passwort für <strong>${deptNames[departmentToReset]}</strong> wirklich ändern?`,
-                "Ja, ändern",
-                async () => {
-                    userAccounts[departmentToReset].pass = newPassword;
-                    if (firebaseReady && accountsDocRef) {
-                        await setDoc(accountsDocRef, userAccounts);
-                    }
-                    document.getElementById('newPassword').value = '';
-                    showCustomAlert(`Das Passwort für ${deptNames[departmentToReset]} wurde geändert.`);
                 }
             );
         }
@@ -1715,7 +1795,7 @@
                 `<button class="login-button" style="width: auto; padding: 10px 30px;" onclick="document.getElementById('alertModal').classList.remove('active')">OK</button>`;
             modal.classList.add('active');
         }
-        window.showCustomAlert = showCustomAlert; // Globale Verfügbarkeit
+        window.showCustomAlert = showCustomAlert;
         
         function showCustomConfirm(message, confirmText, onConfirm) {
             const modal = document.getElementById('alertModal');
@@ -1738,14 +1818,13 @@
             cancelBtn.onclick = () => handleConfirm(false);
             okBtn.onclick = () => handleConfirm(true);
         }
-        window.showCustomConfirm = showCustomConfirm; // Globale Verfügbarkeit
+        window.showCustomConfirm = showCustomConfirm;
 
         function updateDownloadButtonState() {
             const checkedBoxes = document.querySelectorAll('.code-checkbox:checked');
             const hasChecked = checkedBoxes.length > 0;
             document.getElementById('downloadCodesBtn').disabled = !hasChecked;
             
-            // Auch den Delete-Button aktualisieren
             const deleteBtn = document.getElementById('deleteSelectedBtn');
             if (deleteBtn) {
                 deleteBtn.disabled = !hasChecked;
@@ -1822,11 +1901,10 @@
 
         // Event Listeners Setup
         document.addEventListener('DOMContentLoaded', async () => {
-            // Login-Button während des Ladens deaktivieren
             const loginButton = document.querySelector('.login-button');
             if (loginButton) {
                 loginButton.disabled = true;
-                loginButton.textContent = 'Lädt';
+                loginButton.textContent = 'Lädt...';
             }
 
             try {
@@ -1843,161 +1921,9 @@
             document.getElementById('loginForm').addEventListener('submit', handleLogin);
             document.getElementById('logoutBtn').addEventListener('click', handleLogout);
             document.getElementById('generateCodesBtn').addEventListener('click', generateCodes);
-            document.getElementById('resetPasswordBtn').addEventListener('click', resetPassword);
+            document.getElementById('addUserBtn').addEventListener('click', addUser);
             document.getElementById('selectAllCheckbox').addEventListener('change', (e) => toggleAllCheckboxes(e.target));
             document.getElementById('downloadCodesBtn').addEventListener('click', downloadSelectedCodes);
-
-            // --- Zugangsdaten-Verwaltung (Admin) ---
-            async function loadCredentials() {
-                try {
-                    const dept = document.getElementById('credDepartmentSelect').value;
-                    const account = userAccounts && userAccounts[dept];
-                    document.getElementById('credUsername').value = account?.user || '';
-                    document.getElementById('credPassword').value = account?.pass || '';
-                } catch (e) {
-                    console.warn('loadCredentials error', e);
-                }
-            }
-            async function saveCredentials() {
-                const dept = document.getElementById('credDepartmentSelect').value;
-                const user = document.getElementById('credUsername').value.trim();
-                const pass = document.getElementById('credPassword').value;
-
-                if (!dept || !user || !pass) {
-                    showCustomAlert('Bitte Abteilung, Benutzername und Passwort ausfüllen.');
-                    return;
-                }
-
-                // Update local object
-                if (!userAccounts) userAccounts = {};
-                userAccounts[dept] = { user, pass };
-
-                try {
-                    if (accountsDocRef) {
-                        await setDoc(accountsDocRef, userAccounts);
-                        showCustomAlert('Zugangsdaten gespeichert.');
-                    } else {
-                        showCustomAlert('Ohne Firestore gespeichert (lokaler Modus).');
-                    }
-                } catch (e) {
-                    console.error('Fehler beim Speichern:', e);
-                    showCustomAlert('Fehler beim Speichern: ' + e.message);
-                }
-            }
-
-            // Buttons verdrahten
-            document.getElementById('loadCredsBtn')?.addEventListener('click', loadCredentials);
-            document.getElementById('saveCredsBtn')?.addEventListener('click', saveCredentials);
-
-            function getDeptUsers(dept) {
-                const acc = userAccounts ? userAccounts[dept] : null;
-                if (Array.isArray(acc)) return acc;
-                if (acc && typeof acc === 'object' && acc.user) return [acc]; // backward compat
-                return [];
-            }
-            function setDeptUsers(dept, arr) {
-                if (!userAccounts) userAccounts = {};
-                userAccounts[dept] = arr;
-            }
-            function renderCredUserList() {
-                const dept = document.getElementById('credDepartmentSelect').value;
-                const users = getDeptUsers(dept);
-                const list = document.getElementById('credUserList');
-                if (!list) return;
-                if (!users.length) {
-                    list.innerHTML = '<div style="opacity:.7">Keine Benutzer erfasst.</div>';
-                    document.getElementById('removeSelectedCredUsersBtn').disabled = true;
-                    return;
-                }
-                let htmlRows = users.map((u, idx) => {
-                    const safeUser = (u.user || '').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-                    return \`
-                        <label style="display:flex; align-items:center; gap:8px; padding:6px 8px; border-bottom:1px solid #eee;">
-                            <input type="checkbox" class="credRowChk" data-idx="\${idx}">
-                            <span style="min-width:200px; font-weight:600;">\${safeUser}</span>
-                            <span style="opacity:.7;">(Passwort gesetzt)</span>
-                        </label>\`;
-                }).join('');
-                list.innerHTML = htmlRows;
-                document.getElementById('removeSelectedCredUsersBtn').disabled = true;
-                list.querySelectorAll('.credRowChk').forEach(chk => {
-                    chk.addEventListener('change', () => {
-                        const any = Array.from(list.querySelectorAll('.credRowChk')).some(c => c.checked);
-                        document.getElementById('removeSelectedCredUsersBtn').disabled = !any;
-                    });
-                });
-            }
-            async function loadCredentials() {
-                try {
-                    const dept = document.getElementById('credDepartmentSelect').value;
-                    const users = getDeptUsers(dept);
-                    document.getElementById('credUsername').value = users[0]?.user || '';
-                    document.getElementById('credPassword').value = users[0]?.pass || '';
-                    renderCredUserList();
-                } catch (e) {
-                    console.warn('loadCredentials error', e);
-                }
-            }
-            async function saveCredentials() {
-                const dept = document.getElementById('credDepartmentSelect').value;
-                const user = document.getElementById('credUsername').value.trim();
-                const pass = document.getElementById('credPassword').value;
-                if (!dept || !user || !pass) {
-                    showCustomAlert('Bitte Abteilung, Benutzername und Passwort ausfüllen.');
-                    return;
-                }
-                const arr = getDeptUsers(dept);
-                // Update or append: if same username exists, replace
-                const idx = arr.findIndex(u => u.user === user);
-                if (idx >= 0) arr[idx] = { user, pass };
-                else arr.push({ user, pass });
-                setDeptUsers(dept, arr);
-                try {
-                    if (accountsDocRef) {
-                        await setDoc(accountsDocRef, userAccounts);
-                        showCustomAlert('Benutzer gespeichert.');
-                    } else {
-                        showCustomAlert('Ohne Firestore gespeichert (lokaler Modus).');
-                    }
-                } catch (e) {
-                    console.error('Fehler beim Speichern:', e);
-                    showCustomAlert('Fehler beim Speichern: ' + e.message);
-                }
-                renderCredUserList();
-            }
-            function removeSelectedCredUsers() {
-                const dept = document.getElementById('credDepartmentSelect').value;
-                const arr = getDeptUsers(dept);
-                const list = document.getElementById('credUserList');
-                const toRemove = Array.from(list.querySelectorAll('.credRowChk'))
-                    .filter(c => c.checked)
-                    .map(c => parseInt(c.dataset.idx,10))
-                    .sort((a,b)=>b-a); // remove from end
-                toRemove.forEach(i => { if (i>=0 && i < arr.length) arr.splice(i,1); });
-                setDeptUsers(dept, arr);
-                if (accountsDocRef) {
-                    setDoc(accountsDocRef, userAccounts).then(()=>{
-                        showCustomAlert('Benutzer entfernt.');
-                        renderCredUserList();
-                    }).catch(e=>{
-                        console.error(e);
-                        showCustomAlert('Fehler beim Speichern: ' + e.message);
-                    });
-                } else {
-                    renderCredUserList();
-                    showCustomAlert('Lokal entfernt (kein Firestore).');
-                }
-            }
-            document.getElementById('addCredUserBtn')?.addEventListener('click', saveCredentials);
-            document.getElementById('removeSelectedCredUsersBtn')?.addEventListener('click', removeSelectedCredUsers);
-            document.getElementById('credDepartmentSelect')?.addEventListener('change', () => {
-                // Beim Wechsel der Abteilung Eingabefelder leeren und Liste rendern
-                document.getElementById('credUsername').value = '';
-                document.getElementById('credPassword').value = '';
-                renderCredUserList();
-            });
-    
-
             document.getElementById('deleteSelectedBtn').addEventListener('click', deleteSelectedCodes);
             document.getElementById('exportResultsBtn').addEventListener('click', exportResults);
             document.getElementById('codeFilter').addEventListener('change', filterResults);
@@ -2012,9 +1938,8 @@
                 btn.addEventListener('click', (e) => closeModal(e.target.dataset.modalId));
             });
 
-            // Event Delegation für dynamische Buttons
+            // Event Delegation for dynamic buttons
             document.addEventListener('click', e => {
-                // Handle Code Table Actions
                 if (e.target.closest('#codeTableBody')) {
                     const row = e.target.closest('tr');
                     if (!row) return;
@@ -2029,7 +1954,6 @@
                     }
                 }
 
-                // Handle Results Table Actions
                 if (e.target.closest('#resultsTableBody') && e.target.classList.contains('view-button')) {
                     const row = e.target.closest('tr');
                     const docId = row.dataset.docId;
@@ -2037,7 +1961,6 @@
                 }
             });
             
-            // Checkbox Change Handler
             document.addEventListener('change', e => {
                 if (e.target.classList.contains('code-checkbox')) {
                     updateDownloadButtonState();
