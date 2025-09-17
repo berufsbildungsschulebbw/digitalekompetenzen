@@ -1119,7 +1119,27 @@
 
         // Neue Funktion: Initiale Daten laden
         async function loadInitialData() {
-            if (!firebaseReady || !codesCollection || !resultsCollection) return;
+            console.log("Loading initial data...");
+            
+            if (!firebaseReady || !codesCollection || !resultsCollection) {
+                console.log("Firebase not ready or collections not available");
+                // Generate some test data for local testing
+                if (generatedCodes.length === 0) {
+                    console.log("No codes available, running in local mode");
+                }
+                if (testResults.length === 0) {
+                    console.log("No test results available");
+                    // You can add test data here if needed for testing
+                    // testResults.push({ 
+                    //     id: 'test1', 
+                    //     testCode: 'TEST-CODE', 
+                    //     totalPercentage: 75, 
+                    //     categoryPercentages: {1: 80, 2: 70, 3: 75, 4: 85, 5: 65},
+                    //     timestamp: new Date().toISOString()
+                    // });
+                }
+                return;
+            }
             
             try {
                 // Codes manuell laden
@@ -1133,8 +1153,16 @@
                 testResults = resultsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 window.testResults = testResults;
                 console.log("Initiale Results geladen:", testResults.length);
+                
+                // Log first result for debugging if available
+                if (testResults.length > 0) {
+                    console.log("Sample result structure:", testResults[0]);
+                }
             } catch (error) {
                 console.error("Fehler beim initialen Laden:", error);
+                // Initialize empty arrays on error
+                generatedCodes = generatedCodes || [];
+                testResults = testResults || [];
             }
         }
 
@@ -1218,17 +1246,32 @@
 
         // Tab Switching
         function switchTab(event) {
-            const tabName = event.currentTarget.dataset.tab;
-
-            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
-            event.currentTarget.classList.add('active');
-            
-            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-            document.getElementById(tabName + 'Tab').classList.add('active');
-            
-            if (tabName === 'results') loadResultsData();
-            if (tabName === 'statistics') loadStatisticsData();
-            if (tabName === 'admin') loadAdminData();
+            try {
+                const tabName = event.currentTarget.dataset.tab;
+                console.log("Switching to tab:", tabName);
+                
+                // Remove active class from all buttons
+                document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+                event.currentTarget.classList.add('active');
+                
+                // Remove active class from all content
+                document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                
+                // Add active class to selected tab
+                const targetTab = document.getElementById(tabName + 'Tab');
+                if (targetTab) {
+                    targetTab.classList.add('active');
+                    
+                    // Load data for specific tabs
+                    if (tabName === 'results') loadResultsData();
+                    if (tabName === 'statistics') loadStatisticsData();
+                    if (tabName === 'admin') loadAdminData();
+                } else {
+                    console.error("Tab not found:", tabName + 'Tab');
+                }
+            } catch (error) {
+                console.error("Error in switchTab:", error);
+            }
         }
 
         // Hilfsfunktion zum Generieren eines zufälligen Codes
@@ -1376,15 +1419,23 @@
 
         // Load Results Data
         function loadResultsData() {
+            console.log("Loading results data...");
+            console.log("Test Results available:", testResults.length);
+            
             const isAdmin = currentDepartment === 'admin';
             const departmentCodes = isAdmin ? generatedCodes : generatedCodes.filter(c => c.department === currentDepartment);
             
             const codeList = departmentCodes.map(c => c.code);
-            const relevantResults = testResults.filter(r => codeList.includes(r.testCode));
+            const relevantResults = testResults.filter(r => r && r.testCode && codeList.includes(r.testCode));
+            
+            console.log("Department codes:", codeList);
+            console.log("Relevant results:", relevantResults.length);
             
             const codeFilter = document.getElementById('codeFilter');
-            codeFilter.innerHTML = '<option value="">Alle Codes</option>' + 
-                codeList.map(code => `<option value="${code}">${code}</option>`).join('');
+            if (codeFilter) {
+                codeFilter.innerHTML = '<option value="">Alle Codes</option>' + 
+                    codeList.map(code => `<option value="${code}">${code}</option>`).join('');
+            }
             
             displayResults(relevantResults);
         }
@@ -1468,28 +1519,43 @@
         
         // Load Admin specific data
         function loadAdminData() {
+            console.log("Loading admin data...");
             const adminTableBody = document.getElementById('adminTableBody');
             const departments = Object.keys(deptNames).filter(d => d !== 'admin');
             document.getElementById('allDepartmentsCount').textContent = departments.length;
             
             const tableRows = departments.map(deptKey => {
                 const deptCodes = generatedCodes.filter(c => c.department === deptKey).map(c => c.code);
-                const deptResults = testResults.filter(r => deptCodes.includes(r.testCode));
+                const deptResults = testResults.filter(r => r && r.testCode && deptCodes.includes(r.testCode));
                 
                 if (deptResults.length === 0) {
                      return `<tr><td>${deptNames[deptKey]}</td><td>0</td><td>N/A</td><td>N/A</td><td>N/A</td></tr>`;
                 }
 
-                const avgScore = Math.round(deptResults.reduce((sum, r) => sum + r.totalPercentage, 0) / deptResults.length);
+                const validResults = deptResults.filter(r => r.totalPercentage !== undefined);
+                if (validResults.length === 0) {
+                    return `<tr><td>${deptNames[deptKey]}</td><td>0</td><td>N/A</td><td>N/A</td><td>N/A</td></tr>`;
+                }
+
+                const avgScore = Math.round(validResults.reduce((sum, r) => sum + (r.totalPercentage || 0), 0) / validResults.length);
                 const scoreClass = avgScore >= 80 ? 'score-high' : avgScore >= 60 ? 'score-medium' : 'score-low';
                 
                 const categoryAvgs = [];
-                 for (let i = 1; i <= 5; i++) {
-                    const scores = deptResults.map(r => r.categoryPercentages[i]);
-                    categoryAvgs.push({
-                        name: i,
-                        avg: Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
-                    });
+                for (let i = 1; i <= 5; i++) {
+                    const scores = validResults
+                        .filter(r => r.categoryPercentages && r.categoryPercentages[i] !== undefined)
+                        .map(r => r.categoryPercentages[i]);
+                    
+                    if (scores.length > 0) {
+                        categoryAvgs.push({
+                            name: i,
+                            avg: Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
+                        });
+                    }
+                }
+                
+                if (categoryAvgs.length === 0) {
+                    return `<tr><td>${deptNames[deptKey]}</td><td>${deptResults.length}</td><td><span class="score-badge ${scoreClass}">${avgScore}%</span></td><td>N/A</td><td>N/A</td></tr>`;
                 }
                 
                 categoryAvgs.sort((a,b) => b.avg - a.avg);
@@ -1628,34 +1694,43 @@
 
         // Update Statistics
         function updateStatistics() {
+            console.log("Updating statistics...");
             const isAdmin = currentDepartment === 'admin';
             const departmentCodes = isAdmin ? generatedCodes : generatedCodes.filter(c => c.department === currentDepartment);
             const codeList = departmentCodes.map(c => c.code);
-            const relevantResults = testResults.filter(r => codeList.includes(r.testCode));
+            const relevantResults = testResults.filter(r => r && r.testCode && codeList.includes(r.testCode));
+            
+            console.log("Stats - Department codes:", departmentCodes.length, "Results:", relevantResults.length);
             
             document.getElementById('totalTests').textContent = relevantResults.length;
             document.getElementById('activeCodes').textContent = departmentCodes.filter(c => {
                 const expiryDate = c.expiry || c.expiryDate;
-                return new Date(expiryDate) >= new Date();
+                return expiryDate && new Date(expiryDate) >= new Date();
             }).length;
             
             if (relevantResults.length > 0) {
-                const avgScore = Math.round(relevantResults.reduce((sum, r) => sum + r.totalPercentage, 0) / relevantResults.length);
-                document.getElementById('avgScore').textContent = avgScore + '%';
+                const validResults = relevantResults.filter(r => r.totalPercentage !== undefined);
+                if (validResults.length > 0) {
+                    const avgScore = Math.round(validResults.reduce((sum, r) => sum + (r.totalPercentage || 0), 0) / validResults.length);
+                    document.getElementById('avgScore').textContent = avgScore + '%';
+                } else {
+                    document.getElementById('avgScore').textContent = '0%';
+                }
                 
                 const totalCodes = departmentCodes.length;
                 const usedCodes = new Set(relevantResults.map(r => r.testCode)).size;
                 const completionRate = totalCodes > 0 ? Math.round((usedCodes / totalCodes) * 100) : 0;
                 document.getElementById('completionRate').textContent = completionRate + '%';
             } else {
-                 document.getElementById('avgScore').textContent = '0%';
-                 document.getElementById('completionRate').textContent = '0%';
+                document.getElementById('avgScore').textContent = '0%';
+                document.getElementById('completionRate').textContent = '0%';
             }
             
             if (isAdmin) {
                 document.getElementById('totalTestsAdmin').textContent = testResults.length;
-                if (testResults.length > 0) {
-                    const avgScoreAdmin = Math.round(testResults.reduce((sum, r) => sum + r.totalPercentage, 0) / testResults.length);
+                const validAdminResults = testResults.filter(r => r && r.totalPercentage !== undefined);
+                if (validAdminResults.length > 0) {
+                    const avgScoreAdmin = Math.round(validAdminResults.reduce((sum, r) => sum + (r.totalPercentage || 0), 0) / validAdminResults.length);
                     document.getElementById('avgScoreAdmin').textContent = avgScoreAdmin + '%';
                 } else {
                     document.getElementById('avgScoreAdmin').textContent = '0%';
@@ -1685,13 +1760,27 @@
         function viewResultDetails(docId) {
             const result = testResults.find(r => r.id === docId);
             
+            if (!result) {
+                showCustomAlert('Ergebnis-Details konnten nicht geladen werden.');
+                return;
+            }
+            
             document.getElementById('modalTitle').textContent = 'Test-Ergebnis Details';
             const modalBody = document.getElementById('modalBody');
+            
+            const duration = result.duration 
+                ? `${Math.round(result.duration / 60)} Minuten`
+                : 'Nicht verfügbar';
+            
+            const timestamp = result.timestamp 
+                ? new Date(result.timestamp).toLocaleString('de-DE')
+                : 'Nicht verfügbar';
+            
             modalBody.innerHTML = `
-                <p><strong>Code:</strong> ${result.testCode}</p>
-                <p><strong>Datum:</strong> ${new Date(result.timestamp).toLocaleString('de-DE')}</p>
-                <p><strong>Testdauer:</strong> ${Math.round(result.duration / 60)} Minuten</p>
-                <p><strong>Gesamtscore:</strong> ${result.totalPercentage}%</p>
+                <p><strong>Code:</strong> ${result.testCode || 'N/A'}</p>
+                <p><strong>Datum:</strong> ${timestamp}</p>
+                <p><strong>Testdauer:</strong> ${duration}</p>
+                <p><strong>Gesamtscore:</strong> ${result.totalPercentage || 0}%</p>
             `;
             
             document.getElementById('detailModal').classList.add('active');
@@ -1910,12 +1999,13 @@
                 : generatedCodes.filter(c => c.department === currentDepartment);
             
             const codeList = departmentCodes.map(c => c.code);
-            let relevantResults = testResults.filter(r => codeList.includes(r.testCode));
+            let relevantResults = testResults.filter(r => r && r.testCode && codeList.includes(r.testCode));
 
             if (selectedCode) {
                  relevantResults = relevantResults.filter(r => r.testCode === selectedCode)
             }
             
+            console.log("Filtering results - Selected code:", selectedCode, "Results:", relevantResults.length);
             displayResults(relevantResults);
         }
 
