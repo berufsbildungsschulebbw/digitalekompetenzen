@@ -760,8 +760,11 @@
                 </div>
 
                 <h3 style="margin: 30px 0 20px;">Individuelle Ergebnisse nach Code</h3>
-                <div style="margin-bottom: 20px;">
+                <div style="margin-bottom: 20px; display:flex; gap:10px; align-items:center;">
                     <select id="codeFilter" class="form-select" style="width: auto;">
+                    </select>
+                    <button id="refreshResultsBtn" class="download-button" type="button">🔄 Neu laden</button>
+                    
                         <option value="">Alle Codes</option>
                     </select>
                 </div>
@@ -1079,6 +1082,8 @@
                             console.log("Codes aktualisiert:", generatedCodes.length);
                             if (currentUser) {
                                 loadDashboardData();
+                                if (document.getElementById('resultsTab').classList.contains('active')) { loadResultsData(); }
+                                if (document.getElementById('statisticsTab').classList.contains('active')) { loadStatisticsData(); }
                             }
                         },
                         (error) => {
@@ -1095,9 +1100,8 @@
                             console.log("Results aktualisiert:", testResults.length);
                             if (currentUser) {
                                 updateStatistics();
-                                if (document.getElementById('resultsTab').classList.contains('active')) {
-                                    loadResultsData();
-                                }
+                                if (document.getElementById('resultsTab').classList.contains('active')) { loadResultsData(); }
+                                if (document.getElementById('statisticsTab').classList.contains('active')) { loadStatisticsData(); }
                             }
                         },
                         (error) => {
@@ -1173,7 +1177,23 @@
             }
         }
 
-        // KORRIGIERTE Login Handler
+        
+        // ---- Helpers ----
+        function toJsDate(ts) {
+            if (!ts) return null;
+            if (typeof ts === 'string') return new Date(ts);
+            if (typeof ts === 'number') return new Date(ts);
+            if (typeof ts === 'object') {
+                if (typeof ts.toDate === 'function') return ts.toDate();
+                if (typeof ts.seconds === 'number') return new Date(ts.seconds * 1000);
+            }
+            return null;
+        }
+        function getCat(result, idx) {
+            const cp = result && result.categoryPercentages ? result.categoryPercentages : {};
+            return cp[idx] ?? cp[String(idx)] ?? 0;
+        }
+// KORRIGIERTE Login Handler
         async function handleLogin(event) {
             event.preventDefault();
             
@@ -1475,26 +1495,23 @@
             }
             
             resultsTableBody.innerHTML = results.sort((a,b) => {
-                const dateA = a.timestamp ? new Date(a.timestamp) : new Date(0);
-                const dateB = b.timestamp ? new Date(b.timestamp) : new Date(0);
+                const dateA = toJsDate(a.timestamp) || new Date(0);
+                const dateB = toJsDate(b.timestamp) || new Date(0);
                 return dateB - dateA;
             }).map(result => {
                 const scoreClass = result.totalPercentage >= 80 ? 'score-high' : 
                                      result.totalPercentage >= 60 ? 'score-medium' : 'score-low';
                 
-                // Ensure categoryPercentages exists and has all values
-                const catScores = result.categoryPercentages || {};
-                
                 return `
                     <tr data-doc-id="${result.id}">
                         <td><span class="code-badge">${result.testCode}</span></td>
-                        <td>${result.timestamp ? new Date(result.timestamp).toLocaleDateString('de-DE') : 'N/A'}</td>
+                        <td>${(toJsDate(result.timestamp) || null) ? toJsDate(result.timestamp).toLocaleDateString('de-DE') : 'N/A'}</td>
                         <td><span class="score-badge ${scoreClass}">${result.totalPercentage || 0}%</span></td>
-                        <td>${catScores[1] || 0}%</td>
-                        <td>${catScores[2] || 0}%</td>
-                        <td>${catScores[3] || 0}%</td>
-                        <td>${catScores[4] || 0}%</td>
-                        <td>${catScores[5] || 0}%</td>
+                        <td>${getCat(result,1)}%</td>
+                        <td>${getCat(result,2)}%</td>
+                        <td>${getCat(result,3)}%</td>
+                        <td>${getCat(result,4)}%</td>
+                        <td>${getCat(result,5)}%</td>
                         <td>
                             <button class="action-button view-button">Details</button>
                         </td>
@@ -1518,7 +1535,7 @@
             if (relevantResults.length > 0) {
                 for (let i = 1; i <= 5; i++) {
                     const scores = relevantResults
-                        .map(r => (r.categoryPercentages && r.categoryPercentages[i]) || 0)
+                        .map(r => getCat(r, i) || 0)
                         .filter(score => !isNaN(score));
                     
                     const avg = scores.length > 0 
@@ -1605,7 +1622,11 @@
             loadUserList();
         }
 
-        // Load User List for Admin
+        
+        // --- Admin User Edit State ---
+        let __editingDept = null;
+        let __editingUser = null;
+// Load User List for Admin
         function loadUserList() {
             if (currentDepartment !== 'admin') return;
             
@@ -1619,15 +1640,17 @@
                 
                 if (Array.isArray(users) && users.length > 0) {
                     users.forEach(user => {
-                        html += `<div style="margin-left: 20px; padding: 5px;">`;
+                        html += `<div style=\"margin-left: 20px; padding: 5px;\">`;
                         html += `${user.user} `;
-                        html += `<button class="action-button delete-button" onclick="removeUser('${dept}', '${user.user}')">Entfernen</button>`;
+                        html += `<button class=\"action-button view-button\" onclick=\"editUser('${dept}', '${user.user}')\">Bearbeiten</button>`;
+                        html += `<button class=\"action-button delete-button\" onclick=\"removeUser('${dept}', '${user.user}')\">Entfernen</button>`;
                         html += `</div>`;
                     });
                 } else if (users && typeof users === 'object' && users.user) {
                     html += `<div style="margin-left: 20px; padding: 5px;">`;
                     html += `${users.user} `;
-                    html += `<button class="action-button delete-button" onclick="removeUser('${dept}', '${users.user}')">Entfernen</button>`;
+                    html += `<button class=\"action-button view-button\" onclick=\"editUser('${dept}', '${users.user}')\">Bearbeiten</button>`;
+                    html += `<button class=\"action-button delete-button\" onclick=\"removeUser('${dept}', '${users.user}')\">Entfernen</button>`;
                     html += `</div>`;
                 } else {
                     html += `<div style="margin-left: 20px; color: #6c757d; padding: 5px;">Keine Benutzer (Demo-Login aktiv)</div>`;
@@ -1637,8 +1660,63 @@
             userList.innerHTML = html;
         }
 
+        
+        // Start editing an existing user
+        window.editUser = function(dept, username) {
+            __editingDept = dept;
+            __editingUser = username;
+            const formDept = document.getElementById('userDepartment');
+            const userInput = document.getElementById('newUsername');
+            const passInput = document.getElementById('newPassword');
+            if (formDept) formDept.value = dept;
+            if (userInput) userInput.value = username;
+            if (passInput) passInput.value = '';
+            const btn = document.getElementById('addUserBtn');
+            if (btn) btn.textContent = 'Änderungen speichern';
+            showCustomAlert('Bearbeitungsmodus aktiv: Benutzerdaten anpassen und „Änderungen speichern“ klicken.');
+        };
+
+        async function saveEditUser() {
+            const dept = document.getElementById('userDepartment').value;
+            const username = document.getElementById('newUsername').value.trim();
+            const password = document.getElementById('newPassword').value;
+
+            if (!__editingDept || !__editingUser) return false;
+
+            if (!Array.isArray(userAccounts[dept])) {
+                if (userAccounts[dept] && userAccounts[dept].user) userAccounts[dept] = [userAccounts[dept]];
+                else userAccounts[dept] = [];
+            }
+            if (dept === __editingDept) {
+                const idx = userAccounts[dept].findIndex(u => u.user === __editingUser);
+                if (idx >= 0) {
+                    userAccounts[dept][idx] = { user: username, pass: (password || userAccounts[dept][idx].pass) };
+                }
+            } else {
+                if (Array.isArray(userAccounts[__editingDept])) {
+                    userAccounts[__editingDept] = userAccounts[__editingDept].filter(u => u.user != __editingUser);
+                }
+                userAccounts[dept].push({ user: username, pass: password || 'changeme' });
+            }
+
+            if (firebaseReady && accountsDocRef) {
+                await setDoc(accountsDocRef, userAccounts);
+            }
+
+            __editingDept = null;
+            __editingUser = null;
+            const btn = document.getElementById('addUserBtn');
+            if (btn) btn.textContent = 'Benutzer hinzufügen';
+            document.getElementById('newUsername').value = '';
+            document.getElementById('newPassword').value = '';
+            loadUserList();
+            showCustomAlert('Benutzerdaten wurden gespeichert.');
+            return true;
+        }
+
         // Add User Function
         async function addUser() {
+            if (__editingDept && __editingUser) { await saveEditUser(); return; }
             const dept = document.getElementById('userDepartment').value;
             const username = document.getElementById('newUsername').value.trim();
             const password = document.getElementById('newPassword').value;
@@ -1734,7 +1812,7 @@
             }).length;
             
             if (relevantResults.length > 0) {
-                const validResults = relevantResults.filter(r => r.totalPercentage !== undefined);
+                const validResults = relevantResults.filter(r => typeof r.totalPercentage === 'number');
                 if (validResults.length > 0) {
                     const avgScore = Math.round(validResults.reduce((sum, r) => sum + (r.totalPercentage || 0), 0) / validResults.length);
                     document.getElementById('avgScore').textContent = avgScore + '%';
@@ -1753,7 +1831,7 @@
             
             if (isAdmin) {
                 document.getElementById('totalTestsAdmin').textContent = testResults.length;
-                const validAdminResults = testResults.filter(r => r && r.totalPercentage !== undefined);
+                const validAdminResults = testResults.filter(r => r && typeof r.totalPercentage === 'number');
                 if (validAdminResults.length > 0) {
                     const avgScoreAdmin = Math.round(validAdminResults.reduce((sum, r) => sum + (r.totalPercentage || 0), 0) / validAdminResults.length);
                     document.getElementById('avgScoreAdmin').textContent = avgScoreAdmin + '%';
@@ -1797,8 +1875,8 @@
                 ? `${Math.round(result.duration / 60)} Minuten`
                 : 'Nicht verfügbar';
             
-            const timestamp = result.timestamp 
-                ? new Date(result.timestamp).toLocaleString('de-DE')
+            const timestamp = toJsDate(result.timestamp) 
+                ? toJsDate(result.timestamp).toLocaleString('de-DE')
                 : 'Nicht verfügbar';
             
             modalBody.innerHTML = `
@@ -2061,6 +2139,7 @@
             document.getElementById('downloadCodesBtn').addEventListener('click', downloadSelectedCodes);
             document.getElementById('deleteSelectedBtn').addEventListener('click', deleteSelectedCodes);
             document.getElementById('exportResultsBtn').addEventListener('click', exportResults);
+            document.getElementById('refreshResultsBtn').addEventListener('click', async () => { await loadInitialData(); loadResultsData(); loadStatisticsData(); });
             document.getElementById('codeFilter').addEventListener('change', filterResults);
 
             document.getElementById('tabNav').addEventListener('click', (e) => {
