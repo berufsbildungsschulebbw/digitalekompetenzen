@@ -48,6 +48,10 @@
             background: #5a67d8;
         }
 
+        .back-button.hidden {
+            display: none;
+        }
+
         h1 {
             color: #2d3748;
             font-size: 2.5em;
@@ -467,6 +471,52 @@
             font-weight: bold;
         }
 
+        .dept-comparison-chart {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .dept-bars {
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-end;
+            height: 250px;
+            margin: 20px 0;
+            padding: 0 20px;
+            border-left: 2px solid #dee2e6;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .dept-bar-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            max-width: 150px;
+        }
+
+        .dept-bar {
+            width: 60px;
+            background: linear-gradient(180deg, #667eea, #764ba2);
+            border-radius: 5px 5px 0 0;
+            transition: height 1s ease;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding-top: 10px;
+            color: white;
+            font-weight: bold;
+        }
+
+        .dept-bar-label {
+            margin-top: 10px;
+            text-align: center;
+            font-size: 0.85em;
+            color: #495057;
+        }
+
         /* Individual Results */
         .results-table {
             width: 100%;
@@ -598,12 +648,32 @@
                 text-align: center;
                 gap: 15px;
             }
+
+            .dept-bars {
+                flex-direction: column;
+                height: auto;
+                align-items: stretch;
+                gap: 20px;
+            }
+
+            .dept-bar-group {
+                max-width: none;
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .dept-bar {
+                width: 100%;
+                height: 40px !important;
+                border-radius: 5px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <a href="../index.html" class="back-button">← Zurück zur Startseite</a>
+        <a href="../index.html" id="backButton" class="back-button">← Zurück zur Startseite</a>
         
         <div class="header">
             <h1>Intra-Bereich</h1>
@@ -652,7 +722,7 @@
                     <h3 id="userDepartment">Abteilung</h3>
                     <p id="userName">Benutzer</p>
                 </div>
-                <button id="logoutBtn" class="logout-button">Abmelden</button>
+                <button id="logoutBtn" class="logout-button">🚪 Abmelden</button>
             </div>
 
             <!-- Tab Navigation -->
@@ -762,11 +832,9 @@
                 <h3 style="margin: 30px 0 20px;">Individuelle Ergebnisse nach Code</h3>
                 <div style="margin-bottom: 20px; display:flex; gap:10px; align-items:center;">
                     <select id="codeFilter" class="form-select" style="width: auto;">
-                    </select>
-                    <button id="refreshResultsBtn" class="download-button" type="button">🔄 Neu laden</button>
-                    
                         <option value="">Alle Codes</option>
                     </select>
+                    <button id="refreshResultsBtn" class="download-button" type="button">🔄 Neu laden</button>
                 </div>
 
                 <table class="results-table">
@@ -889,9 +957,22 @@
                         <div class="stat-number" id="avgScoreAdmin">0%</div>
                         <div class="stat-label">Gesamt-Durchschnitt</div>
                     </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="bestDeptAdmin">-</div>
+                        <div class="stat-label">Beste Abteilung</div>
+                    </div>
                 </div>
 
                 <h3 style="margin: 30px 0 20px;">Abteilungsvergleich</h3>
+                
+                <!-- New Department Comparison Chart -->
+                <div class="dept-comparison-chart">
+                    <div class="chart-header">Durchschnittliche Scores nach Abteilung</div>
+                    <div class="dept-bars" id="deptBarsChart">
+                        <!-- Department bars will be generated here -->
+                    </div>
+                </div>
+
                 <table class="results-table">
                     <thead>
                         <tr>
@@ -900,6 +981,7 @@
                             <th>Ø Score</th>
                             <th>Beste Kompetenz</th>
                             <th>Schwächste Kompetenz</th>
+                            <th>Trend</th>
                         </tr>
                     </thead>
                     <tbody id="adminTableBody">
@@ -1140,14 +1222,6 @@
                 }
                 if (testResults.length === 0) {
                     console.log("No test results available");
-                    // You can add test data here if needed for testing
-                    // testResults.push({ 
-                    //     id: 'test1', 
-                    //     testCode: 'TEST-CODE', 
-                    //     totalPercentage: 75, 
-                    //     categoryPercentages: {1: 80, 2: 70, 3: 75, 4: 85, 5: 65},
-                    //     timestamp: new Date().toISOString()
-                    // });
                 }
                 return;
             }
@@ -1193,7 +1267,8 @@
             const cp = result && result.categoryPercentages ? result.categoryPercentages : {};
             return cp[idx] ?? cp[String(idx)] ?? 0;
         }
-// KORRIGIERTE Login Handler
+        
+        // Login Handler with Back Button hiding
         async function handleLogin(event) {
             event.preventDefault();
             
@@ -1230,7 +1305,9 @@
                 currentDepartment = department;
                 window.currentDepartment = department; // Global verfügbar machen
                 
+                // Hide login section and back button
                 document.getElementById('loginSection').style.display = 'none';
+                document.getElementById('backButton').classList.add('hidden');
                 document.getElementById('dashboardSection').classList.add('active');
                 
                 document.getElementById('userDepartment').textContent = deptNames[department] || department;
@@ -1257,18 +1334,32 @@
             }
         }
 
-        // Logout Handler
+        // Logout Handler with Back Button showing
         function handleLogout() {
             currentUser = null;
             currentDepartment = null;
             window.currentDepartment = null;
+            
+            // Show login section and back button
             document.getElementById('dashboardSection').classList.remove('active');
             document.getElementById('loginSection').style.display = 'block';
+            document.getElementById('backButton').classList.remove('hidden');
             document.getElementById('adminTabButton').style.display = 'none';
             
+            // Clear form
             document.getElementById('department').value = '';
             document.getElementById('username').value = '';
             document.getElementById('password').value = '';
+            
+            // Reset to first tab
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.querySelector('.tab-button[data-tab="codes"]').classList.add('active');
+            document.getElementById('codesTab').classList.add('active');
         }
 
         // Tab Switching - Fixed version
@@ -1559,28 +1650,40 @@
             }
         }
         
-        // Load Admin specific data
+        // Load Admin specific data with improved department comparison
         function loadAdminData() {
             console.log("Loading admin data...");
             const adminTableBody = document.getElementById('adminTableBody');
             const departments = Object.keys(deptNames).filter(d => d !== 'admin');
             document.getElementById('allDepartmentsCount').textContent = departments.length;
             
+            let bestDept = { name: '-', score: 0 };
+            const deptStats = [];
+            
             const tableRows = departments.map(deptKey => {
                 const deptCodes = generatedCodes.filter(c => c.department === deptKey).map(c => c.code);
                 const deptResults = testResults.filter(r => r && r.testCode && deptCodes.includes(r.testCode));
                 
                 if (deptResults.length === 0) {
-                     return `<tr><td>${deptNames[deptKey]}</td><td>0</td><td>N/A</td><td>N/A</td><td>N/A</td></tr>`;
+                    deptStats.push({ dept: deptKey, name: deptNames[deptKey], score: 0, tests: 0 });
+                    return `<tr><td>${deptNames[deptKey]}</td><td>0</td><td>N/A</td><td>N/A</td><td>N/A</td><td>-</td></tr>`;
                 }
 
                 const validResults = deptResults.filter(r => r.totalPercentage !== undefined);
                 if (validResults.length === 0) {
-                    return `<tr><td>${deptNames[deptKey]}</td><td>0</td><td>N/A</td><td>N/A</td><td>N/A</td></tr>`;
+                    deptStats.push({ dept: deptKey, name: deptNames[deptKey], score: 0, tests: 0 });
+                    return `<tr><td>${deptNames[deptKey]}</td><td>0</td><td>N/A</td><td>N/A</td><td>N/A</td><td>-</td></tr>`;
                 }
 
                 const avgScore = Math.round(validResults.reduce((sum, r) => sum + (r.totalPercentage || 0), 0) / validResults.length);
                 const scoreClass = avgScore >= 80 ? 'score-high' : avgScore >= 60 ? 'score-medium' : 'score-low';
+                
+                // Track best department
+                if (avgScore > bestDept.score) {
+                    bestDept = { name: deptNames[deptKey], score: avgScore };
+                }
+                
+                deptStats.push({ dept: deptKey, name: deptNames[deptKey], score: avgScore, tests: deptResults.length });
                 
                 const categoryAvgs = [];
                 for (let i = 1; i <= 5; i++) {
@@ -1597,13 +1700,17 @@
                 }
                 
                 if (categoryAvgs.length === 0) {
-                    return `<tr><td>${deptNames[deptKey]}</td><td>${deptResults.length}</td><td><span class="score-badge ${scoreClass}">${avgScore}%</span></td><td>N/A</td><td>N/A</td></tr>`;
+                    return `<tr><td>${deptNames[deptKey]}</td><td>${deptResults.length}</td><td><span class="score-badge ${scoreClass}">${avgScore}%</span></td><td>N/A</td><td>N/A</td><td>-</td></tr>`;
                 }
                 
                 categoryAvgs.sort((a,b) => b.avg - a.avg);
                 const bestCat = categoryAvgs[0].name;
                 const worstCat = categoryAvgs[categoryAvgs.length - 1].name;
                 const catNames = ["Grundkenntnisse IKT", "Anwendung im Unterricht", "Medien- & Infokompetenz", "Daten & Sicherheit", "Kommunikation"];
+                
+                // Calculate trend (simplified - just showing if above or below average)
+                const overallAvg = deptStats.filter(d => d.score > 0).reduce((sum, d) => sum + d.score, 0) / deptStats.filter(d => d.score > 0).length || 0;
+                const trend = avgScore > overallAvg ? '📈' : avgScore < overallAvg ? '📉' : '➡️';
 
                 return `
                     <tr>
@@ -1612,10 +1719,33 @@
                         <td><span class="score-badge ${scoreClass}">${avgScore}%</span></td>
                         <td>${catNames[bestCat-1]}</td>
                         <td>${catNames[worstCat-1]}</td>
+                        <td style="font-size: 1.2em;">${trend}</td>
                     </tr>`;
             }).join('');
             
             adminTableBody.innerHTML = tableRows;
+            
+            // Update best department
+            document.getElementById('bestDeptAdmin').textContent = bestDept.name;
+            
+            // Create department comparison bars
+            const deptBarsChart = document.getElementById('deptBarsChart');
+            const maxScore = Math.max(...deptStats.map(d => d.score), 100);
+            
+            deptBarsChart.innerHTML = deptStats.map(dept => {
+                const height = dept.score > 0 ? (dept.score / maxScore) * 100 : 5;
+                const color = dept.score >= 80 ? '#28a745' : dept.score >= 60 ? '#ffc107' : dept.score > 0 ? '#dc3545' : '#dee2e6';
+                
+                return `
+                    <div class="dept-bar-group">
+                        <div class="dept-bar" style="height: ${height}%; background: ${color};">
+                            ${dept.score > 0 ? dept.score + '%' : ''}
+                        </div>
+                        <div class="dept-bar-label">${dept.name}</div>
+                    </div>
+                `;
+            }).join('');
+            
             updateStatistics();
             
             // Load user list for admin
@@ -1626,7 +1756,8 @@
         // --- Admin User Edit State ---
         let __editingDept = null;
         let __editingUser = null;
-// Load User List for Admin
+        
+        // Load User List for Admin
         function loadUserList() {
             if (currentDepartment !== 'admin') return;
             
@@ -1673,7 +1804,7 @@
             if (passInput) passInput.value = '';
             const btn = document.getElementById('addUserBtn');
             if (btn) btn.textContent = 'Änderungen speichern';
-            showCustomAlert('Bearbeitungsmodus aktiv: Benutzerdaten anpassen und „Änderungen speichern“ klicken.');
+            showCustomAlert('Bearbeitungsmodus aktiv: Benutzerdaten anpassen und „Änderungen speichern" klicken.');
         };
 
         async function saveEditUser() {
