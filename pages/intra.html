@@ -1746,11 +1746,61 @@
             
             updateStatistics();
             
-            // Load user list for admin
-            loadUserList();
-        }
-
+           // Load User List for Admin
+function loadUserList() {
+    if (currentDepartment !== 'admin') return;
+    
+    const userList = document.getElementById('userList');
+    if (!userList) return;
+    
+    let html = '';
+    
+    // Define the expected departments
+    const expectedDepts = ['bau', 'technik', 'maschinenbau', 'informatik', 'admin'];
+    
+    for (const dept of expectedDepts) {
+        const users = userAccounts[dept];
         
+        html += `<div style="margin-bottom: 15px;">`;
+        html += `<strong>${deptNames[dept] || dept}:</strong><br>`;
+        
+        if (Array.isArray(users) && users.length > 0) {
+            users.forEach(user => {
+                html += `<div style="margin-left: 20px; padding: 5px;">`;
+                html += `${user.user} `;
+                html += `<button class="action-button view-button" onclick="editUser('${dept}', '${user.user}')">Bearbeiten</button>`;
+                html += `<button class="action-button delete-button" onclick="removeUser('${dept}', '${user.user}')">Entfernen</button>`;
+                html += `</div>`;
+            });
+        } else if (users && typeof users === 'object' && users.user) {
+            html += `<div style="margin-left: 20px; padding: 5px;">`;
+            html += `${users.user} `;
+            html += `<button class="action-button view-button" onclick="editUser('${dept}', '${users.user}')">Bearbeiten</button>`;
+            html += `<button class="action-button delete-button" onclick="removeUser('${dept}', '${users.user}')">Entfernen</button>`;
+            html += `</div>`;
+        } else {
+            html += `<div style="margin-left: 20px; color: #6c757d; padding: 5px;">Keine Benutzer (Demo-Login aktiv)</div>`;
+        }
+        html += `</div>`;
+    }
+    
+    // Handle any undefined entries (cleanup)
+    if (userAccounts['undefined']) {
+        html += `<div style="margin-bottom: 15px; background: #ffe6e6; padding: 10px; border-radius: 5px;">`;
+        html += `<strong style="color: red;">Fehlerhafte Einträge (bitte bereinigen):</strong><br>`;
+        if (Array.isArray(userAccounts['undefined'])) {
+            userAccounts['undefined'].forEach(user => {
+                html += `<div style="margin-left: 20px; padding: 5px;">`;
+                html += `${user.user} `;
+                html += `<button class="action-button delete-button" onclick="removeUser('undefined', '${user.user}')">Entfernen</button>`;
+                html += `</div>`;
+            });
+        }
+        html += `</div>`;
+    }
+    
+    userList.innerHTML = html;
+}        
         // --- Admin User Edit State ---
         let __editingDept = null;
         let __editingUser = null;
@@ -1843,57 +1893,68 @@
             return true;
         }
 
-        // Add User Function
-        async function addUser() {
-            if (__editingDept && __editingUser) { await saveEditUser(); return; }
-            const dept = document.getElementById('userDepartment').value;
-            const username = document.getElementById('newUsername').value.trim();
-            const password = document.getElementById('newPassword').value;
+      // Add User Function
+async function addUser() {
+    if (__editingDept && __editingUser) { await saveEditUser(); return; }
+    const dept = document.getElementById('userDepartment').value;
+    const username = document.getElementById('newUsername').value.trim();
+    const password = document.getElementById('newPassword').value;
 
-            if (!username || password.length < 6) {
-                showCustomAlert('Benutzername darf nicht leer sein und Passwort muss mindestens 6 Zeichen haben.');
-                return;
-            }
+    console.log("Adding user - Department:", dept, "Username:", username);
 
-            // Convert to array format if needed
-            if (!Array.isArray(userAccounts[dept])) {
-                if (userAccounts[dept] && userAccounts[dept].user) {
-                    userAccounts[dept] = [userAccounts[dept]];
-                } else {
-                    userAccounts[dept] = [];
-                }
-            }
+    if (!username || password.length < 6) {
+        showCustomAlert('Benutzername darf nicht leer sein und Passwort muss mindestens 6 Zeichen haben.');
+        return;
+    }
 
-            // Check if user already exists
-            if (userAccounts[dept].some(u => u.user === username)) {
-                showCustomAlert('Benutzer existiert bereits für diese Abteilung.');
-                return;
-            }
+    // Ensure the department exists in userAccounts
+    if (!userAccounts[dept]) {
+        userAccounts[dept] = [];
+    }
 
-            // Add new user
-            userAccounts[dept].push({ user: username, pass: password });
-
-            // Save to Firestore if available
-            if (firebaseReady && accountsDocRef) {
-                try {
-                    await setDoc(accountsDocRef, userAccounts);
-                    showCustomAlert(`Benutzer ${username} wurde erfolgreich hinzugefügt.`);
-                } catch (error) {
-                    console.error('Fehler beim Speichern:', error);
-                    showCustomAlert('Fehler beim Speichern: ' + error.message);
-                }
-            } else {
-                showCustomAlert(`Benutzer ${username} wurde lokal hinzugefügt.`);
-            }
-
-            // Clear form
-            document.getElementById('newUsername').value = '';
-            document.getElementById('newPassword').value = '';
-            
-            // Reload user list
-            loadUserList();
+    // Convert to array format if needed
+    if (!Array.isArray(userAccounts[dept])) {
+        if (userAccounts[dept] && userAccounts[dept].user) {
+            userAccounts[dept] = [userAccounts[dept]];
+        } else {
+            userAccounts[dept] = [];
         }
+    }
 
+    // Check if user already exists
+    if (userAccounts[dept].some(u => u.user === username)) {
+        showCustomAlert('Benutzer existiert bereits für diese Abteilung.');
+        return;
+    }
+
+    // Add new user locally first
+    userAccounts[dept].push({ user: username, pass: password });
+    showCustomAlert(`Benutzer ${username} wurde zur Abteilung ${deptNames[dept] || dept} hinzugefügt.`);
+
+    // Try to save to Firestore if available
+    if (firebaseReady && accountsDocRef) {
+        try {
+            // Clean up any undefined keys before saving
+            const cleanedAccounts = {};
+            for (const [key, value] of Object.entries(userAccounts)) {
+                if (key && key !== 'undefined') {
+                    cleanedAccounts[key] = value;
+                }
+            }
+            await setDoc(accountsDocRef, cleanedAccounts);
+            console.log('Benutzer in Firebase gespeichert');
+        } catch (error) {
+            console.error('Firebase-Speicherung fehlgeschlagen, aber lokal gespeichert:', error);
+        }
+    }
+
+    // Clear form
+    document.getElementById('newUsername').value = '';
+    document.getElementById('newPassword').value = '';
+    
+    // Reload user list
+    loadUserList();
+}
         // Remove User Function (global for inline onclick)
         window.removeUser = async function(dept, username) {
             showCustomConfirm(
