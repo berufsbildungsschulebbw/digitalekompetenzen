@@ -1746,61 +1746,6 @@
             
             updateStatistics();
             
-           // Load User List for Admin
-function loadUserList() {
-    if (currentDepartment !== 'admin') return;
-    
-    const userList = document.getElementById('userList');
-    if (!userList) return;
-    
-    let html = '';
-    
-    // Define the expected departments
-    const expectedDepts = ['bau', 'technik', 'maschinenbau', 'informatik', 'admin'];
-    
-    for (const dept of expectedDepts) {
-        const users = userAccounts[dept];
-        
-        html += `<div style="margin-bottom: 15px;">`;
-        html += `<strong>${deptNames[dept] || dept}:</strong><br>`;
-        
-        if (Array.isArray(users) && users.length > 0) {
-            users.forEach(user => {
-                html += `<div style="margin-left: 20px; padding: 5px;">`;
-                html += `${user.user} `;
-                html += `<button class="action-button view-button" onclick="editUser('${dept}', '${user.user}')">Bearbeiten</button>`;
-                html += `<button class="action-button delete-button" onclick="removeUser('${dept}', '${user.user}')">Entfernen</button>`;
-                html += `</div>`;
-            });
-        } else if (users && typeof users === 'object' && users.user) {
-            html += `<div style="margin-left: 20px; padding: 5px;">`;
-            html += `${users.user} `;
-            html += `<button class="action-button view-button" onclick="editUser('${dept}', '${users.user}')">Bearbeiten</button>`;
-            html += `<button class="action-button delete-button" onclick="removeUser('${dept}', '${users.user}')">Entfernen</button>`;
-            html += `</div>`;
-        } else {
-            html += `<div style="margin-left: 20px; color: #6c757d; padding: 5px;">Keine Benutzer (Demo-Login aktiv)</div>`;
-        }
-        html += `</div>`;
-    }
-    
-    // Handle any undefined entries (cleanup)
-    if (userAccounts['undefined']) {
-        html += `<div style="margin-bottom: 15px; background: #ffe6e6; padding: 10px; border-radius: 5px;">`;
-        html += `<strong style="color: red;">Fehlerhafte Einträge (bitte bereinigen):</strong><br>`;
-        if (Array.isArray(userAccounts['undefined'])) {
-            userAccounts['undefined'].forEach(user => {
-                html += `<div style="margin-left: 20px; padding: 5px;">`;
-                html += `${user.user} `;
-                html += `<button class="action-button delete-button" onclick="removeUser('undefined', '${user.user}')">Entfernen</button>`;
-                html += `</div>`;
-            });
-        }
-        html += `</div>`;
-    }
-    
-    userList.innerHTML = html;
-}        
         // --- Admin User Edit State ---
         let __editingDept = null;
         let __editingUser = null;
