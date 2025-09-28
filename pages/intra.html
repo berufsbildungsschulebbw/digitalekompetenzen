@@ -1792,19 +1792,56 @@
         }
 
         
-        // Start editing an existing user
+         // Start editing an existing user
         window.editUser = function(dept, username) {
             __editingDept = dept;
             __editingUser = username;
             const formDept = document.getElementById('userDepartment');
             const userInput = document.getElementById('newUsername');
             const passInput = document.getElementById('newPassword');
-            if (formDept) formDept.value = dept;
+            
+            // Set and disable department selector during edit
+            if (formDept) {
+                formDept.value = dept;
+                formDept.disabled = true;
+                document.getElementById('deptEditHint').style.display = 'block';
+            }
+            
             if (userInput) userInput.value = username;
-            if (passInput) passInput.value = '';
+            if (passInput) {
+                passInput.value = '';
+                passInput.placeholder = 'Leer lassen für keine Änderung';
+            }
+            
             const btn = document.getElementById('addUserBtn');
             if (btn) btn.textContent = 'Änderungen speichern';
-            showCustomAlert('Bearbeitungsmodus aktiv: Benutzerdaten anpassen und „Änderungen speichern" klicken.');
+            
+            const cancelBtn = document.getElementById('cancelEditBtn');
+            if (cancelBtn) cancelBtn.style.display = 'inline-block';
+            
+            showCustomAlert('Bearbeitungsmodus für ' + username + ' (' + (deptNames[dept] || dept) + '): Benutzerdaten anpassen und „Änderungen speichern" klicken.');
+        };
+        
+        // Cancel edit mode
+        window.cancelEdit = function() {
+            __editingDept = null;
+            __editingUser = null;
+            
+            const formDept = document.getElementById('userDepartment');
+            if (formDept) {
+                formDept.disabled = false;
+                document.getElementById('deptEditHint').style.display = 'none';
+            }
+            
+            document.getElementById('newUsername').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('newPassword').placeholder = 'Mind. 6 Zeichen';
+            
+            const btn = document.getElementById('addUserBtn');
+            if (btn) btn.textContent = 'Benutzer hinzufügen';
+            
+            const cancelBtn = document.getElementById('cancelEditBtn');
+            if (cancelBtn) cancelBtn.style.display = 'none';
         };
 
         async function saveEditUser() {
