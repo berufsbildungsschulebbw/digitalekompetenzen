@@ -16,62 +16,62 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             color: #333;
-            padding: 20px;
+            padding: 15px;
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 900px;
             margin: 0 auto;
             background: rgba(255, 255, 255, 0.95);
             border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            padding: 60px;
+            padding: 40px;
             backdrop-filter: blur(10px);
-            min-height: calc(100vh - 40px);
+            min-height: calc(100vh - 30px);
         }
 
         .header {
             text-align: center;
-            margin-bottom: 60px;
+            margin-bottom: 40px;
         }
 
         .header h1 {
             color: #2d3748;
-            font-size: 2.8em;
-            margin-bottom: 15px;
+            font-size: 2.2em;
+            margin-bottom: 10px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
         }
 
         .header .subtitle {
             color: #718096;
-            font-size: 1.3em;
-            margin-bottom: 30px;
+            font-size: 1.1em;
+            margin-bottom: 20px;
         }
 
         .intro-text {
-            max-width: 850px;
-            margin: 0 auto 60px;
+            max-width: 700px;
+            margin: 0 auto 40px;
             text-align: center;
-            line-height: 1.8;
-            font-size: 1.15em;
+            line-height: 1.7;
+            font-size: 1em;
             color: #4a5568;
             background: #f7fafc;
-            padding: 35px;
-            border-radius: 15px;
+            padding: 25px;
+            border-radius: 12px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
         }
 
         .main-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 40px;
-            margin-top: 50px;
+            gap: 25px;
+            margin-top: 35px;
         }
 
         .main-card {
             background: white;
-            border-radius: 20px;
-            padding: 40px;
+            border-radius: 15px;
+            padding: 30px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
             transition: all 0.4s ease;
             position: relative;
@@ -85,77 +85,78 @@
             top: 0;
             left: 0;
             right: 0;
-            height: 6px;
+            height: 5px;
             background: var(--card-color);
         }
 
         .main-card:hover {
-            transform: translateY(-8px);
+            transform: translateY(-6px);
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
         }
 
         .card-icon {
-            width: 70px;
-            height: 70px;
+            width: 55px;
+            height: 55px;
             background: var(--card-color);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 2em;
-            margin: 0 auto 25px;
+            font-size: 1.6em;
+            margin: 0 auto 20px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
 
         .card-title {
-            font-size: 1.6em;
+            font-size: 1.3em;
             color: #2d3748;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             text-align: center;
             font-weight: bold;
         }
 
         .card-description {
             color: #4a5568;
-            line-height: 1.6;
-            margin-bottom: 25px;
+            line-height: 1.5;
+            margin-bottom: 20px;
             text-align: center;
+            font-size: 0.9em;
         }
 
         .card-features {
             list-style: none;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
 
         .card-features li {
-            padding: 6px 0;
+            padding: 4px 0;
             color: #4a5568;
             display: flex;
             align-items: center;
-            font-size: 0.95em;
+            font-size: 0.85em;
         }
 
         .card-features li:before {
             content: "✓";
             color: var(--card-color);
             font-weight: bold;
-            margin-right: 10px;
+            margin-right: 8px;
         }
 
         .card-button {
             width: 100%;
-            padding: 12px 25px;
+            padding: 10px 20px;
             background: var(--card-color);
             color: white;
             border: none;
-            border-radius: 10px;
-            font-size: 1em;
+            border-radius: 8px;
+            font-size: 0.9em;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s ease;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
         }
 
         .card-button:hover {
@@ -164,10 +165,10 @@
         }
 
         .access-info {
-            padding: 12px;
-            border-radius: 8px;
-            margin: 15px 0;
-            font-size: 0.9em;
+            padding: 8px;
+            border-radius: 6px;
+            margin: 12px 0;
+            font-size: 0.8em;
             border: 1px solid;
         }
 
@@ -212,46 +213,47 @@
 
         .abteilungen-info {
             background: linear-gradient(45deg, #f8f9fa, #e9ecef);
-            border-radius: 15px;
-            padding: 30px;
-            margin-top: 50px;
+            border-radius: 12px;
+            padding: 25px;
+            margin-top: 35px;
             text-align: center;
         }
 
         .abteilungen-info h3 {
             color: #495057;
-            margin-bottom: 20px;
-            font-size: 1.3em;
+            margin-bottom: 15px;
+            font-size: 1.1em;
         }
 
         .abteilungen-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
-            margin-top: 20px;
+            gap: 15px;
+            margin-top: 15px;
         }
 
         .abteilung-item {
             background: white;
-            padding: 20px;
-            border-radius: 10px;
-            border-left: 4px solid #667eea;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 3px solid #667eea;
             font-weight: 500;
             text-align: center;
+            font-size: 0.9em;
         }
 
         @media (max-width: 768px) {
             .container {
-                padding: 30px;
+                padding: 20px;
             }
             
             .header h1 {
-                font-size: 2em;
+                font-size: 1.8em;
             }
             
             .main-grid {
                 grid-template-columns: 1fr;
-                gap: 30px;
+                gap: 20px;
             }
 
             .abteilungen-grid {
@@ -276,7 +278,7 @@
         </div>
 
         <div class="main-grid">
-            <!-- Grundlagen & Konzepte -->
+            <!-- Grundlagen & Konzepte (oben links) -->
             <div class="main-card grundlagen-card" onclick="navigateTo('grundlagen.html')">
                 <div class="card-icon">📚</div>
                 <h2 class="card-title">Grundlagen & Konzepte</h2>
@@ -295,26 +297,7 @@
                 <button class="card-button">Grundlagen erkunden</button>
             </div>
 
-            <!-- Kompetenzbereiche -->
-            <div class="main-card kompetenzen-card" onclick="navigateTo('kompetenzbereiche.html')">
-                <div class="card-icon">🎯</div>
-                <h2 class="card-title">Kompetenzbereiche</h2>
-                <p class="card-description">
-                    Detaillierte Übersicht aller Einzelkompetenzen mit praktischen Anwendungsbeispielen und Tool-Empfehlungen.
-                </p>
-                <ul class="card-features">
-                    <li>Alle 5 Bereiche expandierbar</li>
-                    <li>Konkrete Tool-Empfehlungen</li>
-                    <li>Erwartete Kompetenzen</li>
-                    <li>Konzept-Verknüpfungen</li>
-                </ul>
-                <div class="access-info access-free">
-                    <strong>Freier Zugang:</strong> Keine Anmeldung erforderlich
-                </div>
-                <button class="card-button">Kompetenzen durchsuchen</button>
-            </div>
-
-            <!-- Selbsteinschätzung -->
+            <!-- Selbsteinschätzung (oben rechts) -->
             <div class="main-card selbsttest-card" onclick="navigateTo('selbsttest.html')">
                 <div class="card-icon">✓</div>
                 <h2 class="card-title">Selbsteinschätzung</h2>
@@ -333,7 +316,26 @@
                 <button class="card-button">Test durchführen</button>
             </div>
 
-            <!-- Intra -->
+            <!-- Kompetenzbereiche (unten links) -->
+            <div class="main-card kompetenzen-card" onclick="navigateTo('kompetenzbereiche.html')">
+                <div class="card-icon">🎯</div>
+                <h2 class="card-title">Kompetenzbereiche</h2>
+                <p class="card-description">
+                    Detaillierte Übersicht aller Einzelkompetenzen mit praktischen Anwendungsbeispielen und Tool-Empfehlungen.
+                </p>
+                <ul class="card-features">
+                    <li>Alle 5 Bereiche expandierbar</li>
+                    <li>Konkrete Tool-Empfehlungen</li>
+                    <li>Erwartete Kompetenzen</li>
+                    <li>Konzept-Verknüpfungen</li>
+                </ul>
+                <div class="access-info access-free">
+                    <strong>Freier Zugang:</strong> Keine Anmeldung erforderlich
+                </div>
+                <button class="card-button">Kompetenzen durchsuchen</button>
+            </div>
+
+            <!-- Intra (unten rechts) -->
             <div class="main-card intra-card" onclick="navigateTo('intra.html')">
                 <div class="card-icon">🔐</div>
                 <h2 class="card-title">Intra</h2>
@@ -376,9 +378,8 @@
 
     <script>
         function navigateTo(page) {
-    // Ändere diese Zeile in deiner index.html
-    window.location.href = 'pages/' + page;
-}
+            window.location.href = 'pages/' + page;
+        }
 
         // Smooth hover effects
         document.querySelectorAll('.main-card').forEach(card => {
