@@ -914,7 +914,7 @@
                     <div class="code-form">
                         <div class="form-group">
                             <label class="form-label">Abteilung</label>
-                            <select id="userDepartment" class="form-select">
+                            <select id="newUserDepartmentSelect" class="form-select">
                                 <option value="bau">Bau</option>
                                 <option value="technik">Technik | Ernährung</option>
                                 <option value="maschinenbau">Maschinenbau</option>
@@ -1827,7 +1827,7 @@
             __editingDept = null;
             __editingUser = null;
             
-            const formDept = document.getElementById('userDepartment');
+            const formDept = document.getElementById('newUserDepartmentSelect');
             if (formDept) {
                 formDept.disabled = false;
                 document.getElementById('deptEditHint').style.display = 'none';
@@ -1845,7 +1845,7 @@
         };
 
         async function saveEditUser() {
-            const dept = document.getElementById('userDepartment').value;
+            const dept = document.getElementById('newUserDepartmentSelect').value;
             const username = document.getElementById('newUsername').value.trim();
             const password = document.getElementById('newPassword').value;
 
@@ -1885,7 +1885,7 @@
         // Add User Function
         async function addUser() {
             if (__editingDept && __editingUser) { await saveEditUser(); return; }
-            const dept = document.getElementById('userDepartment').value;
+            const dept = document.getElementById('newUserDepartmentSelect').value;
             const username = document.getElementById('newUsername').value.trim();
             const password = document.getElementById('newPassword').value;
 
