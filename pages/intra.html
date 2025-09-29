@@ -1803,7 +1803,7 @@
             }).join('');
         }
 
-        // Load Statistics Data
+       // Load Statistics Data
         function loadStatisticsData() {
             console.log("Loading statistics data...");
             const departmentCodes = currentDepartment === 'admin' 
@@ -1830,7 +1830,7 @@
                         bar.style.width = avg + '%';
                         bar.textContent = avg + '%';
 
-                        // --- NEU: Balken klickbar machen ---
+                        // Balken klickbar machen
                         const chartBar = bar.closest('.chart-bar');
                         if(chartBar) {
                             chartBar.style.cursor = 'pointer';
@@ -1844,6 +1844,13 @@
                     if (bar) {
                         bar.style.width = '0%';
                         bar.textContent = '0%';
+                        
+                        // Klick-Funktion entfernen, falls keine Daten da sind
+                        const chartBar = bar.closest('.chart-bar');
+                        if(chartBar) {
+                           chartBar.style.cursor = 'default';
+                           chartBar.onclick = null;
+                        }
                     }
                 }
             }
