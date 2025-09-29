@@ -1198,16 +1198,17 @@
             const totalPercentage = Math.round((totalScore / totalMaxScore) * 100);
             
             return {
-                totalScore,
-                totalMaxScore,
-                totalPercentage,
-                categoryScores,
-                categoryMaxScores,
-                categoryPercentages,
-                testCode,
-                timestamp: new Date().toISOString(),
-                duration: Math.round((new Date() - testStartTime) / 1000) // in seconds
-            };
+    totalScore,
+    totalMaxScore,
+    totalPercentage,
+    categoryScores,
+    categoryMaxScores,
+    categoryPercentages,
+    answers: answers, // <-- DIESE ZEILE HINZUFÜGEN
+    testCode,
+    timestamp: new Date().toISOString(),
+    duration: Math.round((new Date() - testStartTime) / 1000) // in seconds
+};
         }
 
         // Show Results Function
