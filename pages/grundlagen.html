@@ -5,62 +5,929 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Grundlagen & Konzepte - BBW Digitale Kompetenzen</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            margin: 0;
             padding: 20px;
+            line-height: 1.6;
         }
+        
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             background: white;
             border-radius: 20px;
             padding: 40px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
         }
+        
+        .header {
+            margin-bottom: 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
         .back-button {
             display: inline-block;
-            padding: 10px 20px;
-            background: #667eea;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
             text-decoration: none;
-            border-radius: 8px;
-            margin-bottom: 20px;
+            border-radius: 10px;
+            font-weight: 500;
+            transition: transform 0.3s, box-shadow 0.3s;
         }
+        
         .back-button:hover {
-            background: #5a67d8;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }
+        
         h1 {
             color: #2d3748;
-            margin-bottom: 20px;
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
-        .coming-soon {
-            background: #f7fafc;
-            padding: 30px;
-            border-radius: 10px;
+        
+        .intro {
+            background: linear-gradient(135deg, #f6f9fc, #e9ecef);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 40px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .intro p {
+            color: #4a5568;
+            font-size: 1.1rem;
+            line-height: 1.8;
+        }
+        
+        /* Tab Navigation */
+        .tab-navigation {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #e2e8f0;
+            flex-wrap: wrap;
+        }
+        
+        .tab-button {
+            padding: 15px 30px;
+            background: transparent;
+            border: none;
+            color: #718096;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-radius: 10px 10px 0 0;
+            position: relative;
+        }
+        
+        .tab-button:hover {
+            color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+        
+        .tab-button.active {
+            color: white;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+        
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* IKT Konzept Styles */
+        .concept-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .concept-card {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 15px;
+            padding: 20px;
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .concept-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transform: scaleX(0);
+            transition: transform 0.3s;
+        }
+        
+        .concept-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border-color: #667eea;
+        }
+        
+        .concept-card:hover::before {
+            transform: scaleX(1);
+        }
+        
+        .concept-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        
+        .concept-title {
+            color: #2d3748;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .concept-description {
+            color: #718096;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        /* Pädagogisch-didaktisches Konzept Styles */
+        .perspective-container {
+            margin-bottom: 30px;
+        }
+        
+        .perspective-card {
+            background: white;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s;
+        }
+        
+        .perspective-card:hover {
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transform: scale(1.02);
+        }
+        
+        .perspective-header {
+            padding: 20px;
+            color: white;
+            font-weight: 600;
+            font-size: 1.2rem;
+            cursor: pointer;
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .perspective-1 { background: linear-gradient(135deg, #667eea, #5a67d8); }
+        .perspective-2 { background: linear-gradient(135deg, #48bb78, #38a169); }
+        .perspective-3 { background: linear-gradient(135deg, #ed8936, #dd6b20); }
+        .perspective-4 { background: linear-gradient(135deg, #9f7aea, #805ad5); }
+        .perspective-5 { background: linear-gradient(135deg, #f56565, #e53e3e); }
+        
+        .perspective-arrow {
+            transition: transform 0.3s;
+            font-size: 1.2rem;
+        }
+        
+        .perspective-card.expanded .perspective-arrow {
+            transform: rotate(180deg);
+        }
+        
+        .perspective-content {
+            padding: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            background: #f8fafc;
+        }
+        
+        .perspective-card.expanded .perspective-content {
+            padding: 20px;
+            max-height: 500px;
+        }
+        
+        .perspective-list {
+            list-style: none;
+        }
+        
+        .perspective-list li {
+            padding: 10px 0;
+            border-bottom: 1px solid #e2e8f0;
+            color: #4a5568;
+            position: relative;
+            padding-left: 25px;
+        }
+        
+        .perspective-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .perspective-list li::before {
+            content: "▸";
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-weight: bold;
+        }
+        
+        /* Kompetenzbereiche Styles */
+        .competency-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .competency-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
             text-align: center;
-            margin: 40px 0;
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .competency-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        }
+        
+        .competency-number {
+            display: inline-block;
+            width: 50px;
+            height: 50px;
+            line-height: 50px;
+            border-radius: 50%;
+            color: white;
+            font-weight: bold;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+        
+        .comp-1 { background: linear-gradient(135deg, #3887be, #4e97c9); }
+        .comp-2 { background: linear-gradient(135deg, #28a745, #3eb55c); }
+        .comp-3 { background: linear-gradient(135deg, #e74c3c, #ea6153); }
+        .comp-4 { background: linear-gradient(135deg, #8e44ad, #9b59b6); }
+        .comp-5 { background: linear-gradient(135deg, #e67e22, #eb9347); }
+        
+        .competency-title {
+            color: #2d3748;
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+        
+        .competency-desc {
+            color: #718096;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+        
+        /* Connections Visualization */
+        .connections-section {
+            background: linear-gradient(135deg, #f6f9fc, #e9ecef);
+            padding: 30px;
+            border-radius: 15px;
+            margin-top: 30px;
+        }
+        
+        .connections-title {
+            color: #2d3748;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .connection-matrix {
+            overflow-x: auto;
+        }
+        
+        .connection-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .connection-table th {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        .connection-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e2e8f0;
+            color: #4a5568;
+        }
+        
+        .connection-table tr:hover {
+            background: #f8fafc;
+        }
+        
+        .tag {
+            display: inline-block;
+            padding: 5px 10px;
+            background: #edf2f7;
+            color: #4a5568;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            margin: 2px;
+        }
+        
+        .tag.ikt {
+            background: #e6fffa;
+            color: #065666;
+        }
+        
+        .tag.paed {
+            background: #fef5e7;
+            color: #7d4004;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .concept-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .tab-button {
+                padding: 10px 15px;
+                font-size: 0.9rem;
+            }
+        }
+        
+        /* Loading Animation */
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .spinner {
+            display: inline-block;
+            width: 50px;
+            height: 50px;
+            border: 3px solid #e2e8f0;
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <a href="../index.html" class="back-button">← Zurück zur Startseite</a>
-        <h1>Grundlagen & Konzepte</h1>
+        <div class="header">
+            <h1>📚 Grundlagen & Konzepte</h1>
+            <a href="../index.html" class="back-button">← Zurück zur Startseite</a>
+        </div>
         
-        <div class="coming-soon">
-            <h2>🚧 In Entwicklung</h2>
-            <p>Diese Seite wird die detaillierten Grundlagen und Konzepte der digitalen Kompetenzen enthalten.</p>
-            <p>Geplante Inhalte:</p>
-            <ul style="list-style: none; padding: 0;">
-                <li>✓ Die 5 Kompetenzbereiche im Detail</li>
-                <li>✓ IKT-Konzept Verknüpfungen</li>
-                <li>✓ Pädagogisch-didaktische Grundlagen</li>
-                <li>✓ Interaktive Konzeptdarstellung</li>
-            </ul>
+        <div class="intro">
+            <p>Die digitalen Kompetenzen für Lehrpersonen der BBW basieren auf zwei zentralen Konzepten: dem <strong>IKT-Konzept</strong> zur technischen und methodischen Umsetzung sowie dem <strong>pädagogisch-didaktischen Konzept</strong> für die Lehr- und Lernprozesse. Diese Konzepte sind systematisch mit den fünf Kompetenzbereichen verknüpft und bilden gemeinsam das Fundament für die digitale Transformation im Bildungsbereich.</p>
+        </div>
+        
+        <!-- Tab Navigation -->
+        <div class="tab-navigation">
+            <button class="tab-button active" onclick="showTab('overview')">🎯 Übersicht</button>
+            <button class="tab-button" onclick="showTab('ikt')">💻 IKT-Konzept</button>
+            <button class="tab-button" onclick="showTab('paedagogik')">📖 Päd.-Did. Konzept</button>
+            <button class="tab-button" onclick="showTab('kompetenzen')">🎓 Kompetenzbereiche</button>
+            <button class="tab-button" onclick="showTab('connections')">🔗 Verknüpfungen</button>
+        </div>
+        
+        <!-- Tab Contents -->
+        <div id="overview" class="tab-content active">
+            <h2 style="color: #2d3748; margin-bottom: 25px;">Gesamtübersicht der Konzepte</h2>
+            
+            <div class="competency-overview">
+                <div class="competency-card">
+                    <div class="competency-number comp-1">1</div>
+                    <div class="competency-title">Grundkenntnisse IKT</div>
+                    <div class="competency-desc">Technische Basiskompetenzen für den digitalen Schulalltag</div>
+                </div>
+                
+                <div class="competency-card">
+                    <div class="competency-number comp-2">2</div>
+                    <div class="competency-title">Anwendung im Unterricht</div>
+                    <div class="competency-desc">Praktische Integration digitaler Medien in alle Unterrichtsphasen</div>
+                </div>
+                
+                <div class="competency-card">
+                    <div class="competency-number comp-3">3</div>
+                    <div class="competency-title">Medien- & Informationskompetenz</div>
+                    <div class="competency-desc">Kritischer und kreativer Umgang mit digitalen Medien</div>
+                </div>
+                
+                <div class="competency-card">
+                    <div class="competency-number comp-4">4</div>
+                    <div class="competency-title">Datenverwaltung & Sicherheit</div>
+                    <div class="competency-desc">Verantwortungsvoller Umgang mit digitalen Daten</div>
+                </div>
+                
+                <div class="competency-card">
+                    <div class="competency-number comp-5">5</div>
+                    <div class="competency-title">Kommunikation & Kollaboration</div>
+                    <div class="competency-desc">Digitale Zusammenarbeit und Austausch</div>
+                </div>
+            </div>
+            
+            <div class="connections-section">
+                <div class="connections-title">Integration der Konzepte</div>
+                <p style="text-align: center; color: #718096; margin-bottom: 20px;">
+                    Die digitalen Kompetenzen verbinden technische Innovation mit pädagogischer Expertise
+                </p>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-top: 20px;">
+                    <div style="text-align: center; padding: 20px; background: white; border-radius: 10px;">
+                        <div style="font-size: 2rem; margin-bottom: 10px;">🎯</div>
+                        <strong>DiWaSekII</strong><br>
+                        <small style="color: #718096;">Kantonale Strategie für digitalen Wandel</small>
+                    </div>
+                    <div style="text-align: center; padding: 20px; background: white; border-radius: 10px;">
+                        <div style="font-size: 2rem; margin-bottom: 10px;">💡</div>
+                        <strong>IKT-Konzept</strong><br>
+                        <small style="color: #718096;">10 Ziele für digitales Lehren und Lernen</small>
+                    </div>
+                    <div style="text-align: center; padding: 20px; background: white; border-radius: 10px;">
+                        <div style="font-size: 2rem; margin-bottom: 10px;">👥</div>
+                        <strong>Päd.-Did. Konzept</strong><br>
+                        <small style="color: #718096;">5 Perspektiven für Unterrichtsentwicklung</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="ikt" class="tab-content">
+            <h2 style="color: #2d3748; margin-bottom: 25px;">IKT-Konzept der BBW</h2>
+            <p style="color: #718096; margin-bottom: 30px; font-size: 1.1rem;">
+                Das IKT-Konzept definiert zehn zentrale Ziele für das digitale Lehren und Lernen. Diese Ziele unterstützen Lehrpersonen und Lernende dabei, die digitale Transformation aktiv mitzugestalten.
+            </p>
+            
+            <div class="concept-grid">
+                <div class="concept-card">
+                    <div class="concept-icon">⚙️</div>
+                    <div class="concept-title">Komplexitätsbewältigung (KM)</div>
+                    <div class="concept-description">Unterstützung beim Umgang mit wachsender Wissensmenge und sozialer wie technischer Komplexität</div>
+                </div>
+                
+                <div class="concept-card">
+                    <div class="concept-icon">🤝</div>
+                    <div class="concept-title">Kollaboration (KA)</div>
+                    <div class="concept-description">Kollaborative und agile Erstellung von Unterrichtsgrundlagen durch Lehrpersonen</div>
+                </div>
+                
+                <div class="concept-card">
+                    <div class="concept-icon">🔄</div>
+                    <div class="concept-title">Methodenvielfalt (MV)</div>
+                    <div class="concept-description">Erweiterung der methodisch-didaktischen Möglichkeiten im Unterricht</div>
+                </div>
+                
+                <div class="concept-card">
+                    <div class="concept-icon">💡</div>
+                    <div class="concept-title">Innovation und Heterogenität (HE)</div>
+                    <div class="concept-description">Innovative und individuelle Lehr- und Lernarrangements für den digitalen Wandel</div>
+                </div>
+                
+                <div class="concept-card">
+                    <div class="concept-icon">🛠️</div>
+                    <div class="concept-title">Mitgestaltung (MG)</div>
+                    <div class="concept-description">Kollaboration zwischen Lehrpersonen und Lernenden zur Förderung der Kommunikation</div>
+                </div>
+                
+                <div class="concept-card">
+                    <div class="concept-icon">🌱</div>
+                    <div class="concept-title">Persönlichkeitsentwicklung</div>
+                    <div class="concept-description">Förderung von Fachkompetenzen, Kreativität, kritischem Denken und Empathie</div>
+                </div>
+                
+                <div class="concept-card">
+                    <div class="concept-icon">🔍</div>
+                    <div class="concept-title">Kritik und Reflexion (KR)</div>
+                    <div class="concept-description">Reflexion über das Zusammenspiel zwischen Mensch und künstlicher Intelligenz</div>
+                </div>
+                
+                <div class="concept-card">
+                    <div class="concept-icon">🌐</div>
+                    <div class="concept-title">Konnektivität (KN)</div>
+                    <div class="concept-description">Vernetzung aller Akteure zur optimalen Nutzung gemeinsamer Stärken</div>
+                </div>
+                
+                <div class="concept-card">
+                    <div class="concept-icon">💚</div>
+                    <div class="concept-title">Ressourceneffizienz (RE)</div>
+                    <div class="concept-description">Effizienter Einsatz von Ressourcen im digitalen Lehr-Lernprozess</div>
+                </div>
+                
+                <div class="concept-card">
+                    <div class="concept-icon">🔓</div>
+                    <div class="concept-title">Methodenfreiheit (MF)</div>
+                    <div class="concept-description">Förderung und Erweiterung der methodisch-didaktischen Freiheit der Lehrpersonen</div>
+                </div>
+            </div>
+            
+            <div style="background: #f8fafc; padding: 20px; border-radius: 10px; margin-top: 30px;">
+                <h3 style="color: #2d3748; margin-bottom: 15px;">📋 Strategische Grundlage</h3>
+                <p style="color: #718096;">
+                    Das IKT-Konzept basiert auf der kantonalen Strategie «Digitaler Wandel an kantonalen Schulen der Sekundarstufe II (DiWaSekII)» und setzt die sechs strategischen Ziele des Kantons Zürich um. Es schafft die Rahmenbedingungen für eine zeitgemäße digitale Infrastruktur und innovative Lehr-Lernformen.
+                </p>
+            </div>
+        </div>
+        
+        <div id="paedagogik" class="tab-content">
+            <h2 style="color: #2d3748; margin-bottom: 25px;">Pädagogisch-didaktisches Konzept</h2>
+            <p style="color: #718096; margin-bottom: 30px; font-size: 1.1rem;">
+                Das pädagogisch-didaktische Konzept beschreibt das Handeln an der BBW aus fünf verschiedenen Perspektiven. Es orientiert sich an der Realisierung einer attraktiven, bedürfnis- und handlungsorientierten Grundbildung.
+            </p>
+            
+            <div class="perspective-container">
+                <div class="perspective-card expanded">
+                    <div class="perspective-header perspective-1" onclick="togglePerspective(this)">
+                        <span>📚 Perspektive Unterricht (PU)</span>
+                        <span class="perspective-arrow">▼</span>
+                    </div>
+                    <div class="perspective-content">
+                        <ul class="perspective-list">
+                            <li>Der Unterricht fördert die persönliche Entwicklung und Arbeitsmarktattraktivität durch handlungsorientierte, aktuelle und niveaugerechte Vermittlung</li>
+                            <li>Unterstützung der Lernenden bei der Übernahme gesellschaftlicher Verantwortung</li>
+                            <li>Integration digitaler Medien zur Erweiterung der Lernmöglichkeiten</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="perspective-card">
+                    <div class="perspective-header perspective-2" onclick="togglePerspective(this)">
+                        <span>🎓 Perspektive Lernen (PL)</span>
+                        <span class="perspective-arrow">▼</span>
+                    </div>
+                    <div class="perspective-content">
+                        <ul class="perspective-list">
+                            <li>Lernprozesse bauen auf Vorwissen auf und erweitern die Handlungsfähigkeit durch Vertiefung, Vernetzung und Transfer</li>
+                            <li>Lernarrangements ermöglichen aktive, selbstgesteuerte und kooperative Auseinandersetzung mit Lerninhalten</li>
+                            <li>Angstfreies und praxisorientiertes Lernen fördert Kompetenzerfahrungen</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="perspective-card">
+                    <div class="perspective-header perspective-3" onclick="togglePerspective(this)">
+                        <span>👥 Perspektive Lernende und Lehrpersonen (PLL)</span>
+                        <span class="perspective-arrow">▼</span>
+                    </div>
+                    <div class="perspective-content">
+                        <ul class="perspective-list">
+                            <li>Rollenklärung führt zu tragfähigen Beziehungen mit den Lernenden</li>
+                            <li>Regelmässige Reflexion von Rollen und Haltungen durch systematisches Feedback</li>
+                            <li>Gegenseitiger Respekt, Achtung und Wertschätzung als Grundlage</li>
+                            <li>Verbindliche Umsetzung von Werten und Normen</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="perspective-card">
+                    <div class="perspective-header perspective-4" onclick="togglePerspective(this)">
+                        <span>🏫 Perspektive Lehrpersonen und Kollegium (PLK)</span>
+                        <span class="perspective-arrow">▼</span>
+                    </div>
+                    <div class="perspective-content">
+                        <ul class="perspective-list">
+                            <li>Regelmässige Zusammenarbeit als Grundlage professioneller Unterrichtstätigkeit</li>
+                            <li>Kooperation als wesentlicher Erfolgsfaktor der Berufsfachschule</li>
+                            <li>Unterstützung der Weiterbildung durch die Schulleitung</li>
+                            <li>Intrinsisch motivierte und karriereorientierte Entwicklung</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="perspective-card">
+                    <div class="perspective-header perspective-5" onclick="togglePerspective(this)">
+                        <span>🛠️ Perspektive Didaktik und Methoden (PDM)</span>
+                        <span class="perspective-arrow">▼</span>
+                    </div>
+                    <div class="perspective-content">
+                        <ul class="perspective-list">
+                            <li>Methodenfreiheit und freie Wahl der Lehrmittel als wichtige Grundsätze</li>
+                            <li>Methodenvielfalt als Zeichen eines lebendigen Lehrkörpers</li>
+                            <li>Anpassung der Methoden an Bedingungen und Voraussetzungen</li>
+                            <li>Zielgerichteter Einsatz digitaler Lehrmittel</li>
+                            <li>Unterstützung von Projekten, Exkursionen und Innovationen</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="kompetenzen" class="tab-content">
+            <h2 style="color: #2d3748; margin-bottom: 25px;">Die 5 Kompetenzbereiche im Detail</h2>
+            
+            <div style="background: linear-gradient(135deg, #e6f7ff, #d6f4ff); padding: 25px; border-radius: 15px; margin-bottom: 30px;">
+                <h3 style="color: #3887be; margin-bottom: 15px;">1. Grundkenntnisse IKT</h3>
+                <p style="color: #4a5568; margin-bottom: 15px;">Grundlegende technische Fähigkeiten zum Umgang mit digitalen Geräten, Anwendungen und Systemen als Fundament für digitale Lehr- und Lernszenarien.</p>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                    <div style="background: white; padding: 15px; border-radius: 8px;">
+                        <strong style="color: #3887be;">1.1 Geräte und Systeme</strong><br>
+                        <small>Hardware-Kompetenzen und Systemkenntnisse</small>
+                    </div>
+                    <div style="background: white; padding: 15px; border-radius: 8px;">
+                        <strong style="color: #3887be;">1.2 Software und Anwendungen</strong><br>
+                        <small>Office 365, OpenOlat, KI-Tools</small>
+                    </div>
+                    <div style="background: white; padding: 15px; border-radius: 8px;">
+                        <strong style="color: #3887be;">1.3 Cloud und digitale Ressourcen</strong><br>
+                        <small>Cloud-Dienste und Ed-Tech-Lizenzen</small>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="background: linear-gradient(135deg, #d4f5de, #c4f0ce); padding: 25px; border-radius: 15px; margin-bottom: 30px;">
+                <h3 style="color: #28a745; margin-bottom: 15px;">2. Anwendung im Unterricht</h3>
+                <p style="color: #4a5568; margin-bottom: 15px;">Praktische Implementierung digitaler Medien in den Unterrichtsprozess. Digitale Technologien didaktisch sinnvoll in allen Phasen des Unterrichts einsetzen.</p>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                    <div style="background: white; padding: 15px; border-radius: 8px;">
+                        <strong style="color: #28a745;">2.1 Unterrichtsvorbereitung</strong><br>
+                        <small>Digitale Materialien und KI-Tools</small>
+                    </div>
+                    <div style="background: white; padding: 15px; border-radius: 8px;">
+                        <strong style="color: #28a745;">2.2 Unterrichtsdurchführung</strong><br>
+                        <small>Interaktive Lernaktivitäten</small>
+                    </div>
+                    <div style="background: white; padding: 15px; border-radius: 8px;">
+                        <strong style="color: #28a745;">2.3 Leistungserfassung</strong><br>
+                        <small>E-Assessments und Feedback</small>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="background: linear-gradient(135deg, #fadbd8, #fac8c2); padding: 25px; border-radius: 15px; margin-bottom: 30px;">
+                <h3 style="color: #e74c3c; margin-bottom: 15px;">3. Medien- und Informationskompetenz</h3>
+                <p style="color: #4a5568; margin-bottom: 15px;">Informationen kritisch bewerten, Medien reflektiert nutzen und neue Medieninhalte gezielt erstellen. Lernende bei der Orientierung in der digitalen Informationsflut unterstützen.</p>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                    <div style="background: white; padding: 15px; border-radius: 8px;">
+                        <strong style="color: #e74c3c;">3.1 Informationskompetenz</strong><br>
+                        <small>Quellenkritik und Recherche</small>
+                    </div>
+                    <div style="background: white; padding: 15px; border-radius: 8px;">
+                        <strong style="color: #e74c3c;">3.2 Medienkompetenz</strong><br>
+                        <small>Medienproduktion und -nutzung</small>
+                    </div>
+                    <div style="background: white; padding: 15px; border-radius: 8px;">
+                        <strong style="color: #e74c3c;">3.3 Kommunikation</strong><br>
+                        <small>Digitale Medien im Austausch</small>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="background: linear-gradient(135deg, #e8daef, #dcc7e8); padding: 25px; border-radius: 15px; margin-bottom: 30px;">
+                <h3 style="color: #8e44ad; margin-bottom: 15px;">4. Datenverwaltung und Datensicherheit</h3>
+                <p style="color: #4a5568; margin-bottom: 15px;">Verantwortungsvoller Umgang mit digitalen Daten sowie die Fähigkeit, personenbezogene und sensible Informationen im schulischen Kontext zu schützen.</p>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                    <div style="background: white; padding: 15px; border-radius: 8px;">
+                        <strong style="color: #8e44ad;">4.1 Datenschutz</strong><br>
+                        <small>Rechtliche Grundlagen</small>
+                    </div>
+                    <div style="background: white; padding: 15px; border-radius: 8px;">
+                        <strong style="color: #8e44ad;">4.2 Datenmanagement</strong><br>
+                        <small>Organisation und Struktur</small>
+                    </div>
+                    <div style="background: white; padding: 15px; border-radius: 8px;">
+                        <strong style="color: #8e44ad;">4.3 Rechtliche Aspekte</strong><br>
+                        <small>Urheberrecht und Ethik</small>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="background: linear-gradient(135deg, #fae5d3, #fcd6b8); padding: 25px; border-radius: 15px; margin-bottom: 30px;">
+                <h3 style="color: #e67e22; margin-bottom: 15px;">5. Kommunikation und Kollaboration</h3>
+                <p style="color: #4a5568; margin-bottom: 15px;">Alle Fähigkeiten zur digitalen Interaktion, Zusammenarbeit und Kommunikation. Lehrpersonen nutzen digitale Medien für den professionellen Austausch.</p>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                    <div style="background: white; padding: 15px; border-radius: 8px;">
+                        <strong style="color: #e67e22;">5.1 Digitale Kommunikation</strong><br>
+                        <small>Tools und Netiquette</small>
+                    </div>
+                    <div style="background: white; padding: 15px; border-radius: 8px;">
+                        <strong style="color: #e67e22;">5.2 Digitale Kollaboration</strong><br>
+                        <small>Gemeinsame Dokumente</small>
+                    </div>
+                    <div style="background: white; padding: 15px; border-radius: 8px;">
+                        <strong style="color: #e67e22;">5.3 Digitale Partizipation</strong><br>
+                        <small>Aktive Vernetzung</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="connections" class="tab-content">
+            <h2 style="color: #2d3748; margin-bottom: 25px;">Verknüpfung der Konzepte</h2>
+            <p style="color: #718096; margin-bottom: 30px; font-size: 1.1rem;">
+                Die systematische Verknüpfung zwischen den Kompetenzbereichen, dem IKT-Konzept und dem pädagogisch-didaktischen Konzept schafft ein ganzheitliches Framework für die digitale Bildung.
+            </p>
+            
+            <div class="connection-matrix">
+                <table class="connection-table">
+                    <thead>
+                        <tr>
+                            <th>Kompetenzbereich</th>
+                            <th>IKT-Konzept Verknüpfungen</th>
+                            <th>Päd.-Did. Konzept Verknüpfungen</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>1. Grundkenntnisse IKT</strong></td>
+                            <td>
+                                <span class="tag ikt">RE - Ressourceneffizienz</span>
+                                <span class="tag ikt">KN - Konnektivität</span>
+                                <span class="tag ikt">MV - Methodenvielfalt</span>
+                                <span class="tag ikt">HE - Heterogenität</span>
+                            </td>
+                            <td>
+                                <span class="tag paed">PDM - Didaktik & Methoden</span>
+                                <span class="tag paed">PU - Unterricht</span>
+                                <span class="tag paed">PL - Lernen</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>2. Anwendung im Unterricht</strong></td>
+                            <td>
+                                <span class="tag ikt">RE - Ressourceneffizienz</span>
+                                <span class="tag ikt">HE - Heterogenität</span>
+                                <span class="tag ikt">KN - Konnektivität</span>
+                                <span class="tag ikt">MG - Mitgestaltung</span>
+                                <span class="tag ikt">KM - Komplexität</span>
+                            </td>
+                            <td>
+                                <span class="tag paed">PDM - Didaktik & Methoden</span>
+                                <span class="tag paed">PL - Lernen</span>
+                                <span class="tag paed">PU - Unterricht</span>
+                                <span class="tag paed">PLL - Lernende & LP</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>3. Medien- und Informationskompetenz</strong></td>
+                            <td>
+                                <span class="tag ikt">KR - Kritik & Reflexion</span>
+                                <span class="tag ikt">HE - Heterogenität</span>
+                                <span class="tag ikt">MV - Methodenvielfalt</span>
+                                <span class="tag ikt">MF - Methodenfreiheit</span>
+                                <span class="tag ikt">KA - Kollaboration</span>
+                            </td>
+                            <td>
+                                <span class="tag paed">PL - Lernen</span>
+                                <span class="tag paed">PU - Unterricht</span>
+                                <span class="tag paed">PDM - Didaktik & Methoden</span>
+                                <span class="tag paed">PLK - LP & Kollegium</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>4. Datenverwaltung und Datensicherheit</strong></td>
+                            <td>
+                                <span class="tag ikt">KR - Kritik & Reflexion</span>
+                                <span class="tag ikt">RE - Ressourceneffizienz</span>
+                                <span class="tag ikt">DS - Datensicherheit</span>
+                            </td>
+                            <td>
+                                <span class="tag paed">PLL - Lernende & LP</span>
+                                <span class="tag paed">PU - Unterricht</span>
+                                <span class="tag paed">PLK - LP & Kollegium</span>
+                                <span class="tag paed">PDM - Didaktik & Methoden</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>5. Kommunikation und Kollaboration</strong></td>
+                            <td>
+                                <span class="tag ikt">KN - Konnektivität</span>
+                                <span class="tag ikt">KA - Kollaboration</span>
+                                <span class="tag ikt">MG - Mitgestaltung</span>
+                                <span class="tag ikt">RE - Ressourceneffizienz</span>
+                            </td>
+                            <td>
+                                <span class="tag paed">PL - Lernen</span>
+                                <span class="tag paed">PLL - Lernende & LP</span>
+                                <span class="tag paed">PLK - LP & Kollegium</span>
+                                <span class="tag paed">PU - Unterricht</span>
+                                <span class="tag paed">PDM - Didaktik & Methoden</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div style="margin-top: 30px; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                <div style="background: #f8fafc; padding: 20px; border-radius: 10px; border-left: 4px solid #667eea;">
+                    <h4 style="color: #2d3748; margin-bottom: 10px;">🎯 Strategische Einbettung</h4>
+                    <p style="color: #718096; font-size: 0.95rem;">
+                        Die Kompetenzbereiche sind direkt aus der kantonalen DiWaSekII-Strategie abgeleitet und setzen die sechs strategischen Ziele des digitalen Wandels um.
+                    </p>
+                </div>
+                
+                <div style="background: #f8fafc; padding: 20px; border-radius: 10px; border-left: 4px solid #48bb78;">
+                    <h4 style="color: #2d3748; margin-bottom: 10px;">💡 Praktische Umsetzung</h4>
+                    <p style="color: #718096; font-size: 0.95rem;">
+                        Jede Kompetenz ist mit konkreten Erwartungen definiert und wird durch praktische Beispiele und Unterstützungsmaterialien ergänzt.
+                    </p>
+                </div>
+                
+                <div style="background: #f8fafc; padding: 20px; border-radius: 10px; border-left: 4px solid #ed8936;">
+                    <h4 style="color: #2d3748; margin-bottom: 10px;">🔄 Kontinuierliche Entwicklung</h4>
+                    <p style="color: #718096; font-size: 0.95rem;">
+                        Das Kompetenzmodell wird regelmäßig evaluiert und an neue technologische und pädagogische Entwicklungen angepasst.
+                    </p>
+                </div>
+            </div>
         </div>
     </div>
+    
+    <script>
+        function showTab(tabName) {
+            // Hide all tabs
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active class from all buttons
+            const buttons = document.querySelectorAll('.tab-button');
+            buttons.forEach(button => {
+                button.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to clicked button
+            event.target.classList.add('active');
+        }
+        
+        function togglePerspective(element) {
+            const card = element.parentElement;
+            card.classList.toggle('expanded');
+        }
+        
+        // Initialize with first perspective expanded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Smooth scroll for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>
