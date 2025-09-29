@@ -1149,7 +1149,13 @@ const sections = [
         ]
     }
 ];
-
+const categoryNames = [
+    "Grundkenntnisse IKT",
+    "Anwendung im Unterricht",
+    "Medien- und Informationskompetenz",
+    "Datenverwaltung und Datensicherheit",
+    "Kommunikation und Kollaboration"
+];
         async function initializeAppWithFirebase() {
             // Wenn Firebase nicht bereit ist: Local-Mode mit Demologins
             if (!firebaseReady || !auth || !db || !accountsDocRef) {
