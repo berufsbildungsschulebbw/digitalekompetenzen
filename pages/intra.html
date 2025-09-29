@@ -2025,33 +2025,82 @@
             document.getElementById('detailModal').classList.add('active');
         }
 
-        // View Result Details
+           // View Result Details (Version 3 - mit Detail-Antworten)
         function viewResultDetails(docId) {
             const result = testResults.find(r => r.id === docId);
-            
             if (!result) {
-                showCustomAlert('Ergebnis-Details konnten nicht geladen werden.');
-                return;
+                return showCustomAlert('Ergebnis-Details konnten nicht geladen werden.');
             }
-            
-            document.getElementById('modalTitle').textContent = 'Test-Ergebnis Details';
+
+            document.getElementById('modalTitle').textContent = `Detailergebnis für Code: ${result.testCode}`;
             const modalBody = document.getElementById('modalBody');
             
-            const duration = result.duration 
-                ? `${Math.round(result.duration / 60)} Minuten`
-                : 'Nicht verfügbar';
-            
-            const timestamp = toJsDate(result.timestamp) 
-                ? toJsDate(result.timestamp).toLocaleString('de-DE')
-                : 'Nicht verfügbar';
-            
-            modalBody.innerHTML = `
-                <p><strong>Code:</strong> ${result.testCode || 'N/A'}</p>
-                <p><strong>Datum:</strong> ${timestamp}</p>
-                <p><strong>Testdauer:</strong> ${duration}</p>
-                <p><strong>Gesamtscore:</strong> ${result.totalPercentage || 0}%</p>
-            `;
-            
+            // Score-Text und Klasse generieren
+            let scoreClass = 'score-needs-improvement';
+            let scoreText = 'Es besteht Entwicklungsbedarf in mehreren Bereichen.';
+            if (result.totalPercentage >= 80) {
+                scoreClass = 'score-excellent';
+                scoreText = 'Ausgezeichnet! Hier liegen sehr gute digitale Kompetenzen vor.';
+            } else if (result.totalPercentage >= 60) {
+                scoreClass = 'score-good';
+                scoreText = 'Gut! Solide digitale Kompetenzen mit Entwicklungspotenzial.';
+            }
+
+            // Prüfen, ob detaillierte Antworten vorhanden sind
+            if (result.answers) {
+                // NEUE ANSICHT MIT ALLEN FRAGEN
+                let detailsHTML = sections.map(section => {
+                    let questionsHTML = section.questions.map(question => {
+                        const answerValue = result.answers[question.id] || 0; // 0 falls nicht beantwortet
+                        const answerPercent = (answerValue / 4) * 100;
+                        const barColor = answerPercent >= 75 ? '#28a745' : answerPercent >= 50 ? '#ffc107' : '#dc3545';
+                        
+                        return `
+                            <div class="category-result" style="padding: 10px 15px;">
+                                <p style="font-size: 0.9em; margin-bottom: 8px;">${question.text}</p>
+                                <div class="category-result-header">
+                                    <span class="category-result-title">Bewertung:</span>
+                                    <span class="category-result-score">${answerValue} / 4</span>
+                                </div>
+                                <div class="result-bar-container" style="height: 10px;">
+                                    <div class="result-bar" style="width: ${answerPercent}%; background: ${barColor};"></div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+
+                    return `<h4 style="margin-top: 20px; margin-bottom: 10px;">${section.name}</h4>${questionsHTML}`;
+                }).join('');
+
+                modalBody.innerHTML = `
+                    <div style="text-align: center;">
+                        <div class="score-circle ${scoreClass}">${result.totalPercentage}%</div>
+                        <p style="font-size: 1.1em; color: #495057;">${scoreText}</p>
+                    </div>
+                    <hr style="margin: 20px 0;">
+                    ${detailsHTML}
+                `;
+
+            } else {
+                // ALTE ANSICHT (für Ergebnisse ohne Detail-Antworten)
+                const categoriesHTML = categoryNames.map((name, i) => {
+                    const p = getCat(result, i + 1);
+                    const bc = p >= 80 ? '#28a745' : p >= 60 ? '#ffc107' : '#dc3545';
+                    return `<div class="category-result"><div class="category-result-header"><span class="category-result-title">${name}</span><span class="category-result-score">${p}%</span></div><div class="result-bar-container"><div class="result-bar" style="width: ${p}%; background: ${bc};"></div></div></div>`;
+                }).join('');
+                
+                modalBody.innerHTML = `
+                    <div style="text-align: center;">
+                        <div class="score-circle ${scoreClass}">${result.totalPercentage}%</div>
+                        <p style="font-size: 1.1em; color: #495057;">${scoreText}</p>
+                        <p style="font-size: 0.9em; color: #718096; margin-top: 15px;">(Für dieses Ergebnis ist keine Detailansicht der einzelnen Fragen verfügbar.)</p>
+                    </div>
+                    <hr style="margin: 20px 0;">
+                    <h4>Kompetenzbereiche</h4>
+                    ${categoriesHTML}
+                `;
+            }
+
             document.getElementById('detailModal').classList.add('active');
         }
 
