@@ -1426,19 +1426,6 @@
             return recommendations.slice(0, 3);
         }
         // NEUE FUNKTION FÜR KATEGORIE-DETAILS
-        function showCategoryDetails(categoryIndex) {
-            const section = sections.find(s => s.id === categoryIndex);
-            if (!section) return;
-
-            // Filtere nur Ergebnisse, die auch die neuen Detail-Antworten haben
-            const departmentCodes = currentDepartment === 'admin' ? generatedCodes : generatedCodes.filter(c => c.department === currentDepartment);
-            const codeList = departmentCodes.map(c => c.code);
-            const relevantResults = testResults.filter(r => r && r.answers && codeList.includes(r.testCode));
-
-            if (relevantResults.length === 0) {
-                showCustomAlert(`Für den Bereich "${section.name}" liegen noch keine Detail-Ergebnisse vor. Diese Funktion gilt nur für neu durchgeführte Tests.`);
-                return;
-            }
 
             let questionsHTML = '';
             section.questions.forEach(question => {
