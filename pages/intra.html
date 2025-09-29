@@ -1467,16 +1467,20 @@
                 for (let i = 0; i < quantity; i++) {
                     const code = generateRandomCode();
                     
-                    const codeData = {
-                        code: code,
-                        description: description,
-                        department: targetDepartment,
-                        created: new Date().toLocaleDateString('de-DE'),
-                        expiry: new Date(expiryStr).toLocaleDateString('de-DE'),
-                        createdTimestamp: serverTimestamp(),
-                        expiryDate: new Date(expiryStr).toISOString(),
-                        status: 'Aktiv'
-                    };
+                    // --- NACHHER (NEU) ---
+const expiryDate = new Date(expiryStr);
+expiryDate.setHours(23, 59, 59, 999); // Setzt die Zeit auf das Ende des Tages
+
+const codeData = {
+    code: code,
+    description: description,
+    department: targetDepartment,
+    created: new Date().toLocaleDateString('de-DE'),
+    expiry: expiryDate.toLocaleDateString('de-DE'),
+    createdTimestamp: serverTimestamp(),
+    expiryDate: expiryDate.toISOString(), // Speichert jetzt die korrekte Zeit
+    status: 'Aktiv'
+};
 
                     await addDoc(codesCollection, codeData);
                     newCodes.push(code);
