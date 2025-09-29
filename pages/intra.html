@@ -669,6 +669,60 @@
                 border-radius: 5px;
             }
         }
+        /* --- Styles für Ergebnis-Details --- */
+        .score-circle {
+            width: 120px;
+            height: 120px;
+            margin: 10px auto;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5em;
+            font-weight: bold;
+            color: white;
+        }
+        .score-excellent { background: linear-gradient(135deg, #28a745, #20c997); }
+        .score-good { background: linear-gradient(135deg, #ffc107, #fd7e14); }
+        .score-needs-improvement { background: linear-gradient(135deg, #dc3545, #c82333); }
+
+        .category-result {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+        .category-result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .category-result-title { font-weight: bold; color: #2d3748; }
+        .category-result-score { font-weight: bold; }
+
+        .result-bar-container {
+            background: #e9ecef;
+            border-radius: 5px;
+            height: 18px;
+            overflow: hidden;
+        }
+        .result-bar { height: 100%; border-radius: 5px; }
+
+        .recommendations {
+            background: #f0f8ff;
+            border: 2px solid #667eea;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        .recommendation-item {
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            border-left: 4px solid #667eea;
+        }
     </style>
 </head>
 <body>
@@ -1265,7 +1319,64 @@
             const cp = result && result.categoryPercentages ? result.categoryPercentages : {};
             return cp[idx] ?? cp[String(idx)] ?? 0;
         }
-        
+        // Diese Funktion und die Namen werden für die Detailansicht der Ergebnisse benötigt
+        const categoryNames = [
+            "Grundkenntnisse IKT",
+            "Anwendung im Unterricht",
+            "Medien- und Informationskompetenz",
+            "Datenverwaltung und Datensicherheit",
+            "Kommunikation und Kollaboration"
+        ];
+
+        function generateRecommendations(results) {
+            const recommendations = [];
+            const categoryRecommendations = {
+                1: [
+                    "Besuchen Sie Basis-Schulungen zu Office 365 und Cloud-Diensten.",
+                    "Nutzen Sie die IT-Sprechstunde für individuelle Unterstützung.",
+                    "Erkunden Sie die Ed-Tech-Lizenzen Ihrer Schule systematisch."
+                ],
+                2: [
+                    "Experimentieren Sie mit interaktiven Tools wie Kahoot oder Padlet.",
+                    "Besuchen Sie Workshops zu digitaler Unterrichtsgestaltung.",
+                    "Tauschen Sie sich mit digital-affinen Kollegen aus."
+                ],
+                3: [
+                    "Lernen Sie Tools zur Erstellung multimedialer Inhalte kennen.",
+                    "Integrieren Sie Medienkritik als festen Unterrichtsbestandteil.",
+                    "Erkunden Sie die didaktischen Möglichkeiten von Social Media."
+                ],
+                4: [
+                    "Nehmen Sie an einer Datenschutz-Schulung teil.",
+                    "Implementieren Sie ein Passwort-Management-System.",
+                    "Entwickeln Sie eine strukturierte Dateiablage."
+                ],
+                5: [
+                    "Nutzen Sie Teams aktiver für die Zusammenarbeit.",
+                    "Lernen Sie kollaborative Arbeitsweisen kennen.",
+                    "Verbessern Sie Ihre digitale Kommunikationsstruktur."
+                ]
+            };
+            
+            for (let i = 1; i <= 5; i++) {
+                if (results.categoryPercentages[i] < 60) {
+                    const recList = categoryRecommendations[i];
+                    recommendations.push({
+                        title: categoryNames[i - 1],
+                        text: recList[Math.floor(Math.random() * recList.length)]
+                    });
+                }
+            }
+            
+            if (recommendations.length === 0) {
+                recommendations.push({
+                    title: "Fortgeschrittene Kompetenzen",
+                    text: "Erkunden Sie KI-Tools für den Unterricht und werden Sie Digital-Mentor für Ihr Kollegium."
+                });
+            }
+            
+            return recommendations.slice(0, 3);
+        }
         // Login Handler with Back Button hiding
         async function handleLogin(event) {
             event.preventDefault();
@@ -2025,35 +2136,74 @@
             document.getElementById('detailModal').classList.add('active');
         }
 
-        // View Result Details
-        function viewResultDetails(docId) {
-            const result = testResults.find(r => r.id === docId);
-            
-            if (!result) {
-                showCustomAlert('Ergebnis-Details konnten nicht geladen werden.');
-                return;
-            }
-            
-            document.getElementById('modalTitle').textContent = 'Test-Ergebnis Details';
-            const modalBody = document.getElementById('modalBody');
-            
-            const duration = result.duration 
-                ? `${Math.round(result.duration / 60)} Minuten`
-                : 'Nicht verfügbar';
-            
-            const timestamp = toJsDate(result.timestamp) 
-                ? toJsDate(result.timestamp).toLocaleString('de-DE')
-                : 'Nicht verfügbar';
-            
-            modalBody.innerHTML = `
-                <p><strong>Code:</strong> ${result.testCode || 'N/A'}</p>
-                <p><strong>Datum:</strong> ${timestamp}</p>
-                <p><strong>Testdauer:</strong> ${duration}</p>
-                <p><strong>Gesamtscore:</strong> ${result.totalPercentage || 0}%</p>
-            `;
-            
-            document.getElementById('detailModal').classList.add('active');
-        }
+       // View Result Details (NEUE, ERWEITERTE VERSION)
+function viewResultDetails(docId) {
+    const result = testResults.find(r => r.id === docId);
+
+    if (!result) {
+        showCustomAlert('Ergebnis-Details konnten nicht geladen werden.');
+        return;
+    }
+
+    document.getElementById('modalTitle').textContent = `Detailergebnis für Code: ${result.testCode}`;
+    const modalBody = document.getElementById('modalBody');
+
+    // Score-Text und Klasse generieren
+    let scoreClass = 'score-needs-improvement';
+    let scoreText = 'Es besteht Entwicklungsbedarf in mehreren Bereichen.';
+    if (result.totalPercentage >= 80) {
+        scoreClass = 'score-excellent';
+        scoreText = 'Ausgezeichnet! Hier liegen sehr gute digitale Kompetenzen vor.';
+    } else if (result.totalPercentage >= 60) {
+        scoreClass = 'score-good';
+        scoreText = 'Gut! Solide digitale Kompetenzen mit Entwicklungspotenzial.';
+    }
+
+    // Kategorien-HTML generieren
+    const categoriesHTML = categoryNames.map((name, i) => {
+        const catNum = i + 1;
+        const percentage = result.categoryPercentages[catNum] || 0;
+        const barColor = percentage >= 80 ? '#28a745' : percentage >= 60 ? '#ffc107' : '#dc3545';
+        return `
+            <div class="category-result">
+                <div class="category-result-header">
+                    <span class="category-result-title">${name}</span>
+                    <span class="category-result-score">${percentage}%</span>
+                </div>
+                <div class="result-bar-container">
+                    <div class="result-bar" style="width: ${percentage}%; background: ${barColor};"></div>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    // Empfehlungen generieren
+    const recommendations = generateRecommendations(result);
+    const recommendationsHTML = recommendations.map(rec => `
+        <div class="recommendation-item">
+            <strong>${rec.title}:</strong> ${rec.text}
+        </div>
+    `).join('');
+
+    // Modal-Inhalt zusammenbauen
+    modalBody.innerHTML = `
+        <div style="text-align: center;">
+            <div class="score-circle ${scoreClass}">${result.totalPercentage}%</div>
+            <p style="font-size: 1.1em; color: #495057;">${scoreText}</p>
+        </div>
+        <hr style="margin: 20px 0;">
+
+        <h4>Kompetenzbereiche</h4>
+        ${categoriesHTML}
+
+        <div class="recommendations">
+            <h4 style="margin-bottom: 10px;">Empfohlene Massnahmen</h4>
+            ${recommendationsHTML}
+        </div>
+    `;
+
+    document.getElementById('detailModal').classList.add('active');
+}
 
         // Delete Code
         async function deleteCode(docId, code) {
