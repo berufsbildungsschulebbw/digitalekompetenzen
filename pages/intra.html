@@ -1114,6 +1114,41 @@
             'informatik': 'Informatik | Naturwissenschaften',
             'admin': 'Administration'
         };
+        // HIER DEN FOLGENDEN BLOCK EINFÜGEN
+
+const sections = [
+    {
+        id: 1, name: "Grundkenntnisse IKT", questions: [
+            { id: 1, text: "Wie sicher fühlen Sie sich beim Verbinden von technischen Geräten (z.B. Beamer, Drucker) mit Ihrem Computer?" },
+            { id: 2, text: "Wie gut können Sie Office-Programme (Word, Excel, PowerPoint) für die Erstellung von Unterrichtsmaterialien nutzen?" },
+            { id: 3, text: "Wie routiniert nutzen Sie Cloud-Dienste (OneDrive, Teams) für Ihre Unterrichtsvorbereitung?" }
+        ]
+    }, {
+        id: 2, name: "Anwendung im Unterricht", questions: [
+            { id: 4, text: "Wie häufig setzen Sie digitale Werkzeuge oder KI-Tools für die Erstellung von Lernmaterialien ein?" },
+            { id: 5, text: "Wie interaktiv gestalten Sie Ihren Unterricht mit digitalen Tools (z.B. Kahoot, Quizlet, digitale Pinnwände, Forms)?" },
+            { id: 6, text: "Wie setzen Sie E-Assessments für die Leistungserfassung ein?" }
+        ]
+    }, {
+        id: 3, name: "Medien- und Informationskompetenz", questions: [
+            { id: 7, text: "Wie gut kennen Sie die Funktionsweise von Social Media und deren mögliche Einsatzorte im Unterricht?" },
+            { id: 8, text: "Können Sie multimediale Inhalte (Videos, Podcasts, interaktive Präsentationen) für Ihren Unterricht erstellen?" },
+            { id: 9, text: "Wie vermitteln Sie Ihren Lernenden kritische Medienkompetenz und Quellenprüfung?" }
+        ]
+    }, {
+        id: 4, name: "Datenverwaltung und Datensicherheit", questions: [
+            { id: 10, text: "Wie gut kennen Sie die rechtlichen Grundlagen zum Datenschutz im schulischen Kontext?" },
+            { id: 11, text: "Wie verwalten Sie Ihre Passwörter und Zugangsdaten?" },
+            { id: 12, text: "Wie strukturiert verwalten Sie digitale Unterrichtsmaterialien und Lernendendaten?" }
+        ]
+    }, {
+        id: 5, name: "Kommunikation und Kollaboration", questions: [
+            { id: 13, text: "Wie aktiv nutzen Sie Teams oder ähnliche Plattformen für die Kommunikation mit Kollegium und Lernenden?" },
+            { id: 14, text: "Wie gut können Sie kollaborative Dokumente (z.B. in Teams/OneDrive) für gemeinsame Projekte nutzen?" },
+            { id: 15, text: "Wie professionell ist Ihre digitale Kommunikation (Netiquette, Antwortzeiten, Strukturierung)?" }
+        ]
+    }
+];
 
         async function initializeAppWithFirebase() {
             // Wenn Firebase nicht bereit ist: Local-Mode mit Demologins
