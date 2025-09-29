@@ -1524,7 +1524,7 @@
                 }
                 return new Date(b.created) - new Date(a.created);
             }).map(code => {
-                const isExpired = new Date() > new Date(code.expiry || code.expiryDate);
+                const isExpired = new Date() > new Date(code.expiryDate || code.expiry);
                 const status = isExpired ? 'Abgelaufen' : 'Aktiv';
                 const statusClass = isExpired ? 'status-expired' : 'status-active';
                 const participants = testResults.filter(r => r.testCode === code.code).length;
