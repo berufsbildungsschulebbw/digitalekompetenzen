@@ -684,7 +684,7 @@
             console.warn("Firebase nicht verfügbar, nutze lokalen Speicher:", e);
         }
 
-        // Test Questions Database with additional info
+        // Test Questions Database with additional info - KORRIGIERT
         const sections = [
             {
                 id: 1,
@@ -696,7 +696,7 @@
                         text: "Wie sicher fühlen Sie sich beim Verbinden von technischen Geräten (z.B. Beamer, Drucker) mit Ihrem Computer?",
                         info: {
                             examples: "Beamer über HDMI/VGA verbinden, Drucker im Netzwerk einrichten, Smartphone mit dem PC koppeln, WLAN verbinden, Hotspot einrichten",
-                            tools/geräte: "Windows-Einstellungen, W-Lan, Verbindungskabel",
+                            tools: "Windows-Einstellungen, W-Lan, Verbindungskabel",
                             tips: "Halten Sie Verbindungskabel und Adapter bereit. Dokumentieren Sie funktionierende Einstellungen für zukünftige Verwendung.",
                             ikt: "RE 💚 - Ressourceneffizienz",
                             paed: "PDM 🛠️ - Didaktik & Methoden"
@@ -788,7 +788,7 @@
                         text: "Wie setzen Sie E-Assessments für die Leistungserfassung ein?",
                         info: {
                             examples: "Online-Tests in OpenOlat/Forms/to-teach.ai, Portfolio-Arbeit in OneNote, Peer-Feedback über Teams",
-                            tools: "Microsoft Forms, Tests OpenOlat, Team Aufgabenbaustein, Übungsbaustein in OpenOlat, ",
+                            tools: "Microsoft Forms, Tests OpenOlat, Team Aufgabenbaustein, Übungsbaustein in OpenOlat",
                             tips: "Kombinieren Sie formative und summative Assessments. Geben Sie zeitnahes digitales Feedback.",
                             ikt: "KM ⚙️ - Automatisierung",
                             paed: "PL 🎓 - Lernförderung"
@@ -985,9 +985,11 @@
         let testStartTime = null;
 
         // Start Test Function
-        function startTest() {
+        window.startTest = function() {
             const codeInput = document.getElementById('accessCode');
             const code = codeInput.value.trim().toUpperCase();
+            
+            console.log('Eingegebener Code:', code);
             
             if (code.length < 4) {
                 alert('Bitte geben Sie einen gültigen Code ein.');
@@ -1006,7 +1008,7 @@
         }
 
         // Show Section Function
-        function showSection(sectionIndex) {
+        window.showSection = function(sectionIndex) {
             const section = sections[sectionIndex];
             const container = document.getElementById('sectionContainer');
             
@@ -1084,7 +1086,7 @@
         }
 
         // Toggle Info Box Function
-        function toggleInfo(questionId) {
+        window.toggleInfo = function(questionId) {
             const infoBox = document.getElementById(`info-${questionId}`);
             if (infoBox) {
                 infoBox.classList.toggle('active');
@@ -1092,7 +1094,7 @@
         }
 
         // Select Answer Function
-        function selectAnswer(questionId, value, element) {
+        window.selectAnswer = function(questionId, value, element) {
             answers[questionId] = value;
             
             // Update UI
@@ -1109,7 +1111,7 @@
         }
 
         // Check if all questions in current section are answered
-        function checkSectionComplete() {
+        window.checkSectionComplete = function() {
             const currentSection = sections[currentSectionIndex];
             for (let question of currentSection.questions) {
                 if (!answers[question.id]) {
@@ -1120,14 +1122,14 @@
         }
 
         // Navigation Functions
-        function previousSection() {
+        window.previousSection = function() {
             if (currentSectionIndex > 0) {
                 currentSectionIndex--;
                 showSection(currentSectionIndex);
             }
         }
 
-        function nextSection() {
+        window.nextSection = function() {
             if (!checkSectionComplete()) {
                 alert('Bitte beantworten Sie alle Fragen in diesem Bereich.');
                 return;
@@ -1140,7 +1142,7 @@
         }
 
         // Submit Test Function
-        function submitTest() {
+        window.submitTest = function() {
             if (!checkSectionComplete()) {
                 alert('Bitte beantworten Sie alle Fragen in diesem Bereich.');
                 return;
@@ -1157,7 +1159,7 @@
         }
 
         // Calculate Results Function
-        function calculateResults() {
+        window.calculateResults = function() {
             const categoryScores = {};
             const categoryMaxScores = {};
             const categoryQuestions = {};
@@ -1209,7 +1211,7 @@
         }
 
         // Show Results Function
-        function showResults(results) {
+        window.showResults = function(results) {
             // Hide test section
             document.getElementById('testSection').classList.remove('active');
             
@@ -1277,7 +1279,7 @@
         }
 
         // Generate Recommendations Function
-        function generateRecommendations(results) {
+        window.generateRecommendations = function(results) {
             const recommendations = [];
             const categoryNames = [
                 "Grundkenntnisse IKT",
@@ -1337,7 +1339,7 @@
             return recommendations.slice(0, 3); // Return max 3 recommendations
         }
 
-        // NEUE saveResults Funktion mit Firebase-Integration
+        // Save Results Function with Firebase-Integration
         async function saveResults(results) {
             // Lokale Speicherung (Backup)
             let allResults = JSON.parse(localStorage.getItem('bbw_test_results') || '[]');
@@ -1352,8 +1354,8 @@
                     const q = query(codesRef, where("code", "==", results.testCode));
                     const querySnapshot = await getDocs(q);
                     
-                    if (!querySnapshot.empty) {
-                        // Code existiert - speichere Ergebnis
+                    if (!querySnapshot.empty || results.testCode === "0HDM-V3EU" || results.testCode === "TEST-1234") {
+                        // Code existiert oder ist Test-Code - speichere Ergebnis
                         const resultsRef = collection(db, 'results');
                         await addDoc(resultsRef, {
                             ...results,
@@ -1374,7 +1376,7 @@
         }
 
         // Restart Test Function
-        function restartTest() {
+        window.restartTest = function() {
             // Reset all variables
             currentSectionIndex = 0;
             answers = {};
@@ -1387,15 +1389,6 @@
             document.getElementById('codeEntry').style.display = 'block';
             document.getElementById('accessCode').value = '';
         }
-
-        // Mache Funktionen global verfügbar (WICHTIG!)
-        window.startTest = startTest;
-        window.toggleInfo = toggleInfo;
-        window.selectAnswer = selectAnswer;
-        window.previousSection = previousSection;
-        window.nextSection = nextSection;
-        window.submitTest = submitTest;
-        window.restartTest = restartTest;
 
         // Enable Enter key for code input
         document.addEventListener('DOMContentLoaded', function() {
