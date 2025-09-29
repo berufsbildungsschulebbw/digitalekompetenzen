@@ -1168,6 +1168,54 @@
             'informatik': 'Informatik | Naturwissenschaften',
             'admin': 'Administration'
         };
+        // NEUE FUNKTION FÜR KATEGORIE-DETAILS
+        function showCategoryDetails(categoryIndex) {
+            const section = sections.find(s => s.id === categoryIndex);
+            if (!section) return;
+
+            // Filtere nur Ergebnisse, die auch die neuen Detail-Antworten haben
+            const departmentCodes = currentDepartment === 'admin' ? generatedCodes : generatedCodes.filter(c => c.department === currentDepartment);
+            const codeList = departmentCodes.map(c => c.code);
+            const relevantResults = testResults.filter(r => r && r.answers && codeList.includes(r.testCode));
+
+            if (relevantResults.length === 0) {
+                showCustomAlert(`Für den Bereich "${section.name}" liegen noch keine Detail-Ergebnisse vor. Diese Funktion gilt nur für neu durchgeführte Tests.`);
+                return;
+            }
+
+            let questionsHTML = '';
+            section.questions.forEach(question => {
+                const allAnswersForThisQ = relevantResults.map(r => r.answers[question.id]).filter(a => a !== undefined);
+                const averageScore = allAnswersForThisQ.length > 0
+                    ? allAnswersForThisQ.reduce((sum, val) => sum + val, 0) / allAnswersForThisQ.length
+                    : 0;
+                
+                const avgPercentage = (averageScore / 4) * 100; // Max score is 4
+                const barColor = avgPercentage >= 75 ? '#28a745' : avgPercentage >= 50 ? '#ffc107' : '#dc3545';
+
+                questionsHTML += `
+                    <div class="category-result">
+                        <p style="margin-bottom: 8px;">${question.text}</p>
+                        <div class="category-result-header">
+                            <span class="category-result-title">Durchschnittliche Antwort:</span>
+                            <span class="category-result-score">${averageScore.toFixed(2)} / 4.00</span>
+                        </div>
+                        <div class="result-bar-container">
+                            <div class="result-bar" style="width: ${avgPercentage}%; background: ${barColor};"></div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('modalTitle').textContent = `Detailauswertung: ${section.name}`;
+            const modalBody = document.getElementById('modalBody');
+            modalBody.innerHTML = `
+                <p>Diese Auswertung basiert auf <strong>${relevantResults.length}</strong> abgeschlossenen Tests, die nach der letzten Systemanpassung durchgeführt wurden.</p>
+                <hr style="margin: 15px 0;">
+                ${questionsHTML}
+            `;
+            document.getElementById('detailModal').classList.add('active');
+        }
 
         async function initializeAppWithFirebase() {
             // Wenn Firebase nicht bereit ist: Local-Mode mit Demologins
@@ -1376,6 +1424,54 @@
             }
             
             return recommendations.slice(0, 3);
+        }
+        // NEUE FUNKTION FÜR KATEGORIE-DETAILS
+        function showCategoryDetails(categoryIndex) {
+            const section = sections.find(s => s.id === categoryIndex);
+            if (!section) return;
+
+            // Filtere nur Ergebnisse, die auch die neuen Detail-Antworten haben
+            const departmentCodes = currentDepartment === 'admin' ? generatedCodes : generatedCodes.filter(c => c.department === currentDepartment);
+            const codeList = departmentCodes.map(c => c.code);
+            const relevantResults = testResults.filter(r => r && r.answers && codeList.includes(r.testCode));
+
+            if (relevantResults.length === 0) {
+                showCustomAlert(`Für den Bereich "${section.name}" liegen noch keine Detail-Ergebnisse vor. Diese Funktion gilt nur für neu durchgeführte Tests.`);
+                return;
+            }
+
+            let questionsHTML = '';
+            section.questions.forEach(question => {
+                const allAnswersForThisQ = relevantResults.map(r => r.answers[question.id]).filter(a => a !== undefined);
+                const averageScore = allAnswersForThisQ.length > 0
+                    ? allAnswersForThisQ.reduce((sum, val) => sum + val, 0) / allAnswersForThisQ.length
+                    : 0;
+                
+                const avgPercentage = (averageScore / 4) * 100; // Max score is 4
+                const barColor = avgPercentage >= 75 ? '#28a745' : avgPercentage >= 50 ? '#ffc107' : '#dc3545';
+
+                questionsHTML += `
+                    <div class="category-result">
+                        <p style="margin-bottom: 8px;">${question.text}</p>
+                        <div class="category-result-header">
+                            <span class="category-result-title">Durchschnittliche Antwort:</span>
+                            <span class="category-result-score">${averageScore.toFixed(2)} / 4.00</span>
+                        </div>
+                        <div class="result-bar-container">
+                            <div class="result-bar" style="width: ${avgPercentage}%; background: ${barColor};"></div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('modalTitle').textContent = `Detailauswertung: ${section.name}`;
+            const modalBody = document.getElementById('modalBody');
+            modalBody.innerHTML = `
+                <p>Diese Auswertung basiert auf <strong>${relevantResults.length}</strong> abgeschlossenen Tests, die nach der letzten Systemanpassung durchgeführt wurden.</p>
+                <hr style="margin: 15px 0;">
+                ${questionsHTML}
+            `;
+            document.getElementById('detailModal').classList.add('active');
         }
         // Login Handler with Back Button hiding
         async function handleLogin(event) {
@@ -1746,6 +1842,13 @@
                     if (bar) {
                         bar.style.width = avg + '%';
                         bar.textContent = avg + '%';
+
+                        // --- NEU: Balken klickbar machen ---
+                        const chartBar = bar.closest('.chart-bar');
+                        if(chartBar) {
+                            chartBar.style.cursor = 'pointer';
+                            chartBar.onclick = () => showCategoryDetails(i);
+                        }
                     }
                 }
             } else {
