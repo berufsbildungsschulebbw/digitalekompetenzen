@@ -1197,17 +1197,17 @@
             const totalMaxScore = Object.values(categoryMaxScores).reduce((a, b) => a + b, 0);
             const totalPercentage = Math.round((totalScore / totalMaxScore) * 100);
             
-              return {
-            totalScore,
-            totalMaxScore,
-            totalPercentage,
-            categoryScores,
-            categoryMaxScores,
-            categoryPercentages,
-            testCode,
-            timestamp: new Date().toISOString(),
-            duration: Math.round((new Date() - testStartTime) / 1000) // in seconds
-        };
+            return {
+                totalScore,
+                totalMaxScore,
+                totalPercentage,
+                categoryScores,
+                categoryMaxScores,
+                categoryPercentages,
+                testCode,
+                timestamp: new Date().toISOString(),
+                duration: Math.round((new Date() - testStartTime) / 1000) // in seconds
+            };
         }
 
         // Show Results Function
