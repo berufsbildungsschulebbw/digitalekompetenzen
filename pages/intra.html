@@ -2324,32 +2324,54 @@ const codeData = {
             window.URL.revokeObjectURL(url);
         }
 
-        function exportResults() {
+       function exportResults() {
             const isAdmin = currentDepartment === 'admin';
             const departmentCodes = isAdmin
-                ? generatedCodes
-                : generatedCodes.filter(c => c.department === currentDepartment);
+                ? generatedCodes.map(c => c.code)
+                : generatedCodes.filter(c => c.department === currentDepartment).map(c => c.code);
             
-            const codeList = departmentCodes.map(c => c.code);
-            const relevantResults = testResults.filter(r => codeList.includes(r.testCode));
+            const relevantResults = testResults.filter(r => departmentCodes.includes(r.testCode));
             
             if (relevantResults.length === 0) {
                 showCustomAlert('Keine Ergebnisse zum Exportieren vorhanden.');
                 return;
             }
-            
-            let csv = 'Code,Datum,Gesamtscore,Grundkenntnisse IKT,Anwendung im Unterricht,Medien- & Infokompetenz,Daten & Sicherheit,Kommunikation\n';
-            
-            relevantResults.forEach(result => {
-                csv += `${result.testCode},${new Date(result.timestamp).toLocaleDateString('de-DE')},`;
-                csv += `${result.totalPercentage},${result.categoryPercentages[1]},${result.categoryPercentages[2]},${result.categoryPercentages[3]},${result.categoryPercentages[4]},${result.categoryPercentages[5]}\n`;
+
+            // Helfer, um CSV-Text sicher zu machen (in Anführungszeichen setzen)
+            const escapeCsv = (text) => `"${String(text).replace(/"/g, '""')}"`;
+
+            // 1. Dynamische Kopfzeile mit allen Fragen erstellen
+            const allQuestions = sections.flatMap(section => section.questions);
+            const questionHeaders = allQuestions.map(q => escapeCsv(q.text));
+            const headers = ['Code', 'Datum', 'Gesamtscore', ...questionHeaders].join(',');
+
+            // 2. CSV-Zeilen für jeden Teilnehmer erstellen
+            const rows = relevantResults.map(result => {
+                const baseData = [
+                    escapeCsv(result.testCode),
+                    escapeCsv(toJsDate(result.timestamp)?.toLocaleDateString('de-DE') || 'N/A'),
+                    `"${result.totalPercentage}%"`
+                ];
+
+                // Antworten für jede Frage auslesen
+                const answerData = allQuestions.map(question => {
+                    // Prüfen, ob detaillierte Antworten vorhanden sind
+                    if (result.answers && result.answers[question.id] !== undefined) {
+                        return result.answers[question.id];
+                    }
+                    return 'N/A'; // Für alte Daten ohne Detail-Antworten
+                });
+
+                return [...baseData, ...answerData].join(',');
             });
-            
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+
+            // 3. CSV-Datei zusammenfügen und herunterladen
+            let csvContent = headers + '\n' + rows.join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `kompetenzen_export_${new Date().toISOString().split('T')[0]}.csv`;
+            a.download = `kompetenzen_export_details_${new Date().toISOString().split('T')[0]}.csv`;
             a.click();
             window.URL.revokeObjectURL(url);
         }
