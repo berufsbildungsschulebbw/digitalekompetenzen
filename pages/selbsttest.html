@@ -12,8 +12,68 @@
         .back-button { display: inline-block; padding: 10px 20px; background: #667eea; color: white; text-decoration: none; border-radius: 8px; margin-bottom: 20px; transition: background 0.3s; }
         .back-button:hover { background: #5a67d8; }
         h1 { color: #2d3748; font-size: 2.5em; margin-bottom: 10px; }
-        /* --- NEUER STYLE FÜR UNTERTHEMEN-HEADER --- */
-        h3 { color: #2d3748; font-size: 1.2em; margin-top: 10px; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #e9ecef; }
+        
+        /* Unterbereich-Styles */
+        .subsection-container {
+            margin-bottom: 25px;
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .subsection-container:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        /* Bereich 1: Grundkenntnisse IKT - Blautöne */
+        .section-1 .subsection-1 { background: linear-gradient(135deg, #e6f2ff 0%, #cce7ff 100%); }
+        .section-1 .subsection-2 { background: linear-gradient(135deg, #d4e9ff 0%, #b3daff 100%); }
+        .section-1 .subsection-3 { background: linear-gradient(135deg, #c2e0ff 0%, #99ccff 100%); }
+        
+        /* Bereich 2: Anwendung im Unterricht - Grüntöne */
+        .section-2 .subsection-1 { background: linear-gradient(135deg, #e6ffe6 0%, #ccffcc 100%); }
+        .section-2 .subsection-2 { background: linear-gradient(135deg, #d4ffd4 0%, #b3ffb3 100%); }
+        .section-2 .subsection-3 { background: linear-gradient(135deg, #c2ffc2 0%, #99ff99 100%); }
+        
+        /* Bereich 3: Medien- und Informationskompetenz - Rottöne */
+        .section-3 .subsection-1 { background: linear-gradient(135deg, #ffe6e6 0%, #ffcccc 100%); }
+        .section-3 .subsection-2 { background: linear-gradient(135deg, #ffd4d4 0%, #ffb3b3 100%); }
+        .section-3 .subsection-3 { background: linear-gradient(135deg, #ffc2c2 0%, #ff9999 100%); }
+        
+        /* Bereich 4: Datenverwaltung - Violetttöne */
+        .section-4 .subsection-1 { background: linear-gradient(135deg, #f3e6ff 0%, #e6ccff 100%); }
+        .section-4 .subsection-2 { background: linear-gradient(135deg, #ebd4ff 0%, #d9b3ff 100%); }
+        .section-4 .subsection-3 { background: linear-gradient(135deg, #e3c2ff 0%, #cc99ff 100%); }
+        
+        /* Bereich 5: Kommunikation - Orangetöne */
+        .section-5 .subsection-1 { background: linear-gradient(135deg, #fff3e6 0%, #ffe6cc 100%); }
+        .section-5 .subsection-2 { background: linear-gradient(135deg, #ffebd4 0%, #ffd9b3 100%); }
+        .section-5 .subsection-3 { background: linear-gradient(135deg, #ffe3c2 0%, #ffcc99 100%); }
+        
+        .subsection-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(0,0,0,0.08);
+        }
+        
+        .subsection-number {
+            background: white;
+            color: #4a5568;
+            padding: 5px 10px;
+            border-radius: 8px;
+            font-weight: bold;
+            margin-right: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .subsection-title {
+            color: #2d3748;
+            font-size: 1.2em;
+            font-weight: 600;
+        }
+        
         .subtitle { color: #718096; font-size: 1.1em; }
         .code-entry { background: #f8f9fa; padding: 40px; border-radius: 15px; text-align: center; margin-bottom: 30px; }
         .code-entry h2 { color: #495057; margin-bottom: 20px; }
@@ -30,8 +90,9 @@
         .section-header { background: #f8f9fa; padding: 20px; border-radius: 15px; margin-bottom: 30px; text-align: center; }
         .section-title { font-size: 1.8em; color: #2d3748; margin-bottom: 10px; }
         .section-description { color: #718096; font-size: 1em; line-height: 1.6; }
-        .question-card { background: #f8f9fa; padding: 25px; border-radius: 15px; margin-bottom: 20px; border: 2px solid transparent; transition: border-color 0.3s; }
-        .question-card.answered { border-color: #667eea; }
+        .question-card { background: white; padding: 25px; border-radius: 15px; margin-bottom: 20px; border: 2px solid rgba(0,0,0,0.08); transition: all 0.3s; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .question-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .question-card.answered { border-color: #667eea; background: #f7f7ff; }
         .question-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
         .category-badge { padding: 5px 15px; border-radius: 20px; color: white; font-size: 0.9em; font-weight: bold; }
         .category-1 { background: #3887be; } .category-2 { background: #28a745; } .category-3 { background: #e74c3c; } .category-4 { background: #8e44ad; } .category-5 { background: #e67e22; }
@@ -163,11 +224,11 @@
         } catch (e) { console.warn("Firebase nicht verfügbar, nutze lokalen Speicher:", e); }
 
         const sections = [
-            { id: 1, name: "Grundkenntnisse IKT", description: "Grundlegende technische Fähigkeiten...", subbereiche: [ { title: "1.1 Geräte und Systeme", questions: [ { id: 1, text: "Wie sicher fühlen Sie sich beim Verbinden von technischen Geräten (z.B. Beamer, Drucker) mit Ihrem Computer?", options: [ { value: 4, text: "Sehr sicher..." }, { value: 3, text: "Sicher..." }, { value: 2, text: "Teilweise sicher..." }, { value: 1, text: "Unsicher..." } ] } ] }, { title: "1.2 Software und Anwendungen", questions: [ { id: 2, text: "Wie gut können Sie Office-Programme (Word, Excel, PowerPoint) für die Erstellung von Unterrichtsmaterialien nutzen?", options: [ { value: 4, text: "Ich nutze erweiterte Funktionen..." }, { value: 3, text: "Ich kann ansprechende Materialien..." }, { value: 2, text: "Ich kann einfache Dokumente..." }, { value: 1, text: "Ich kenne nur die Basisfunktionen" } ] } ] }, { title: "1.3 Cloud und digitale Ressourcen", questions: [ { id: 3, text: "Wie routiniert nutzen Sie Cloud-Dienste (OneDrive, Teams) für Ihre Unterrichtsvorbereitung?", options: [ { value: 4, text: "Cloud-Dienste sind integraler Bestandteil..." }, { value: 3, text: "Ich nutze Cloud-Dienste regelmässig" }, { value: 2, text: "Ich nutze Cloud-Dienste selten" }, { value: 1, text: "Ich arbeite hauptsächlich lokal" } ] } ] } ] },
-            { id: 2, name: "Anwendung im Unterricht", description: "Praktische Implementierung digitaler Medien...", subbereiche: [ { title: "2.1 Unterrichtsvorbereitung", questions: [ { id: 4, text: "Wie häufig setzen Sie digitale Werkzeuge oder KI-Tools für die Erstellung von Lernmaterialien ein?", options: [ { value: 4, text: "Bei fast jeder Unterrichtsvorbereitung" }, { value: 3, text: "Bei den meisten..." }, { value: 2, text: "Es kommt immer wieder vor..." }, { value: 1, text: "Selten oder nie" } ] } ] }, { title: "2.2 Unterrichtsdurchführung", questions: [ { id: 5, text: "Wie interaktiv gestalten Sie Ihren Unterricht mit digitalen Tools (z.B. Kahoot, Quizlet, digitale Pinnwände, Forms)?", options: [ { value: 4, text: "Sehr interaktiv..." }, { value: 3, text: "Interaktiv..." }, { value: 2, text: "Wenig interaktiv..." }, { value: 1, text: "Nicht interaktiv..." } ] } ] }, { title: "2.3 Leistungserfassung und Feedback", questions: [ { id: 6, text: "Wie setzen Sie E-Assessments für die Leistungserfassung ein?", options: [ { value: 4, text: "Systematisch..." }, { value: 3, text: "Häufig..." }, { value: 2, text: "Gelegentlich..." }, { value: 1, text: "Nie..." } ] } ] } ] },
-            { id: 3, name: "Medien- und Informationskompetenz", description: "Informationen kritisch bewerten...", subbereiche: [ { title: "3.1 Informationskompetenz", questions: [ { id: 7, text: "Wie gut kennen Sie die Funktionsweise von Social Media und deren mögliche Einsatzorte im Unterricht?", options: [ { value: 4, text: "Sehr gut..." }, { value: 3, text: "Gut..." }, { value: 2, text: "Grundkenntnisse..." }, { value: 1, text: "Wenig..." } ] } ] }, { title: "3.2 Medienkompetenz", questions: [ { id: 8, text: "Können Sie multimediale Inhalte (Videos, Podcasts, interaktive Präsentationen) für Ihren Unterricht erstellen?", options: [ { value: 4, text: "Ja, professionell..." }, { value: 3, text: "Ja, gut..." }, { value: 2, text: "Teilweise..." }, { value: 1, text: "Nein..." } ] } ] }, { title: "3.3 Kommunikation mit digitalen Medien", questions: [ { id: 9, text: "Wie vermitteln Sie Ihren Lernenden kritische Medienkompetenz und Quellenprüfung?", options: [ { value: 4, text: "Systematisch..." }, { value: 3, text: "Regelmässig..." }, { value: 2, text: "Gelegentlich..." }, { value: 1, text: "Selten..." } ] } ] } ] },
-            { id: 4, name: "Datenverwaltung und Datensicherheit", description: "Verantwortungsvoller Umgang...", subbereiche: [ { title: "4.1 Datenschutz und Datensicherheit", questions: [ { id: 10, text: "Wie gut kennen Sie die rechtlichen Grundlagen zum Datenschutz im schulischen Kontext?", options: [ { value: 4, text: "Sehr gut..." }, { value: 3, text: "Gut..." }, { value: 2, text: "Grundkenntnisse..." }, { value: 1, text: "Wenig..." } ] }, { id: 11, text: "Wie verwalten Sie Ihre Passwörter und Zugangsdaten?", options: [ { value: 4, text: "Professionell..." }, { value: 3, text: "Sicher..." }, { value: 2, text: "Ausreichend..." }, { value: 1, text: "Unsicher..." } ] } ] }, { title: "4.2 Datenmanagement", questions: [ { id: 12, text: "Wie strukturiert verwalten Sie digitale Unterrichtsmaterialien und Lernendendaten?", options: [ { value: 4, text: "Sehr strukturiert..." }, { value: 3, text: "Strukturiert..." }, { value: 2, text: "Teilweise strukturiert..." }, { value: 1, text: "Unstrukturiert..." } ] } ] } ] },
-            { id: 5, name: "Kommunikation und Kollaboration", description: "Alle Fähigkeiten zur digitalen Interaktion...", subbereiche: [ { title: "5.1 Digitale Kommunikation", questions: [ { id: 13, text: "Wie aktiv nutzen Sie Teams oder ähnliche Plattformen für die Kommunikation mit Kollegium und Lernenden?", options: [ { value: 4, text: "Sehr aktiv..." }, { value: 3, text: "Aktiv..." }, { value: 2, text: "Gelegentlich..." }, { value: 1, text: "Selten..." } ] } ] }, { title: "5.2 Digitale Kollaboration", questions: [ { id: 14, text: "Wie gut können Sie kollaborative Dokumente (z.B. in Teams/OneDrive) für gemeinsame Projekte nutzen?", options: [ { value: 4, text: "Expertenniveau..." }, { value: 3, text: "Gut..." }, { value: 2, text: "Grundkenntnisse..." }, { value: 1, text: "Wenig Erfahrung..." } ] } ] }, { title: "5.3 Digitale Partizipation", questions: [ { id: 15, text: "Wie professionell ist Ihre digitale Kommunikation (Netiquette, Antwortzeiten, Strukturierung)?", options: [ { value: 4, text: "Sehr professionell..." }, { value: 3, text: "Professionell..." }, { value: 2, text: "Ausreichend..." }, { value: 1, text: "Verbesserungswürdig..." } ] } ] } ] }
+            { id: 1, name: "Grundkenntnisse IKT", description: "Grundlegende technische Fähigkeiten zum Umgang mit digitalen Geräten, Anwendungen und Systemen als Fundament für digitale Lehr- und Lernszenarien.", subbereiche: [ { title: "1.1 Geräte und Systeme", questions: [ { id: 1, text: "Wie sicher fühlen Sie sich beim Verbinden von technischen Geräten (z.B. Beamer, Drucker) mit Ihrem Computer?", options: [ { value: 4, text: "Sehr sicher - ich kann problemlos verschiedene Geräte verbinden und konfigurieren" }, { value: 3, text: "Sicher - ich kann die meisten Geräte selbständig verbinden" }, { value: 2, text: "Teilweise sicher - bei bekannten Geräten klappt es, bei neuen brauche ich manchmal Hilfe" }, { value: 1, text: "Unsicher - ich benötige häufig Unterstützung" } ] } ] }, { title: "1.2 Software und Anwendungen", questions: [ { id: 2, text: "Wie gut können Sie Office-Programme (Word, Excel, PowerPoint) für die Erstellung von Unterrichtsmaterialien nutzen?", options: [ { value: 4, text: "Ich nutze erweiterte Funktionen wie Makros, Formatvorlagen und automatische Verweise" }, { value: 3, text: "Ich kann ansprechende Materialien mit verschiedenen Funktionen erstellen" }, { value: 2, text: "Ich kann einfache Dokumente und Präsentationen erstellen" }, { value: 1, text: "Ich kenne nur die Basisfunktionen" } ] } ] }, { title: "1.3 Cloud und digitale Ressourcen", questions: [ { id: 3, text: "Wie routiniert nutzen Sie Cloud-Dienste (OneDrive, Teams) für Ihre Unterrichtsvorbereitung?", options: [ { value: 4, text: "Cloud-Dienste sind integraler Bestandteil meiner Arbeitsweise" }, { value: 3, text: "Ich nutze Cloud-Dienste regelmässig für wichtige Dokumente" }, { value: 2, text: "Ich nutze Cloud-Dienste selten, meist nur wenn nötig" }, { value: 1, text: "Ich arbeite hauptsächlich lokal auf meinem Computer" } ] } ] } ] },
+            { id: 2, name: "Anwendung im Unterricht", description: "Praktische Implementierung digitaler Medien in den Unterrichtsprozess. Digitale Technologien didaktisch sinnvoll in allen Phasen des Unterrichts einsetzen.", subbereiche: [ { title: "2.1 Unterrichtsvorbereitung", questions: [ { id: 4, text: "Wie häufig setzen Sie digitale Werkzeuge oder KI-Tools für die Erstellung von Lernmaterialien ein?", options: [ { value: 4, text: "Bei fast jeder Unterrichtsvorbereitung nutze ich digitale Tools systematisch" }, { value: 3, text: "Bei den meisten Vorbereitungen verwende ich digitale Hilfsmittel" }, { value: 2, text: "Es kommt immer wieder vor, aber nicht regelmässig" }, { value: 1, text: "Selten oder nie" } ] } ] }, { title: "2.2 Unterrichtsdurchführung", questions: [ { id: 5, text: "Wie interaktiv gestalten Sie Ihren Unterricht mit digitalen Tools (z.B. Kahoot, Quizlet, digitale Pinnwände, Forms)?", options: [ { value: 4, text: "Sehr interaktiv - ich setze regelmässig verschiedene Tools ein" }, { value: 3, text: "Interaktiv - ich nutze gelegentlich digitale Tools für Aktivitäten" }, { value: 2, text: "Wenig interaktiv - ich experimentiere manchmal mit digitalen Tools" }, { value: 1, text: "Nicht interaktiv - ich nutze keine digitalen Tools im Unterricht" } ] } ] }, { title: "2.3 Leistungserfassung und Feedback", questions: [ { id: 6, text: "Wie setzen Sie E-Assessments für die Leistungserfassung ein?", options: [ { value: 4, text: "Systematisch mit formativen und summativen E-Assessments" }, { value: 3, text: "Häufig für Tests und Prüfungen digital" }, { value: 2, text: "Gelegentlich für kleinere Überprüfungen" }, { value: 1, text: "Nie - ich verwende nur traditionelle Methoden" } ] } ] } ] },
+            { id: 3, name: "Medien- und Informationskompetenz", description: "Informationen kritisch bewerten, Medien reflektiert nutzen und neue Medieninhalte gezielt erstellen. Lernende bei der Orientierung in der digitalen Informationsflut unterstützen.", subbereiche: [ { title: "3.1 Informationskompetenz", questions: [ { id: 7, text: "Wie gut kennen Sie die Funktionsweise von Social Media und deren mögliche Einsatzorte im Unterricht?", options: [ { value: 4, text: "Sehr gut - ich kenne verschiedene Plattformen und nutze sie gezielt" }, { value: 3, text: "Gut - ich verstehe die Grundprinzipien und habe erste Ideen" }, { value: 2, text: "Grundkenntnisse - ich kenne die wichtigsten Plattformen oberflächlich" }, { value: 1, text: "Wenig - Social Media ist mir im Unterrichtskontext fremd" } ] } ] }, { title: "3.2 Medienkompetenz", questions: [ { id: 8, text: "Können Sie multimediale Inhalte (Videos, Podcasts, interaktive Präsentationen) für Ihren Unterricht erstellen?", options: [ { value: 4, text: "Ja, professionell - ich erstelle regelmässig verschiedene Medienformate" }, { value: 3, text: "Ja, gut - ich kann einfache Videos und Präsentationen erstellen" }, { value: 2, text: "Teilweise - ich habe erste Erfahrungen gesammelt" }, { value: 1, text: "Nein - ich verwende nur fertige Materialien" } ] } ] }, { title: "3.3 Kommunikation mit digitalen Medien", questions: [ { id: 9, text: "Wie vermitteln Sie Ihren Lernenden kritische Medienkompetenz und Quellenprüfung?", options: [ { value: 4, text: "Systematisch mit konkreten Übungen und Methoden" }, { value: 3, text: "Regelmässig bei passenden Gelegenheiten" }, { value: 2, text: "Gelegentlich, wenn es sich ergibt" }, { value: 1, text: "Selten oder gar nicht" } ] } ] } ] },
+            { id: 4, name: "Datenverwaltung und Datensicherheit", description: "Verantwortungsvoller Umgang mit digitalen Daten sowie die Fähigkeit, personenbezogene und sensible Informationen im schulischen Kontext zu schützen.", subbereiche: [ { title: "4.1 Datenschutz und Datensicherheit", questions: [ { id: 10, text: "Wie gut kennen Sie die rechtlichen Grundlagen zum Datenschutz im schulischen Kontext?", options: [ { value: 4, text: "Sehr gut - ich bin mit DSGVO und schulischen Richtlinien vertraut" }, { value: 3, text: "Gut - ich kenne die wichtigsten Regeln und halte sie ein" }, { value: 2, text: "Grundkenntnisse - ich weiss ungefähr, was erlaubt ist" }, { value: 1, text: "Wenig - ich bin unsicher bei Datenschutzfragen" } ] }, { id: 11, text: "Wie verwalten Sie Ihre Passwörter und Zugangsdaten?", options: [ { value: 4, text: "Professionell mit Passwort-Manager und 2-Faktor-Authentifizierung" }, { value: 3, text: "Sicher mit komplexen, unterschiedlichen Passwörtern" }, { value: 2, text: "Ausreichend - ich verwende verschiedene, aber einfache Passwörter" }, { value: 1, text: "Unsicher - ich nutze oft dieselben einfachen Passwörter" } ] } ] }, { title: "4.2 Datenmanagement", questions: [ { id: 12, text: "Wie strukturiert verwalten Sie digitale Unterrichtsmaterialien und Lernendendaten?", options: [ { value: 4, text: "Sehr strukturiert mit klarem System und regelmässiger Pflege" }, { value: 3, text: "Strukturiert mit durchdachter Ordnerstruktur" }, { value: 2, text: "Teilweise strukturiert - manchmal ist es unübersichtlich" }, { value: 1, text: "Unstrukturiert - ich finde oft nicht, was ich suche" } ] } ] }, { title: "4.3 Rechtliche und ethische Aspekte", questions: [ { id: 13, text: "Wie gehen Sie mit Urheberrecht und Lizenzen bei digitalen Materialien um?", options: [ { value: 4, text: "Ich achte konsequent auf Lizenzen und nutze CC-Materialien bewusst" }, { value: 3, text: "Ich versuche meist, Urheberrechte zu beachten" }, { value: 2, text: "Ich bin mir der Problematik bewusst, aber unsicher in der Umsetzung" }, { value: 1, text: "Ich habe mich damit noch nicht auseinandergesetzt" } ] } ] } ] },
+            { id: 5, name: "Kommunikation und Kollaboration", description: "Alle Fähigkeiten zur digitalen Interaktion, Zusammenarbeit und Kommunikation. Digitale Medien für den professionellen Austausch nutzen.", subbereiche: [ { title: "5.1 Digitale Kommunikation", questions: [ { id: 14, text: "Wie aktiv nutzen Sie Teams oder ähnliche Plattformen für die Kommunikation mit Kollegium und Lernenden?", options: [ { value: 4, text: "Sehr aktiv - tägliche Nutzung für verschiedene Zwecke" }, { value: 3, text: "Aktiv - regelmässige Nutzung für wichtige Kommunikation" }, { value: 2, text: "Gelegentlich - hauptsächlich für Ankündigungen" }, { value: 1, text: "Selten - ich bevorzuge andere Kommunikationswege" } ] } ] }, { title: "5.2 Digitale Kollaboration", questions: [ { id: 15, text: "Wie gut können Sie kollaborative Dokumente (z.B. in Teams/OneDrive) für gemeinsame Projekte nutzen?", options: [ { value: 4, text: "Expertenniveau - ich kann komplexe Kollaborationen organisieren" }, { value: 3, text: "Gut - ich arbeite regelmässig gemeinsam an Dokumenten" }, { value: 2, text: "Grundkenntnisse - ich kann an geteilten Dokumenten mitarbeiten" }, { value: 1, text: "Wenig Erfahrung - ich arbeite lieber alleine an Dokumenten" } ] } ] }, { title: "5.3 Digitale Partizipation", questions: [ { id: 16, text: "Wie professionell ist Ihre digitale Kommunikation (Netiquette, Antwortzeiten, Strukturierung)?", options: [ { value: 4, text: "Sehr professionell - klare Struktur, zeitnahe Antworten, vorbildliche Netiquette" }, { value: 3, text: "Professionell - meist strukturiert und zeitnah" }, { value: 2, text: "Ausreichend - ich bemühe mich um angemessene Kommunikation" }, { value: 1, text: "Verbesserungswürdig - ich reagiere oft verspätet oder unstrukturiert" } ] } ] } ] }
         ];
 
         let currentSectionIndex = 0;
@@ -196,23 +257,46 @@
             const progressBar = document.getElementById('progressBar');
             progressBar.style.width = progress + '%';
             progressBar.textContent = `Bereich ${sectionIndex + 1} von 5`;
-            let sectionHTML = `<div class="section-header"><h2 class="section-title">${section.name}</h2><p class="section-description">${section.description}</p></div>`;
-            section.subbereiche.forEach(sub => {
-                sectionHTML += `<h3>${sub.title}</h3>`;
+            
+            let sectionHTML = `
+                <div class="section-header">
+                    <h2 class="section-title">${section.name}</h2>
+                    <p class="section-description">${section.description}</p>
+                </div>
+                <div class="section-${section.id}">`;
+            
+            section.subbereiche.forEach((sub, subIndex) => {
+                sectionHTML += `
+                    <div class="subsection-container subsection-${subIndex + 1}">
+                        <div class="subsection-header">
+                            <span class="subsection-number">${sub.title.split(' ')[0]}</span>
+                            <span class="subsection-title">${sub.title.split(' ').slice(1).join(' ')}</span>
+                        </div>`;
+                
                 sub.questions.forEach((q) => {
                     sectionHTML += `
                         <div class="question-card ${answers[q.id] ? 'answered' : ''}" id="question-${q.id}">
-                            <div class="question-text"><span style="flex: 1;">${q.text}</span></div>
+                            <div class="question-text">
+                                <span style="flex: 1;">${q.text}</span>
+                            </div>
                             <div class="answer-options">
                                 ${q.options.map(opt => `
-                                    <div class="answer-option ${answers[q.id] === opt.value ? 'selected' : ''}" onclick="selectAnswer(${q.id}, ${opt.value}, this)">
-                                        <input type="radio" name="question${q.id}" value="${opt.value}" ${answers[q.id] === opt.value ? 'checked' : ''}><label>${opt.text}</label>
+                                    <div class="answer-option ${answers[q.id] === opt.value ? 'selected' : ''}" 
+                                         onclick="selectAnswer(${q.id}, ${opt.value}, this)">
+                                        <input type="radio" name="question${q.id}" value="${opt.value}" 
+                                               ${answers[q.id] === opt.value ? 'checked' : ''}>
+                                        <label>${opt.text}</label>
                                     </div>`).join('')}
                             </div>
                         </div>`;
                 });
+                
+                sectionHTML += `</div>`;
             });
+            
+            sectionHTML += `</div>`;
             container.innerHTML = sectionHTML;
+            
             document.getElementById('prevButton').style.display = sectionIndex === 0 ? 'none' : 'block';
             document.getElementById('nextButton').style.display = sectionIndex === sections.length - 1 ? 'none' : 'block';
             document.getElementById('submitButton').style.display = sectionIndex === sections.length - 1 ? 'block' : 'none';
@@ -229,7 +313,13 @@
 
         window.checkSectionComplete = () => sections[currentSectionIndex].subbereiche.flatMap(s => s.questions).every(q => answers[q.id]);
         window.previousSection = () => { if (currentSectionIndex > 0) showSection(--currentSectionIndex); }
-        window.nextSection = () => { if (checkSectionComplete()) { if (currentSectionIndex < sections.length - 1) showSection(++currentSectionIndex); } else { alert('Bitte beantworten Sie alle Fragen in diesem Bereich.'); } }
+        window.nextSection = () => { 
+            if (checkSectionComplete()) { 
+                if (currentSectionIndex < sections.length - 1) showSection(++currentSectionIndex); 
+            } else { 
+                alert('Bitte beantworten Sie alle Fragen in diesem Bereich.'); 
+            } 
+        }
         
         window.submitTest = function() {
             if (!checkSectionComplete()) return alert('Bitte beantworten Sie alle Fragen in diesem Bereich.');
@@ -268,9 +358,19 @@
             const scoreCircle = document.getElementById('scoreCircle');
             const scoreText = document.getElementById('scoreText');
             scoreCircle.textContent = results.totalPercentage + '%';
-            if (results.totalPercentage >= 80) { scoreCircle.className = 'score-circle score-excellent'; scoreText.textContent = 'Ausgezeichnet! Sie verfügen über sehr gute digitale Kompetenzen.'; }
-            else if (results.totalPercentage >= 60) { scoreCircle.className = 'score-circle score-good'; scoreText.textContent = 'Gut! Sie haben solide digitale Kompetenzen mit Entwicklungspotenzial.'; }
-            else { scoreCircle.className = 'score-circle score-needs-improvement'; scoreText.textContent = 'Es besteht Entwicklungsbedarf in mehreren Bereichen.'; }
+            if (results.totalPercentage >= 80) { 
+                scoreCircle.className = 'score-circle score-excellent'; 
+                scoreText.textContent = 'Ausgezeichnet! Sie verfügen über sehr gute digitale Kompetenzen.'; 
+            }
+            else if (results.totalPercentage >= 60) { 
+                scoreCircle.className = 'score-circle score-good'; 
+                scoreText.textContent = 'Gut! Sie haben solide digitale Kompetenzen mit Entwicklungspotenzial.'; 
+            }
+            else { 
+                scoreCircle.className = 'score-circle score-needs-improvement'; 
+                scoreText.textContent = 'Es besteht Entwicklungsbedarf in mehreren Bereichen.'; 
+            }
+            
             let detailsHTML = sections.map(section => {
                 let questionsHTML = section.subbereiche.flatMap(s => s.questions).map(question => {
                     const answerValue = results.answers[question.id] || 0;
@@ -291,16 +391,32 @@
                 return `<h3 style="margin-top: 25px; margin-bottom: 10px; font-size: 1.2em;">${section.name} (${results.categoryPercentages[section.id]}%)</h3>${questionsHTML}`;
             }).join('');
             document.getElementById('categoryResults').innerHTML = detailsHTML;
+            
             const recommendations = generateRecommendations(results);
-            document.getElementById('recommendationsList').innerHTML = recommendations.map(rec => `<div class="recommendation-item"><strong>${rec.title}:</strong> ${rec.text}</div>`).join('');
+            document.getElementById('recommendationsList').innerHTML = recommendations.map(rec => `
+                <div class="recommendation-item">
+                    <strong>${rec.title}:</strong> ${rec.text}
+                </div>`).join('');
         }
         
         function generateRecommendations(results) {
             const recommendations = [];
             const categoryNames = ["Grundkenntnisse IKT", "Anwendung im Unterricht", "Medien- und Informationskompetenz", "Datenverwaltung und Datensicherheit", "Kommunikation und Kollaboration"];
-            const recMap = { 1: "Besuchen Sie Basis-Schulungen zu Office 365.", 2: "Experimentieren Sie mit interaktiven Tools wie Kahoot.", 3: "Lernen Sie Tools zur Erstellung multimedialer Inhalte kennen.", 4: "Nehmen Sie an einer Datenschutz-Schulung teil.", 5: "Nutzen Sie Teams aktiver für die Zusammenarbeit." };
-            for (let i = 1; i <= 5; i++) { if (results.categoryPercentages[i] < 60) recommendations.push({ title: categoryNames[i - 1], text: recMap[i] }); }
-            if (recommendations.length === 0) recommendations.push({ title: "Fortgeschrittene Kompetenzen", text: "Erkunden Sie KI-Tools für den Unterricht." });
+            const recMap = { 
+                1: "Besuchen Sie Basis-Schulungen zu Office 365 und der technischen Infrastruktur.", 
+                2: "Experimentieren Sie mit interaktiven Tools wie Kahoot oder Forms für Ihren Unterricht.", 
+                3: "Lernen Sie Tools zur Erstellung multimedialer Inhalte kennen (z.B. Canva, Adobe Express).", 
+                4: "Nehmen Sie an einer Datenschutz-Schulung teil und implementieren Sie sichere Praktiken.", 
+                5: "Nutzen Sie Teams aktiver für die Zusammenarbeit und erkunden Sie kollaborative Funktionen." 
+            };
+            for (let i = 1; i <= 5; i++) { 
+                if (results.categoryPercentages[i] < 60) {
+                    recommendations.push({ title: categoryNames[i - 1], text: recMap[i] }); 
+                }
+            }
+            if (recommendations.length === 0) {
+                recommendations.push({ title: "Fortgeschrittene Kompetenzen", text: "Erkunden Sie innovative KI-Tools und erweiterte digitale Methoden für Ihren Unterricht." });
+            }
             return recommendations.slice(0, 3);
         }
 
@@ -311,13 +427,21 @@
                     const querySnapshot = await getDocs(q);
                     if (!querySnapshot.empty || ["0HDM-V3EU", "TEST-1234"].includes(results.testCode)) {
                         await addDoc(collection(db, 'results'), { ...results, createdAt: serverTimestamp() });
-                    } else { alert("Hinweis: Der Code ist ungültig. Ergebnisse wurden nur lokal gespeichert."); }
-                } catch (error) { console.error("Fehler beim Speichern:", error); }
+                    } else { 
+                        alert("Hinweis: Der Code ist ungültig. Ergebnisse wurden nur lokal gespeichert."); 
+                    }
+                } catch (error) { 
+                    console.error("Fehler beim Speichern:", error); 
+                }
             }
         }
 
         window.restartTest = () => location.reload();
-        document.addEventListener('DOMContentLoaded', () => { document.getElementById('accessCode').addEventListener('keypress', e => { if (e.key === 'Enter') startTest(); }); });
+        document.addEventListener('DOMContentLoaded', () => { 
+            document.getElementById('accessCode').addEventListener('keypress', e => { 
+                if (e.key === 'Enter') startTest(); 
+            }); 
+        });
     </script>
 </body>
 </html>
