@@ -217,7 +217,35 @@
             color: #6c757d;
             margin-bottom: 10px;
             font-style: italic;
+            font-weight: bold;
         }
+
+        /* NEU: Farben für Unterkategorien */
+        /* Sektion 1: Blautöne */
+        .subcategory-1-1 { color: #0077b6; }
+        .subcategory-1-2 { color: #023e8a; }
+        .subcategory-1-3 { color: #48cae4; }
+
+        /* Sektion 2: Grüntöne */
+        .subcategory-2-1 { color: #2a9d8f; }
+        .subcategory-2-2 { color: #2d6a4f; }
+        .subcategory-2-3 { color: #80b918; }
+
+        /* Sektion 3: Rot-/Orangetöne */
+        .subcategory-3-1 { color: #e63946; }
+        .subcategory-3-2 { color: #f4a261; }
+        .subcategory-3-3 { color: #e76f51; }
+
+        /* Sektion 4: Lilatöne */
+        .subcategory-4-1 { color: #5a189a; }
+        .subcategory-4-2 { color: #9d4edd; }
+        .subcategory-4-3 { color: #c77dff; }
+
+        /* Sektion 5: Gelb-/Orangetöne */
+        .subcategory-5-1 { color: #fca311; }
+        .subcategory-5-2 { color: #e85d04; }
+        .subcategory-5-3 { color: #ffba08; }
+
 
         .question-text {
             font-size: 1.1em;
@@ -600,7 +628,6 @@
             <p class="subtitle">Überprüfen Sie Ihre digitalen Kompetenzen</p>
         </div>
 
-        <!-- Code Entry Section -->
         <div id="codeEntry" class="code-entry">
             <h2>Zugangs-Code eingeben</h2>
             <p>Bitte geben Sie den Code ein, den Sie von Ihrer Abteilungsleitung erhalten haben.</p>
@@ -619,7 +646,6 @@
             </p>
         </div>
 
-        <!-- Test Section -->
         <div id="testSection" class="test-section">
             <div class="progress-container">
                 <div id="progressBar" class="progress-bar" style="width: 0%">
@@ -628,8 +654,7 @@
             </div>
 
             <div id="sectionContainer">
-                <!-- Section content will be dynamically inserted here -->
-            </div>
+                </div>
 
             <div class="nav-buttons">
                 <button id="prevButton" class="nav-button prev-button" onclick="previousSection()">
@@ -644,25 +669,21 @@
             </div>
         </div>
 
-        <!-- Results Section -->
         <div id="resultsSection" class="results-section">
             <div class="results-header">
                 <h2>Ihre Ergebnisse</h2>
                 <div id="scoreCircle" class="score-circle">
-                    <!-- Score will be inserted here -->
-                </div>
+                    </div>
                 <p id="scoreText" style="font-size: 1.2em; color: #495057;"></p>
             </div>
 
             <div id="categoryResults" class="category-results">
-                <!-- Category results will be inserted here -->
-            </div>
+                </div>
 
             <div id="recommendations" class="recommendations">
                 <h3>Empfohlene Entwicklungsmassnahmen</h3>
                 <div id="recommendationsList">
-                    <!-- Recommendations will be inserted here -->
-                </div>
+                    </div>
             </div>
 
             <div class="action-buttons">
@@ -676,7 +697,6 @@
         </div>
     </div>
 
-    <!-- Firebase Configuration -->
     <script>
         window.__firebase_config = JSON.stringify({
             apiKey: "AIzaSyCHhycjQmHU00_dQl5Xdo5PZCTn8JODk20",
@@ -689,7 +709,6 @@
         });
     </script>
 
-    <!-- Main Application Script with Firebase -->
     <script type="module">
         // Firebase imports
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -1344,6 +1363,9 @@
             section.questions.forEach((question, qIndex) => {
                 const isAnswered = answers[question.id] !== undefined;
                 
+                // NEU: CSS-Klasse für Unterkategorie generieren
+                const subcatClass = 'subcategory-' + question.subcategory.split(' ')[0].replace('.', '-');
+
                 sectionHTML += `
                     <div class="question-card ${isAnswered ? 'answered' : ''}" id="question-${question.id}">
                         <div class="question-header">
@@ -1351,7 +1373,7 @@
                                 Frage ${qIndex + 1} von ${section.questions.length}
                             </span>
                         </div>
-                        <div class="subcategory-label">${question.subcategory}</div>
+                        <div class="subcategory-label ${subcatClass}">${question.subcategory}</div>
                         <div class="question-text">
                             <span style="flex: 1;">${question.text}</span>
                             <button class="info-button" onclick="toggleInfo(${question.id})" title="Mehr Informationen">
