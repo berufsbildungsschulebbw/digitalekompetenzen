@@ -12,7 +12,8 @@
         .back-button { display: inline-block; padding: 10px 20px; background: #667eea; color: white; text-decoration: none; border-radius: 8px; margin-bottom: 20px; transition: background 0.3s; }
         .back-button:hover { background: #5a67d8; }
         h1 { color: #2d3748; font-size: 2.5em; margin-bottom: 10px; }
-        h3 { color: #2d3748; font-size: 1.2em; margin-bottom: 15px; padding: 10px; background: #e9ecef; border-radius: 6px; }
+        /* --- NEUER STYLE FÜR UNTERTHEMEN-HEADER --- */
+        h3 { color: #2d3748; font-size: 1.2em; margin-top: 10px; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #e9ecef; }
         .subtitle { color: #718096; font-size: 1.1em; }
         .code-entry { background: #f8f9fa; padding: 40px; border-radius: 15px; text-align: center; margin-bottom: 30px; }
         .code-entry h2 { color: #495057; margin-bottom: 20px; }
@@ -75,7 +76,7 @@
         .result-bar-container { background: #e9ecef; border-radius: 5px; height: 20px; overflow: hidden; }
         .result-bar { height: 100%; border-radius: 5px; transition: width 1s ease; }
         .recommendations { background: #f0f8ff; border: 2px solid #667eea; border-radius: 15px; padding: 30px; margin-top: 30px; }
-        .recommendations h3 { color: #495057; margin-bottom: 20px; }
+        .recommendations h3 { color: #495057; margin-bottom: 20px; padding: 0; border: none; }
         .recommendation-item { background: white; padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid #667eea; }
         .action-buttons { display: flex; gap: 15px; justify-content: center; margin-top: 30px; }
         .action-button { padding: 12px 30px; border: none; border-radius: 8px; font-size: 1em; font-weight: bold; cursor: pointer; transition: all 0.3s; }
@@ -169,9 +170,8 @@
             { id: 5, name: "Kommunikation und Kollaboration", description: "Alle Fähigkeiten zur digitalen Interaktion...", subbereiche: [ { title: "5.1 Digitale Kommunikation", questions: [ { id: 13, text: "Wie aktiv nutzen Sie Teams oder ähnliche Plattformen für die Kommunikation mit Kollegium und Lernenden?", options: [ { value: 4, text: "Sehr aktiv..." }, { value: 3, text: "Aktiv..." }, { value: 2, text: "Gelegentlich..." }, { value: 1, text: "Selten..." } ] } ] }, { title: "5.2 Digitale Kollaboration", questions: [ { id: 14, text: "Wie gut können Sie kollaborative Dokumente (z.B. in Teams/OneDrive) für gemeinsame Projekte nutzen?", options: [ { value: 4, text: "Expertenniveau..." }, { value: 3, text: "Gut..." }, { value: 2, text: "Grundkenntnisse..." }, { value: 1, text: "Wenig Erfahrung..." } ] } ] }, { title: "5.3 Digitale Partizipation", questions: [ { id: 15, text: "Wie professionell ist Ihre digitale Kommunikation (Netiquette, Antwortzeiten, Strukturierung)?", options: [ { value: 4, text: "Sehr professionell..." }, { value: 3, text: "Professionell..." }, { value: 2, text: "Ausreichend..." }, { value: 1, text: "Verbesserungswürdig..." } ] } ] } ] }
         ];
 
-        // State Management
         let currentSectionIndex = 0;
-        let lastRenderedSection = -1; // Für smartes Scrollen
+        let lastRenderedSection = -1;
         let answers = {};
         let testCode = "";
         let testStartTime = null;
@@ -186,29 +186,23 @@
         }
 
         window.showSection = function(sectionIndex) {
-            // Smartes Scrollen: Nur scrollen, wenn sich der Bereich ändert
             if (lastRenderedSection !== sectionIndex) {
                 window.scrollTo(0, 0);
             }
             lastRenderedSection = sectionIndex;
-
             const section = sections[sectionIndex];
             const container = document.getElementById('sectionContainer');
             const progress = Math.round(((sectionIndex + 1) / sections.length) * 100);
             const progressBar = document.getElementById('progressBar');
             progressBar.style.width = progress + '%';
             progressBar.textContent = `Bereich ${sectionIndex + 1} von 5`;
-            
             let sectionHTML = `<div class="section-header"><h2 class="section-title">${section.name}</h2><p class="section-description">${section.description}</p></div>`;
-            
             section.subbereiche.forEach(sub => {
                 sectionHTML += `<h3>${sub.title}</h3>`;
                 sub.questions.forEach((q) => {
                     sectionHTML += `
                         <div class="question-card ${answers[q.id] ? 'answered' : ''}" id="question-${q.id}">
-                            <div class="question-text">
-                                <span style="flex: 1;">${q.text}</span>
-                            </div>
+                            <div class="question-text"><span style="flex: 1;">${q.text}</span></div>
                             <div class="answer-options">
                                 ${q.options.map(opt => `
                                     <div class="answer-option ${answers[q.id] === opt.value ? 'selected' : ''}" onclick="selectAnswer(${q.id}, ${opt.value}, this)">
@@ -218,9 +212,7 @@
                         </div>`;
                 });
             });
-
             container.innerHTML = sectionHTML;
-
             document.getElementById('prevButton').style.display = sectionIndex === 0 ? 'none' : 'block';
             document.getElementById('nextButton').style.display = sectionIndex === sections.length - 1 ? 'none' : 'block';
             document.getElementById('submitButton').style.display = sectionIndex === sections.length - 1 ? 'block' : 'none';
@@ -273,20 +265,17 @@
         function showResults(results) {
             document.getElementById('testSection').style.display = 'none';
             document.getElementById('resultsSection').classList.add('active');
-
             const scoreCircle = document.getElementById('scoreCircle');
             const scoreText = document.getElementById('scoreText');
             scoreCircle.textContent = results.totalPercentage + '%';
             if (results.totalPercentage >= 80) { scoreCircle.className = 'score-circle score-excellent'; scoreText.textContent = 'Ausgezeichnet! Sie verfügen über sehr gute digitale Kompetenzen.'; }
             else if (results.totalPercentage >= 60) { scoreCircle.className = 'score-circle score-good'; scoreText.textContent = 'Gut! Sie haben solide digitale Kompetenzen mit Entwicklungspotenzial.'; }
             else { scoreCircle.className = 'score-circle score-needs-improvement'; scoreText.textContent = 'Es besteht Entwicklungsbedarf in mehreren Bereichen.'; }
-
             let detailsHTML = sections.map(section => {
                 let questionsHTML = section.subbereiche.flatMap(s => s.questions).map(question => {
                     const answerValue = results.answers[question.id] || 0;
                     const answerPercent = (answerValue / 4) * 100;
                     const barColor = answerPercent >= 75 ? '#28a745' : answerPercent >= 50 ? '#ffc107' : '#dc3545';
-                    
                     return `
                         <div class="category-result" style="padding: 10px 15px; margin-bottom: 8px;">
                             <p style="font-size: 0.9em; margin-bottom: 8px;">${question.text}</p>
@@ -299,12 +288,9 @@
                             </div>
                         </div>`;
                 }).join('');
-
                 return `<h3 style="margin-top: 25px; margin-bottom: 10px; font-size: 1.2em;">${section.name} (${results.categoryPercentages[section.id]}%)</h3>${questionsHTML}`;
             }).join('');
-
             document.getElementById('categoryResults').innerHTML = detailsHTML;
-            
             const recommendations = generateRecommendations(results);
             document.getElementById('recommendationsList').innerHTML = recommendations.map(rec => `<div class="recommendation-item"><strong>${rec.title}:</strong> ${rec.text}</div>`).join('');
         }
@@ -325,9 +311,7 @@
                     const querySnapshot = await getDocs(q);
                     if (!querySnapshot.empty || ["0HDM-V3EU", "TEST-1234"].includes(results.testCode)) {
                         await addDoc(collection(db, 'results'), { ...results, createdAt: serverTimestamp() });
-                    } else {
-                        alert("Hinweis: Der Code ist ungültig. Ergebnisse wurden nur lokal gespeichert.");
-                    }
+                    } else { alert("Hinweis: Der Code ist ungültig. Ergebnisse wurden nur lokal gespeichert."); }
                 } catch (error) { console.error("Fehler beim Speichern:", error); }
             }
         }
