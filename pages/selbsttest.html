@@ -1371,7 +1371,7 @@
                     Frage ${qIndex + 1} von ${section.questions.length}
                 </span>
             </div>
-            <div class="subcategory-label ${subcatClass}">${question.subcategory}</div>
+           <div class="subcategory-label ${badgeSubClass}">${question.subcategory}</div>
             <div class="question-text">
                 <span style="flex: 1;">${question.text}</span>
                 <button class="info-button" onclick="toggleInfo(${question.id})" title="Mehr Informationen">
@@ -1524,26 +1524,59 @@
             
             // Calculate scores per category and subcategory
             sections.forEach(section => {
-                section.questions.forEach(question => {
-                    if (answers[question.id]) {
-                        categoryScores[section.id] += answers[question.id];
-                        categoryMaxScores[section.id] += 4; // Max score per question is 4
-                        categoryQuestions[section.id]++;
-                        
-                        // Track subcategory scores
-                        if (!subcategoryScores[section.id][question.subcategory]) {
-                            subcategoryScores[section.id][question.subcategory] = {
-                                score: 0,
-                                maxScore: 0,
-                                count: 0
-                            };
-                        }
-                        subcategoryScores[section.id][question.subcategory].score += answers[question.id];
-                        subcategoryScores[section.id][question.subcategory].maxScore += 4;
-                        subcategoryScores[section.id][question.subcategory].count++;
-                    }
-                });
-            });
+                section.questions.forEach((question, qIndex) => {
+    const isAnswered = answers[question.id] !== undefined;
+
+    // CSS-Klasse für Unterkategorie (Textfarbe war vorher)
+    const subcatClass = 'subcategory-' + question.subcategory.split(' ')[0].replace('.', '-');
+    // CSS-Klasse für Badge (Hintergrundfarbe jetzt auch für den Untertitel)
+    const badgeSubClass = 'badge-sub-' + question.subcategory.split(' ')[0].replace('.', '-');
+
+    sectionHTML += `
+        <div class="question-card ${isAnswered ? 'answered' : ''}" id="question-${question.id}">
+            <div class="question-header">
+                <span class="category-badge ${badgeSubClass}">
+                    Frage ${qIndex + 1} von ${section.questions.length}
+                </span>
+            </div>
+            <div class="subcategory-label ${badgeSubClass}">${question.subcategory}</div>
+            <div class="question-text">
+                <span style="flex: 1;">${question.text}</span>
+                <button class="info-button" onclick="toggleInfo(${question.id})" title="Mehr Informationen">
+                    ?
+                </button>
+            </div>
+            <div id="info-${question.id}" class="info-box">
+                <h4>🔍 Praktische Beispiele</h4>
+                <p>${question.info.examples}</p>
+                
+                <h4>🛠️ Empfohlene Tools</h4>
+                <p>${question.info.tools}</p>
+                
+                <h4>💡 Tipp</h4>
+                <p>${question.info.tips}</p>
+                
+                <div class="concept-tags">
+                    <span class="concept-tag ikt-tag">${question.info.ikt}</span>
+                    <span class="concept-tag paed-tag">${question.info.paed}</span>
+                </div>
+            </div>
+            <div class="answer-options">
+                ${question.options.map((option, i) => `
+                    <div class="answer-option ${answers[question.id] === option.value ? 'selected' : ''}" 
+                         onclick="selectAnswer(${question.id}, ${option.value}, this)">
+                        <input type="radio" 
+                               name="question${question.id}" 
+                               value="${option.value}"
+                               ${answers[question.id] === option.value ? 'checked' : ''}>
+                        <label>${option.text}</label>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `;
+});
+
             
             // Calculate percentages
             const categoryPercentages = {};
