@@ -2070,7 +2070,7 @@ const codeData = {
             document.getElementById('detailModal').classList.add('active');
         }
 
-           // View Result Details (Version 3 - mit Detail-Antworten)
+         // View Result Details (Version 4 - mit Prozentwerten pro Unterbereich)
         function viewResultDetails(docId) {
             const result = testResults.find(r => r.id === docId);
             if (!result) {
@@ -2080,41 +2080,42 @@ const codeData = {
             document.getElementById('modalTitle').textContent = `Detailergebnis für Code: ${result.testCode}`;
             const modalBody = document.getElementById('modalBody');
             
-            // Score-Text und Klasse generieren
-            let scoreClass = 'score-needs-improvement';
-            let scoreText = 'Es besteht Entwicklungsbedarf in mehreren Bereichen.';
-            if (result.totalPercentage >= 80) {
-                scoreClass = 'score-excellent';
-                scoreText = 'Ausgezeichnet! Hier liegen sehr gute digitale Kompetenzen vor.';
-            } else if (result.totalPercentage >= 60) {
-                scoreClass = 'score-good';
-                scoreText = 'Gut! Solide digitale Kompetenzen mit Entwicklungspotenzial.';
-            }
+            let scoreClass = 'score-needs-improvement', scoreText = 'Es besteht Entwicklungsbedarf.';
+            if (result.totalPercentage >= 80) { scoreClass = 'score-excellent'; scoreText = 'Ausgezeichnet!'; }
+            else if (result.totalPercentage >= 60) { scoreClass = 'score-good'; scoreText = 'Gut!'; }
 
             // Prüfen, ob detaillierte Antworten vorhanden sind
             if (result.answers) {
-                // NEUE ANSICHT MIT ALLEN FRAGEN
+                // NEUE ANSICHT MIT PROZENTEN PRO UNTERBEREICH
                 let detailsHTML = sections.map(section => {
-                    let questionsHTML = section.questions.map(question => {
-                        const answerValue = result.answers[question.id] || 0; // 0 falls nicht beantwortet
-                        const answerPercent = (answerValue / 4) * 100;
-                        const barColor = answerPercent >= 75 ? '#28a745' : answerPercent >= 50 ? '#ffc107' : '#dc3545';
+                    let subbereicheHTML = section.subbereiche.map(subbereich => {
+                        let subScore = 0;
+                        let subMaxScore = 0;
+                        
+                        subbereich.questions.forEach(question => {
+                            if (result.answers[question.id] !== undefined) {
+                                subScore += result.answers[question.id];
+                                subMaxScore += 4; // Jede Frage hat einen Maximalwert von 4
+                            }
+                        });
+
+                        const subPercent = subMaxScore > 0 ? Math.round((subScore / subMaxScore) * 100) : 0;
+                        const barColor = subPercent >= 75 ? '#28a745' : subPercent >= 50 ? '#ffc107' : '#dc3545';
                         
                         return `
-                            <div class="category-result" style="padding: 10px 15px;">
-                                <p style="font-size: 0.9em; margin-bottom: 8px;">${question.text}</p>
-                                <div class="category-result-header">
-                                    <span class="category-result-title">Bewertung:</span>
-                                    <span class="category-result-score">${answerValue} / 4</span>
+                            <div class="category-result" style="padding: 10px 15px; margin-bottom: 8px;">
+                                <div class="category-result-header" style="margin-bottom: 5px;">
+                                    <span class="category-result-title">${subbereich.title}</span>
+                                    <span class="category-result-score">${subPercent}%</span>
                                 </div>
                                 <div class="result-bar-container" style="height: 10px;">
-                                    <div class="result-bar" style="width: ${answerPercent}%; background: ${barColor};"></div>
+                                    <div class="result-bar" style="width: ${subPercent}%; background: ${barColor};"></div>
                                 </div>
                             </div>
                         `;
                     }).join('');
 
-                    return `<h4 style="margin-top: 20px; margin-bottom: 10px;">${section.name}</h4>${questionsHTML}`;
+                    return `<h3 style="margin-top: 25px; margin-bottom: 10px; font-size: 1.2em;">${section.name} (${result.categoryPercentages[section.id]}%)</h3>${subbereicheHTML}`;
                 }).join('');
 
                 modalBody.innerHTML = `
@@ -2138,7 +2139,7 @@ const codeData = {
                     <div style="text-align: center;">
                         <div class="score-circle ${scoreClass}">${result.totalPercentage}%</div>
                         <p style="font-size: 1.1em; color: #495057;">${scoreText}</p>
-                        <p style="font-size: 0.9em; color: #718096; margin-top: 15px;">(Für dieses Ergebnis ist keine Detailansicht der einzelnen Fragen verfügbar.)</p>
+                        <p style="font-size: 0.9em; color: #718096; margin-top: 15px;">(Für dieses Ergebnis ist keine Detailansicht der Unterbereiche verfügbar.)</p>
                     </div>
                     <hr style="margin: 20px 0;">
                     <h4>Kompetenzbereiche</h4>
@@ -2148,7 +2149,6 @@ const codeData = {
 
             document.getElementById('detailModal').classList.add('active');
         }
-
         // Delete Code
         async function deleteCode(docId, code) {
             showCustomConfirm(
