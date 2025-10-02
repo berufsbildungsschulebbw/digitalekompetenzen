@@ -2324,7 +2324,7 @@ const codeData = {
             window.URL.revokeObjectURL(url);
         }
 
-       function exportResults() {
+function exportResults() {
             const isAdmin = currentDepartment === 'admin';
             const departmentCodes = isAdmin
                 ? generatedCodes.map(c => c.code)
@@ -2337,13 +2337,12 @@ const codeData = {
                 return;
             }
 
-            // Helfer, um CSV-Text sicher zu machen (in Anführungszeichen setzen)
+            // Helfer, um CSV-Text sicher zu machen
             const escapeCsv = (text) => `"${String(text).replace(/"/g, '""')}"`;
 
-            // 1. Dynamische Kopfzeile mit allen Fragen erstellen
-            const allQuestions = sections.flatMap(section => section.questions);
-            const questionHeaders = allQuestions.map(q => escapeCsv(q.text));
-            const headers = ['Code', 'Datum', 'Gesamtscore', ...questionHeaders].join(',');
+            // 1. Dynamische Kopfzeile mit allen Unterbereichen erstellen
+            const subareaHeaders = sections.flatMap(section => section.subbereiche.map(sub => escapeCsv(sub.title)));
+            const headers = ['Code', 'Datum', 'Gesamtscore', ...subareaHeaders].join(',');
 
             // 2. CSV-Zeilen für jeden Teilnehmer erstellen
             const rows = relevantResults.map(result => {
@@ -2353,16 +2352,27 @@ const codeData = {
                     `"${result.totalPercentage}%"`
                 ];
 
-                // Antworten für jede Frage auslesen
-                const answerData = allQuestions.map(question => {
-                    // Prüfen, ob detaillierte Antworten vorhanden sind
-                    if (result.answers && result.answers[question.id] !== undefined) {
-                        return result.answers[question.id];
-                    }
-                    return 'N/A'; // Für alte Daten ohne Detail-Antworten
+                // Prozentwerte für jeden Unterbereich berechnen
+                const subareaPercentages = sections.flatMap(section => {
+                    return section.subbereiche.map(subbereich => {
+                        // Nur für neue Ergebnisse mit Detail-Antworten
+                        if (result.answers) {
+                            let subScore = 0;
+                            let subMaxScore = 0;
+                            subbereich.questions.forEach(question => {
+                                if (result.answers[question.id] !== undefined) {
+                                    subScore += result.answers[question.id];
+                                    subMaxScore += 4;
+                                }
+                            });
+                            const subPercent = subMaxScore > 0 ? Math.round((subScore / subMaxScore) * 100) : 0;
+                            return `${subPercent}%`;
+                        }
+                        return 'N/A'; // Für alte Daten
+                    });
                 });
 
-                return [...baseData, ...answerData].join(',');
+                return [...baseData, ...subareaPercentages].join(',');
             });
 
             // 3. CSV-Datei zusammenfügen und herunterladen
@@ -2371,7 +2381,7 @@ const codeData = {
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `kompetenzen_export_details_${new Date().toISOString().split('T')[0]}.csv`;
+            a.download = `kompetenzen_export_unterbereiche_${new Date().toISOString().split('T')[0]}.csv`;
             a.click();
             window.URL.revokeObjectURL(url);
         }
