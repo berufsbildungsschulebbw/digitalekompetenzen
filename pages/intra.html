@@ -1117,37 +1117,51 @@
         // HIER DEN FOLGENDEN BLOCK EINFÜGEN
 
 const sections = [
-    {
-        id: 1, name: "Grundkenntnisse IKT", questions: [
-            { id: 1, text: "Wie sicher fühlen Sie sich beim Verbinden von technischen Geräten (z.B. Beamer, Drucker) mit Ihrem Computer?" },
-            { id: 2, text: "Wie gut können Sie Office-Programme (Word, Excel, PowerPoint) für die Erstellung von Unterrichtsmaterialien nutzen?" },
-            { id: 3, text: "Wie routiniert nutzen Sie Cloud-Dienste (OneDrive, Teams) für Ihre Unterrichtsvorbereitung?" }
-        ]
-    }, {
-        id: 2, name: "Anwendung im Unterricht", questions: [
-            { id: 4, text: "Wie häufig setzen Sie digitale Werkzeuge oder KI-Tools für die Erstellung von Lernmaterialien ein?" },
-            { id: 5, text: "Wie interaktiv gestalten Sie Ihren Unterricht mit digitalen Tools (z.B. Kahoot, Quizlet, digitale Pinnwände, Forms)?" },
-            { id: 6, text: "Wie setzen Sie E-Assessments für die Leistungserfassung ein?" }
-        ]
-    }, {
-        id: 3, name: "Medien- und Informationskompetenz", questions: [
-            { id: 7, text: "Wie gut kennen Sie die Funktionsweise von Social Media und deren mögliche Einsatzorte im Unterricht?" },
-            { id: 8, text: "Können Sie multimediale Inhalte (Videos, Podcasts, interaktive Präsentationen) für Ihren Unterricht erstellen?" },
-            { id: 9, text: "Wie vermitteln Sie Ihren Lernenden kritische Medienkompetenz und Quellenprüfung?" }
-        ]
-    }, {
-        id: 4, name: "Datenverwaltung und Datensicherheit", questions: [
-            { id: 10, text: "Wie gut kennen Sie die rechtlichen Grundlagen zum Datenschutz im schulischen Kontext?" },
-            { id: 11, text: "Wie verwalten Sie Ihre Passwörter und Zugangsdaten?" },
-            { id: 12, text: "Wie strukturiert verwalten Sie digitale Unterrichtsmaterialien und Lernendendaten?" }
-        ]
-    }, {
-        id: 5, name: "Kommunikation und Kollaboration", questions: [
-            { id: 13, text: "Wie aktiv nutzen Sie Teams oder ähnliche Plattformen für die Kommunikation mit Kollegium und Lernenden?" },
-            { id: 14, text: "Wie gut können Sie kollaborative Dokumente (z.B. in Teams/OneDrive) für gemeinsame Projekte nutzen?" },
-            { id: 15, text: "Wie professionell ist Ihre digitale Kommunikation (Netiquette, Antwortzeiten, Strukturierung)?" }
-        ]
-    }
+  {
+    id: 1,
+    name: "Grundkenntnisse IKT",
+    subbereiche: [
+      { title: "1.1 Geräte und Systeme",            questions: [{id:1},{id:2}] },
+      { title: "1.2 Software und Anwendungen",      questions: [{id:3},{id:4}] },
+      { title: "1.3 Cloud und digitale Ressourcen", questions: [{id:5},{id:6}] }
+    ]
+  },
+  {
+    id: 2,
+    name: "Anwendung im Unterricht",
+    subbereiche: [
+      { title: "2.1 Unterrichtsvorbereitung",       questions: [{id:7},{id:8}] },
+      { title: "2.2 Unterrichtsdurchführung",       questions: [{id:9},{id:10}] },
+      { title: "2.3 Leistungserfassung und Feedback", questions: [{id:11},{id:12}] }
+    ]
+  },
+  {
+    id: 3,
+    name: "Medien- und Informationskompetenz",
+    subbereiche: [
+      { title: "3.1 Informationskompetenz",         questions: [{id:13},{id:14}] },
+      { title: "3.2 Medienkompetenz",               questions: [{id:15},{id:16}] },
+      { title: "3.3 Kommunikation mit digitalen Medien", questions: [{id:17}] }
+    ]
+  },
+  {
+    id: 4,
+    name: "Datenverwaltung und Datensicherheit",
+    subbereiche: [
+      { title: "4.1 Datenschutz und Datensicherheit", questions: [{id:18},{id:19}] },
+      { title: "4.2 Datenmanagement",                 questions: [{id:20},{id:21}] },
+      { title: "4.3 Rechtliche und ethische Aspekte", questions: [{id:22},{id:23}] }
+    ]
+  },
+  {
+    id: 5,
+    name: "Kommunikation und Kollaboration",
+    subbereiche: [
+      { title: "5.1 Digitale Kommunikation",         questions: [{id:24},{id:25}] },
+      { title: "5.2 Digitale Kollaboration",         questions: [{id:26},{id:27}] },
+      { title: "5.3 Digitale Partizipation",         questions: [{id:28},{id:29}] }
+    ]
+  }
 ];
 const categoryNames = [
     "Grundkenntnisse IKT",
