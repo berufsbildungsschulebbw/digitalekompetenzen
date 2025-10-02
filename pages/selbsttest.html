@@ -221,30 +221,26 @@
         }
 
         /* NEU: Farben für Unterkategorien */
-        /* Sektion 1: Blautöne */
-        .subcategory-1-1 { color: #0077b6; }
-        .subcategory-1-2 { color: #023e8a; }
-        .subcategory-1-3 { color: #48cae4; }
+       /* Button-Farben für Unterkategorien */
+.badge-sub-1-1 { background: #0077b6; color: white; }
+.badge-sub-1-2 { background: #023e8a; color: white; }
+.badge-sub-1-3 { background: #48cae4; color: white; }
 
-        /* Sektion 2: Grüntöne */
-        .subcategory-2-1 { color: #2a9d8f; }
-        .subcategory-2-2 { color: #2d6a4f; }
-        .subcategory-2-3 { color: #80b918; }
+.badge-sub-2-1 { background: #2a9d8f; color: white; }
+.badge-sub-2-2 { background: #2d6a4f; color: white; }
+.badge-sub-2-3 { background: #80b918; color: white; }
 
-        /* Sektion 3: Rot-/Orangetöne */
-        .subcategory-3-1 { color: #e63946; }
-        .subcategory-3-2 { color: #f4a261; }
-        .subcategory-3-3 { color: #e76f51; }
+.badge-sub-3-1 { background: #e63946; color: white; }
+.badge-sub-3-2 { background: #f4a261; color: white; }
+.badge-sub-3-3 { background: #e76f51; color: white; }
 
-        /* Sektion 4: Lilatöne */
-        .subcategory-4-1 { color: #5a189a; }
-        .subcategory-4-2 { color: #9d4edd; }
-        .subcategory-4-3 { color: #c77dff; }
+.badge-sub-4-1 { background: #5a189a; color: white; }
+.badge-sub-4-2 { background: #9d4edd; color: white; }
+.badge-sub-4-3 { background: #c77dff; color: white; }
 
-        /* Sektion 5: Gelb-/Orangetöne */
-        .subcategory-5-1 { color: #fca311; }
-        .subcategory-5-2 { color: #e85d04; }
-        .subcategory-5-3 { color: #ffba08; }
+.badge-sub-5-1 { background: #fca311; color: white; }
+.badge-sub-5-2 { background: #e85d04; color: white; }
+.badge-sub-5-3 { background: #ffba08; color: white; }
 
 
         .question-text {
@@ -1361,55 +1357,58 @@
             
             // Add all questions for this section
             section.questions.forEach((question, qIndex) => {
-                const isAnswered = answers[question.id] !== undefined;
-                
-                // NEU: CSS-Klasse für Unterkategorie generieren
-                const subcatClass = 'subcategory-' + question.subcategory.split(' ')[0].replace('.', '-');
+    const isAnswered = answers[question.id] !== undefined;
 
-                sectionHTML += `
-                    <div class="question-card ${isAnswered ? 'answered' : ''}" id="question-${question.id}">
-                        <div class="question-header">
-                            <span class="category-badge category-${section.id}">
-                                Frage ${qIndex + 1} von ${section.questions.length}
-                            </span>
-                        </div>
-                        <div class="subcategory-label ${subcatClass}">${question.subcategory}</div>
-                        <div class="question-text">
-                            <span style="flex: 1;">${question.text}</span>
-                            <button class="info-button" onclick="toggleInfo(${question.id})" title="Mehr Informationen">
-                                ?
-                            </button>
-                        </div>
-                        <div id="info-${question.id}" class="info-box">
-                            <h4>🔍 Praktische Beispiele</h4>
-                            <p>${question.info.examples}</p>
-                            
-                            <h4>🛠️ Empfohlene Tools</h4>
-                            <p>${question.info.tools}</p>
-                            
-                            <h4>💡 Tipp</h4>
-                            <p>${question.info.tips}</p>
-                            
-                            <div class="concept-tags">
-                                <span class="concept-tag ikt-tag">${question.info.ikt}</span>
-                                <span class="concept-tag paed-tag">${question.info.paed}</span>
-                            </div>
-                        </div>
-                        <div class="answer-options">
-                            ${question.options.map((option, i) => `
-                                <div class="answer-option ${answers[question.id] === option.value ? 'selected' : ''}" 
-                                     onclick="selectAnswer(${question.id}, ${option.value}, this)">
-                                    <input type="radio" 
-                                           name="question${question.id}" 
-                                           value="${option.value}"
-                                           ${answers[question.id] === option.value ? 'checked' : ''}>
-                                    <label>${option.text}</label>
-                                </div>
-                            `).join('')}
-                        </div>
+    // CSS-Klasse für Unterkategorie (Textfarbe)
+    const subcatClass = 'subcategory-' + question.subcategory.split(' ')[0].replace('.', '-');
+    // CSS-Klasse für Badge (Hintergrundfarbe)
+    const badgeSubClass = 'badge-sub-' + question.subcategory.split(' ')[0].replace('.', '-');
+
+    sectionHTML += `
+        <div class="question-card ${isAnswered ? 'answered' : ''}" id="question-${question.id}">
+            <div class="question-header">
+                <span class="category-badge ${badgeSubClass}">
+                    Frage ${qIndex + 1} von ${section.questions.length}
+                </span>
+            </div>
+            <div class="subcategory-label ${subcatClass}">${question.subcategory}</div>
+            <div class="question-text">
+                <span style="flex: 1;">${question.text}</span>
+                <button class="info-button" onclick="toggleInfo(${question.id})" title="Mehr Informationen">
+                    ?
+                </button>
+            </div>
+            <div id="info-${question.id}" class="info-box">
+                <h4>🔍 Praktische Beispiele</h4>
+                <p>${question.info.examples}</p>
+                
+                <h4>🛠️ Empfohlene Tools</h4>
+                <p>${question.info.tools}</p>
+                
+                <h4>💡 Tipp</h4>
+                <p>${question.info.tips}</p>
+                
+                <div class="concept-tags">
+                    <span class="concept-tag ikt-tag">${question.info.ikt}</span>
+                    <span class="concept-tag paed-tag">${question.info.paed}</span>
+                </div>
+            </div>
+            <div class="answer-options">
+                ${question.options.map((option, i) => `
+                    <div class="answer-option ${answers[question.id] === option.value ? 'selected' : ''}" 
+                         onclick="selectAnswer(${question.id}, ${option.value}, this)">
+                        <input type="radio" 
+                               name="question${question.id}" 
+                               value="${option.value}"
+                               ${answers[question.id] === option.value ? 'checked' : ''}>
+                        <label>${option.text}</label>
                     </div>
-                `;
-            });
+                `).join('')}
+            </div>
+        </div>
+    `;
+});
+
             
             container.innerHTML = sectionHTML;
             
