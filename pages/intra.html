@@ -2351,67 +2351,89 @@ function exportResults() {
     }
 
     const escapeCsv = (text) => `"${String(text).replace(/"/g, '""')}"`;
+    const formatPct = (v) => (v === 'N/A' || v === null || v === undefined || isNaN(v)) ? 'N/A' : `${v}%`;
 
-    // 1) Durchschnitt je Unterbereich über alle relevanten Ergebnisse berechnen
-    const subareaStats = sections.flatMap(section =>
-        section.subbereiche.map(sub => {
+    // Ø je Unterbereich über alle relevanten Ergebnisse für die Kopfzeile
+    const subAvgByTitle = new Map();
+    sections.forEach(section => {
+        section.subbereiche.forEach(sub => {
             let sum = 0, count = 0;
-
             relevantResults.forEach(result => {
-                if (!result.answers) return; // alte Daten überspringen
-
-                let subScore = 0, subMax = 0;
+                if (!result.answers) return; // alte Ergebnisse überspringen
+                let s = 0, m = 0;
                 sub.questions.forEach(q => {
                     const v = result.answers[q.id];
-                    if (v !== undefined) {
-                        subScore += v;
-                        subMax += 4; // jede Frage max 4
-                    }
+                    if (v !== undefined) { s += v; m += 4; }
                 });
-
-                if (subMax > 0) {
-                    const pct = Math.round((subScore / subMax) * 100);
-                    sum += pct;
-                    count++;
-                }
+                if (m > 0) { sum += Math.round((s / m) * 100); count++; }
             });
+            subAvgByTitle.set(sub.title, count > 0 ? Math.round(sum / count) : null);
+        });
+    });
 
-            const avg = count > 0 ? Math.round(sum / count) : null;
-            return { title: sub.title, avg }; // avg = null => kein Durchschnitt verfügbar
-        })
-    );
+    // Kopfzeile: pro Bereich zuerst "Bereich (Ø)", dann die 3 Unterbereiche (mit Ø in Klammern, falls vorhanden)
+    const headerParts = ['Code', 'Datum', 'Gesamtscore'];
+    sections.forEach(section => {
+        headerParts.push(escapeCsv(`${section.name} (Ø)`));
+        section.subbereiche.forEach(sub => {
+            const avg = subAvgByTitle.get(sub.title);
+            headerParts.push(escapeCsv(avg !== null ? `${sub.title} (Ø ${avg}%)` : sub.title));
+        });
+    });
+    const headers = headerParts.join(',');
 
-    // 2) Kopfzeile mit Ø-Werten in den Spaltennamen
-    const subareaHeaders = subareaStats.map(s =>
-        escapeCsv(s.avg !== null ? `${s.title} (Ø ${s.avg}%)` : s.title)
-    );
-    const headers = ['Code', 'Datum', 'Gesamtscore', ...subareaHeaders].join(',');
+    // Helfer: Bereichs-Prozent für ein Ergebnis (nutzt getCat, fällt bei Bedarf auf Berechnung via answers zurück)
+    const catPctFor = (result, section) => {
+        try {
+            if (typeof getCat === 'function') {
+                const v = getCat(result, section.id);
+                if (!isNaN(v)) return v;
+            }
+        } catch (_) {}
+        if (result.categoryPercentages && typeof result.categoryPercentages[section.id] === 'number') {
+            return result.categoryPercentages[section.id];
+        }
+        if (result.answers) {
+            let s = 0, m = 0;
+            section.subbereiche.forEach(sub => {
+                sub.questions.forEach(q => {
+                    const v = result.answers[q.id];
+                    if (v !== undefined) { s += v; m += 4; }
+                });
+            });
+            return m > 0 ? Math.round((s / m) * 100) : 0;
+        }
+        return 'N/A';
+    };
 
-    // 3) Zeilen pro Ergebnis (individuelle Prozentwerte je Unterbereich)
+    // Zeilen: pro Bereich zuerst der Bereichs-Ø des Teilnehmers, dann seine drei Unterbereiche
     const rows = relevantResults.map(result => {
-        const baseData = [
+        const row = [
             escapeCsv(result.testCode),
             escapeCsv(toJsDate(result.timestamp)?.toLocaleDateString('de-DE') || 'N/A'),
             `"${result.totalPercentage}%"`
         ];
 
-        const subareaPercentages = sections.flatMap(section =>
-            section.subbereiche.map(sub => {
-                if (!result.answers) return 'N/A';
-                let subScore = 0, subMax = 0;
+        sections.forEach(section => {
+            // Bereich
+            row.push(formatPct(catPctFor(result, section)));
+
+            // Unterbereiche
+            section.subbereiche.forEach(sub => {
+                if (!result.answers) { row.push('N/A'); return; }
+                let s = 0, m = 0;
                 sub.questions.forEach(q => {
                     const v = result.answers[q.id];
-                    if (v !== undefined) { subScore += v; subMax += 4; }
+                    if (v !== undefined) { s += v; m += 4; }
                 });
-                const pct = subMax > 0 ? Math.round((subScore / subMax) * 100) : 0;
-                return `${pct}%`;
-            })
-        );
+                row.push(formatPct(m > 0 ? Math.round((s / m) * 100) : 0));
+            });
+        });
 
-        return [...baseData, ...subareaPercentages].join(',');
+        return row.join(',');
     });
 
-    // 4) Download
+    // Download
     const csvContent = headers + '\n' + rows.join('\n');
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = window.URL.createObjectURL(blob);
@@ -2421,7 +2443,6 @@ function exportResults() {
     a.click();
     window.URL.revokeObjectURL(url);
 }
-
 
         function filterResults() {
             const selectedCode = document.getElementById('codeFilter').value;
