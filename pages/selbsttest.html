@@ -1508,105 +1508,73 @@
         }
 
         // Calculate Results Function
-        window.calculateResults = function() {
-            const categoryScores = {};
-            const categoryMaxScores = {};
-            const categoryQuestions = {};
-            const subcategoryScores = {};
-            
-            // Initialize categories
-            for (let i = 1; i <= 5; i++) {
-                categoryScores[i] = 0;
-                categoryMaxScores[i] = 0;
-                categoryQuestions[i] = 0;
-                subcategoryScores[i] = {};
-            }
-            
-            // Calculate scores per category and subcategory
-            sections.forEach(section => {
-                section.questions.forEach((question, qIndex) => {
-    const isAnswered = answers[question.id] !== undefined;
-
-    // CSS-Klasse für Unterkategorie (Textfarbe war vorher)
-    const subcatClass = 'subcategory-' + question.subcategory.split(' ')[0].replace('.', '-');
-    // CSS-Klasse für Badge (Hintergrundfarbe jetzt auch für den Untertitel)
-    const badgeSubClass = 'badge-sub-' + question.subcategory.split(' ')[0].replace('.', '-');
-
-    sectionHTML += `
-        <div class="question-card ${isAnswered ? 'answered' : ''}" id="question-${question.id}">
-            <div class="question-header">
-                <span class="category-badge ${badgeSubClass}">
-                    Frage ${qIndex + 1} von ${section.questions.length}
-                </span>
-            </div>
-            <div class="subcategory-label ${badgeSubClass}">${question.subcategory}</div>
-            <div class="question-text">
-                <span style="flex: 1;">${question.text}</span>
-                <button class="info-button" onclick="toggleInfo(${question.id})" title="Mehr Informationen">
-                    ?
-                </button>
-            </div>
-            <div id="info-${question.id}" class="info-box">
-                <h4>🔍 Praktische Beispiele</h4>
-                <p>${question.info.examples}</p>
+        // KORREKTE VERSION der Funktion
+window.calculateResults = function() {
+    const categoryScores = {};
+    const categoryMaxScores = {};
+    const categoryQuestions = {};
+    const subcategoryScores = {};
+    
+    // Kategorien initialisieren
+    for (let i = 1; i <= 5; i++) {
+        categoryScores[i] = 0;
+        categoryMaxScores[i] = 0;
+        categoryQuestions[i] = 0;
+        subcategoryScores[i] = {};
+    }
+    
+    // Punktzahlen pro Kategorie und Unterkategorie berechnen
+    sections.forEach(section => {
+        section.questions.forEach(question => {
+            if (answers[question.id]) {
+                categoryScores[section.id] += answers[question.id];
+                categoryMaxScores[section.id] += 4; // Max. Punktzahl pro Frage ist 4
+                categoryQuestions[section.id]++;
                 
-                <h4>🛠️ Empfohlene Tools</h4>
-                <p>${question.info.tools}</p>
-                
-                <h4>💡 Tipp</h4>
-                <p>${question.info.tips}</p>
-                
-                <div class="concept-tags">
-                    <span class="concept-tag ikt-tag">${question.info.ikt}</span>
-                    <span class="concept-tag paed-tag">${question.info.paed}</span>
-                </div>
-            </div>
-            <div class="answer-options">
-                ${question.options.map((option, i) => `
-                    <div class="answer-option ${answers[question.id] === option.value ? 'selected' : ''}" 
-                         onclick="selectAnswer(${question.id}, ${option.value}, this)">
-                        <input type="radio" 
-                               name="question${question.id}" 
-                               value="${option.value}"
-                               ${answers[question.id] === option.value ? 'checked' : ''}>
-                        <label>${option.text}</label>
-                    </div>
-                `).join('')}
-            </div>
-        </div>
-    `;
-});
-
-            
-            // Calculate percentages
-            const categoryPercentages = {};
-            for (let i = 1; i <= 5; i++) {
-                if (categoryMaxScores[i] > 0) {
-                    categoryPercentages[i] = Math.round((categoryScores[i] / categoryMaxScores[i]) * 100);
-                } else {
-                    categoryPercentages[i] = 0;
+                // Punktzahlen der Unterkategorien erfassen
+                if (!subcategoryScores[section.id][question.subcategory]) {
+                    subcategoryScores[section.id][question.subcategory] = {
+                        score: 0,
+                        maxScore: 0,
+                        count: 0
+                    };
                 }
+                subcategoryScores[section.id][question.subcategory].score += answers[question.id];
+                subcategoryScores[section.id][question.subcategory].maxScore += 4;
+                subcategoryScores[section.id][question.subcategory].count++;
             }
-            
-            // Calculate total score
-            const totalScore = Object.values(categoryScores).reduce((a, b) => a + b, 0);
-            const totalMaxScore = Object.values(categoryMaxScores).reduce((a, b) => a + b, 0);
-            const totalPercentage = Math.round((totalScore / totalMaxScore) * 100);
-            
-            return {
-                totalScore,
-                totalMaxScore,
-                totalPercentage,
-                categoryScores,
-                categoryMaxScores,
-                categoryPercentages,
-                subcategoryScores,
-                answers: answers,
-                testCode,
-                timestamp: new Date().toISOString(),
-                duration: Math.round((new Date() - testStartTime) / 1000) // in seconds
-            };
+        });
+    });
+    
+    // Prozentanteile berechnen
+    const categoryPercentages = {};
+    for (let i = 1; i <= 5; i++) {
+        if (categoryMaxScores[i] > 0) {
+            categoryPercentages[i] = Math.round((categoryScores[i] / categoryMaxScores[i]) * 100);
+        } else {
+            categoryPercentages[i] = 0;
         }
+    }
+    
+    // Gesamtpunktzahl berechnen
+    const totalScore = Object.values(categoryScores).reduce((a, b) => a + b, 0);
+    const totalMaxScore = Object.values(categoryMaxScores).reduce((a, b) => a + b, 0);
+    const totalPercentage = Math.round((totalScore / totalMaxScore) * 100);
+    
+    return {
+        totalScore,
+        totalMaxScore,
+        totalPercentage,
+        categoryScores,
+        categoryMaxScores,
+        categoryPercentages,
+        subcategoryScores,
+        answers: answers,
+        testCode,
+        timestamp: new Date().toISOString(),
+        duration: Math.round((new Date() - testStartTime) / 1000) // in Sekunden
+    };
+}
 
         // Show Results Function
         window.showResults = function(results) {
