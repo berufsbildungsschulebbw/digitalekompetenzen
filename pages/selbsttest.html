@@ -457,6 +457,7 @@
         .score-excellent { background: linear-gradient(135deg, #28a745, #20c997); }
         .score-good { background: linear-gradient(135deg, #ffc107, #fd7e14); }
         .score-needs-improvement { background: linear-gradient(135deg, #dc3545, #c82333); }
+        .score-low { background: linear-gradient(135deg, #e91e63, #ec407a); } 
 
         .category-results {
             margin: 30px 0;
@@ -1592,16 +1593,19 @@ window.calculateResults = function() {
             
             scoreCircle.textContent = results.totalPercentage + '%';
             
-            if (results.totalPercentage >= 80) {
-                scoreCircle.className = 'score-circle score-excellent';
-                scoreText.textContent = 'Ausgezeichnet! Sie verfügen über sehr gute digitale Kompetenzen.';
-            } else if (results.totalPercentage >= 60) {
-                scoreCircle.className = 'score-circle score-good';
-                scoreText.textContent = 'Gut! Sie haben solide digitale Kompetenzen mit Entwicklungspotenzial.';
-            } else {
-                scoreCircle.className = 'score-circle score-needs-improvement';
-                scoreText.textContent = 'Es besteht Entwicklungsbedarf in mehreren Bereichen.';
-            }
+           if (results.totalPercentage >= 80) {
+    scoreCircle.className = 'score-circle score-excellent';
+    scoreText.textContent = 'Ausgezeichnet! Sie verfügen über sehr gute digitale Kompetenzen.';
+} else if (results.totalPercentage >= 60) {
+    scoreCircle.className = 'score-circle score-good';
+    scoreText.textContent = 'Gut! Sie haben solide digitale Kompetenzen mit Entwicklungspotenzial.';
+} else if (results.totalPercentage >= 40) {
+    scoreCircle.className = 'score-circle score-needs-improvement';
+    scoreText.textContent = 'Sie sind auf einem guten Weg! In einigen Bereichen gibt es noch Entwicklungspotenzial.';
+} else {
+    scoreCircle.className = 'score-circle score-low';
+    scoreText.textContent = 'Sie haben erste Grundlagen gelegt. Mit gezielter Weiterbildung können Sie Ihre Kompetenzen ausbauen.';
+}
             
             // Category Results with subcategories
             const categoryNames = [
