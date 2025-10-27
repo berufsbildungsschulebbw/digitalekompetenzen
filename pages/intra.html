@@ -553,8 +553,9 @@
         }
 
         .score-high { background: #28a745; }
-        .score-medium { background: #ffc107; }
-        .score-low { background: #dc3545; }
+.score-medium { background: #ffc107; }
+.score-needs-improvement { background: #ff9800; }
+.score-low { background: #ff69b4; }
 
         /* Export Button */
         .export-button {
@@ -1636,7 +1637,9 @@ const categoryNames = [
                 return dateB - dateA;
             }).map(result => {
                 const scoreClass = result.totalPercentage >= 80 ? 'score-high' : 
-                                     result.totalPercentage >= 60 ? 'score-medium' : 'score-low';
+                   result.totalPercentage >= 60 ? 'score-medium' : 
+                   result.totalPercentage >= 40 ? 'score-needs-improvement' : 
+                   'score-low';
                 
                 return `
                     <tr data-doc-id="${result.id}">
@@ -1721,7 +1724,10 @@ const categoryNames = [
                 }
 
                 const avgScore = Math.round(validResults.reduce((sum, r) => sum + (r.totalPercentage || 0), 0) / validResults.length);
-                const scoreClass = avgScore >= 80 ? 'score-high' : avgScore >= 60 ? 'score-medium' : 'score-low';
+                const scoreClass = avgScore >= 80 ? 'score-high' : 
+                   avgScore >= 60 ? 'score-medium' : 
+                   avgScore >= 40 ? 'score-needs-improvement' : 
+                   'score-low';
                 
                 // Track best department
                 if (avgScore > bestDept.score) {
@@ -2078,9 +2084,20 @@ const categoryNames = [
             document.getElementById('modalTitle').textContent = `Detailergebnis für Code: ${result.testCode}`;
             const modalBody = document.getElementById('modalBody');
             
-            let scoreClass = 'score-needs-improvement', scoreText = 'Es besteht Entwicklungsbedarf.';
-            if (result.totalPercentage >= 80) { scoreClass = 'score-excellent'; scoreText = 'Ausgezeichnet!'; }
-            else if (result.totalPercentage >= 60) { scoreClass = 'score-good'; scoreText = 'Gut!'; }
+            let scoreClass, scoreText;
+if (result.totalPercentage >= 80) { 
+    scoreClass = 'score-high'; 
+    scoreText = 'Ausgezeichnet!'; 
+} else if (result.totalPercentage >= 60) { 
+    scoreClass = 'score-medium'; 
+    scoreText = 'Gut!'; 
+} else if (result.totalPercentage >= 40) { 
+    scoreClass = 'score-needs-improvement'; 
+    scoreText = 'Sie sind auf einem guten Weg! In einigen Bereichen gibt es noch Entwicklungspotenzial.'; 
+} else { 
+    scoreClass = 'score-low'; 
+    scoreText = 'Sie haben erste Grundlagen gelegt. Mit gezielter Weiterbildung können Sie Ihre Kompetenzen ausbauen.'; 
+}
 
             // Prüfen, ob detaillierte Antworten vorhanden sind
             if (result.answers) {
@@ -2098,7 +2115,10 @@ const categoryNames = [
                         });
 
                         const subPercent = subMaxScore > 0 ? Math.round((subScore / subMaxScore) * 100) : 0;
-                        const barColor = subPercent >= 75 ? '#28a745' : subPercent >= 50 ? '#ffc107' : '#dc3545';
+                        const barColor = percentage >= 80 ? '#28a745' : 
+                 percentage >= 60 ? '#ffc107' : 
+                 percentage >= 40 ? '#ff9800' : 
+                 '#ff69b4';
                         
                         return `
                             <div class="category-result" style="padding: 10px 15px; margin-bottom: 8px;">
@@ -2129,7 +2149,10 @@ const categoryNames = [
                 // ALTE ANSICHT (für Ergebnisse ohne Detail-Antworten)
                 const categoriesHTML = categoryNames.map((name, i) => {
                     const p = getCat(result, i + 1);
-                    const bc = p >= 80 ? '#28a745' : p >= 60 ? '#ffc107' : '#dc3545';
+                    const bc = p >= 80 ? '#28a745' : 
+           p >= 60 ? '#ffc107' : 
+           p >= 40 ? '#ff9800' : 
+           '#ff69b4';
                     return `<div class="category-result"><div class="category-result-header"><span class="category-result-title">${name}</span><span class="category-result-score">${p}%</span></div><div class="result-bar-container"><div class="result-bar" style="width: ${p}%; background: ${bc};"></div></div></div>`;
                 }).join('');
                 
