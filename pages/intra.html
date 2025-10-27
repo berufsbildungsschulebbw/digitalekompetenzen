@@ -2149,10 +2149,10 @@ if (result.totalPercentage >= 80) {
                 // ALTE ANSICHT (für Ergebnisse ohne Detail-Antworten)
                 const categoriesHTML = categoryNames.map((name, i) => {
                     const p = getCat(result, i + 1);
-                    const bc = p >= 80 ? '#28a745' : 
-           p >= 60 ? '#ffc107' : 
-           p >= 40 ? '#ff9800' : 
-           '#ff69b4';
+                    const bc = (p >= 80 ? '#28a745' : 
+            p >= 60 ? '#ffc107' : 
+            p >= 40 ? '#ff9800' : 
+            '#ff69b4');
                     return `<div class="category-result"><div class="category-result-header"><span class="category-result-title">${name}</span><span class="category-result-score">${p}%</span></div><div class="result-bar-container"><div class="result-bar" style="width: ${p}%; background: ${bc};"></div></div></div>`;
                 }).join('');
                 
