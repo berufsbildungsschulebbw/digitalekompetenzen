@@ -2115,9 +2115,9 @@ if (result.totalPercentage >= 80) {
                         });
 
                         const subPercent = subMaxScore > 0 ? Math.round((subScore / subMaxScore) * 100) : 0;
-                        const barColor = percentage >= 80 ? '#28a745' : 
-                 percentage >= 60 ? '#ffc107' : 
-                 percentage >= 40 ? '#ff9800' : 
+                        const barColor = subPercent >= 80 ? '#28a745' : 
+                 subPercent >= 60 ? '#ffc107' : 
+                 subPercent >= 40 ? '#ff9800' : 
                  '#ff69b4';
                         
                         return `
