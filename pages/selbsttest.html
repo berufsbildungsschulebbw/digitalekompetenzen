@@ -1381,6 +1381,11 @@ info: {
                 </button>
             </div>
             <div id="info-${question.id}" class="info-box">
+            <div id="info-${question.id}" class="info-box">
+    ${question.info.definition ? `
+        <h4>ℹ️ Definition</h4>
+        <p>${question.info.definition}</p>
+    ` : ''}
                 <h4>🔍 Praktische Beispiele</h4>
                 <p>${question.info.examples}</p>
                 
