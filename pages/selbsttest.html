@@ -457,7 +457,7 @@
         .score-excellent { background: linear-gradient(135deg, #28a745, #20c997); }
         .score-good { background: linear-gradient(135deg, #ffc107, #fd7e14); }
         .score-needs-improvement { background: linear-gradient(135deg, #ff9800, #f57c00); }
-        .score-low { background: linear-gradient(135deg, #e91e63, #ec407a); } 
+        .score-low { background: linear-gradient(135deg, #ff69b4, #ff8dc7); }
 
         .category-results {
             margin: 30px 0;
@@ -1619,7 +1619,10 @@ window.calculateResults = function() {
             const categoryResultsHTML = categoryNames.map((name, i) => {
                 const categoryNum = i + 1;
                 const percentage = results.categoryPercentages[categoryNum];
-                const barColor = percentage >= 80 ? '#28a745' : percentage >= 60 ? '#ffc107' : '#dc3545';
+                const barColor = percentage >= 80 ? '#28a745' : 
+                 percentage >= 60 ? '#ffc107' : 
+                 percentage >= 40 ? '#ff9800' : 
+                 '#ff69b4';
                 
                 // Get subcategory details
                 let subcategoryHTML = '';
