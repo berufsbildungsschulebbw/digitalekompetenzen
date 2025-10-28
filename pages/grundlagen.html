@@ -590,7 +590,7 @@
             </p>
             
             <div class="perspective-container">
-                <div class="perspective-card expanded">
+                <div class="perspective-card">
                     <div class="perspective-header perspective-1" onclick="togglePerspective(this)">
                         <span>📚 Perspektive Unterricht (PU)</span>
                         <span class="perspective-arrow">▼</span>
@@ -912,7 +912,7 @@
             card.classList.toggle('expanded');
         }
         
-        // Initialize with first perspective expanded
+        // Initialize - all perspectives collapsed
         document.addEventListener('DOMContentLoaded', function() {
             // Smooth scroll for anchor links
             document.querySelectorAll('a[href^="#"]').forEach(anchor => {
