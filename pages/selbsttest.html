@@ -709,18 +709,21 @@
     <script type="module">
         // Firebase imports
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, query, where, getDocs, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        
+
         // Firebase initialisieren
         let db = null;
         let firebaseReady = false;
-        
+
         try {
             const firebaseConfig = JSON.parse(window.__firebase_config);
             const app = initializeApp(firebaseConfig);
             db = getFirestore(app);
+            const auth = getAuth(app);
+            await signInAnonymously(auth);
             firebaseReady = true;
-            console.log("Firebase initialisiert für Selbsttest");
+            console.log("Firebase initialisiert für Selbsttest (anonym authentifiziert)");
         } catch (e) {
             console.warn("Firebase nicht verfügbar, nutze lokalen Speicher:", e);
         }
