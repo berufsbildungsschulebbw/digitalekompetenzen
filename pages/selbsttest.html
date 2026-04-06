@@ -634,7 +634,7 @@
                        class="code-input" 
                        placeholder="CODE-XXXX" 
                        maxlength="10">
-                <button id="startTest" class="start-button" onclick="startTest()">
+                <button id="startTestBtn" class="start-button">
                     Test starten
                 </button>
             </div>
@@ -865,8 +865,8 @@
                         subcategory: "2.1 Unterrichtsvorbereitung",
                         text: "Wie häufig setzen Sie digitale Werkzeuge und KI-Tools für die Erstellung von Lernmaterialien ein?",
                         info: {
-                            examples: "KI-Textgeneratoren für Aufgabenerstellung, KI-Bildgeneratoren für Infografiken und Illustrationen, KI-Videogeneratoren für Lernvideos, to-teach.ai für Übungen und Arbeitsblätter",
-                            tools: "KI-Textgeneratoren (ChatGPT, Claude, Copilot, Fobizz), KI-Bildgeneratoren, KI-Videogeneratoren, to-teach.ai, Adobe Creative Cloud, Quizlet, Actionbound",
+                            examples: "Microsoft Office (Word, PowerPoint, Excel) für Unterrichtsmaterial, KI-Textgeneratoren für Aufgabenerstellung, KI-Bildgeneratoren für Infografiken, KI-Videogeneratoren für Lernvideos, z.\u00a0B. to-teach.ai für Übungen und Arbeitsblätter",
+                            tools: "Microsoft Office (Word, PowerPoint, Excel), KI-Textgeneratoren (z.\u00a0B. ChatGPT, Claude, Copilot, Fobizz), KI-Bildgeneratoren, KI-Videogeneratoren, to-teach.ai, Adobe Creative Cloud, Quizlet, Actionbound",
                             tips: "Starten Sie mit einem Tool. Prüfen Sie KI-Inhalte immer. Sammeln Sie erfolgreiche Prompts. Nutzen Sie KI-Generatoren gezielt: Text für Aufgaben, Bilder für Visualisierungen, Video für Erklärungen.",
                             ikt: "RE 💚 - Effizienz",
                             paed: "PDM 🛠️ - Innovative Methoden"
@@ -902,8 +902,8 @@
                         subcategory: "2.2 Unterrichtsdurchführung",
                         text: "Wie interaktiv gestalten Sie Ihren Unterricht mit schulinternen Lerntechnologien?",
                         info: {
-                            examples: "Lernanleitung und -begleitung mit Olat, Quizlet-Übungen, Umfragen mit Forms oder Olat, digitale Pinnwände in Fobizz, KI-Assistenz mit Fobizz, Aufgabenbaustein in Teams",
-                            tools: "Olat, Microsoft Teams/Forms, Pinnwand, Quizlet, Fobizz, to-teach.ai",
+                            examples: "Lernanleitung und -begleitung mit LMS, Umfragen (z.\u00a0B. Forms, Olat), interaktive Übungen (z.\u00a0B. Quizlet), digitale Pinnwände (z.\u00a0B. Fobizz), KI-Assistenz (z.\u00a0B. Fobizz), Aufgabenbaustein in Teams",
+                            tools: "OpenOlat, Microsoft Teams/Forms, Fobizz, Quizlet, to-teach.ai, digitale Pinnwände",
                             tips: "Bereiten Sie immer eine Alternative vor. Testen Sie Tools vorab. Variieren Sie die Methoden.",
                             ikt: "HE 💡 - Innovation",
                             paed: "PL 🎓 - Aktives Lernen"
@@ -939,8 +939,8 @@
                         subcategory: "2.3 Leistungserfassung und Feedback",
                         text: "Wie systematisch erfassen Sie Rückmeldungen und Feedback mit digitalen Hilfsmitteln?",
                         info: {
-                            examples: "Olat-/Forms-Umfragen, Kommentarfunktionen wie Emojis oder Likes",
-                            tools: "Microsoft Forms, Umfrage in Olat, Kommentarfunktionen in Teams",
+                            examples: "Umfragen (z.\u00a0B. Forms, Olat), Aufgabenbaustein in Microsoft Teams, Kommentarfunktionen (Emojis, Likes), Peer-Feedback in Olat",
+                            tools: "Microsoft Forms, Microsoft Teams (Aufgabenbaustein), Umfrage in Olat, Kommentarfunktionen in Teams",
                             tips: "Nutzen Sie verschiedene Feedback-Formen. Geben Sie zeitnahes Feedback. Verwenden Sie Vorlagen.",
                             ikt: "MG 🛠️ - Gestaltung",
                             paed: "PLL 👥 - Lernbegleitung"
@@ -1385,8 +1385,8 @@ info: {
             }
         }
 
-        // Start Test Function
-        window.startTest = async function() {
+        // Start Test Function (synchron, async-Teile intern)
+        window.startTest = function() {
             const codeInput = document.getElementById('accessCode');
             const code = codeInput.value.trim().toUpperCase();
 
@@ -1400,28 +1400,27 @@ info: {
             testCode = code;
             testStartTime = new Date();
 
-            // Try to load saved draft
-            const draft = await loadDraft(code);
-            if (draft && draft.answers && Object.keys(draft.answers).length > 0) {
-                answers = draft.answers;
-                currentSectionIndex = draft.currentSectionIndex || 0;
-                const numAnswered = Object.keys(answers).length;
-                const totalQuestions = sections.reduce((sum, s) => sum + s.questions.length, 0);
-                alert(`Willkommen zurück! ${numAnswered} von ${totalQuestions} Antworten wurden geladen. Sie können dort weitermachen, wo Sie aufgehört haben.`);
-            }
-
-            // Check previous attempts
-            const prevAttempts = await countAttempts(code);
-            if (prevAttempts > 0) {
-                console.log(`${prevAttempts} frühere Durchführung(en) für diesen Code.`);
-            }
-
-            // Hide code entry, show test
+            // Hide code entry, show test sofort
             document.getElementById('codeEntry').style.display = 'none';
             document.getElementById('testSection').classList.add('active');
 
-            // Initialize section (resume from saved position)
-            showSection(currentSectionIndex);
+            // Initialize first section
+            showSection(0);
+
+            // Async: Draft laden (im Hintergrund, aktualisiert UI nach Laden)
+            loadDraft(code).then(function(draft) {
+                if (draft && draft.answers && Object.keys(draft.answers).length > 0) {
+                    answers = draft.answers;
+                    currentSectionIndex = draft.currentSectionIndex || 0;
+                    const numAnswered = Object.keys(answers).length;
+                    const totalQuestions = sections.reduce((sum, s) => sum + s.questions.length, 0);
+                    // UI aktualisieren mit geladenen Antworten
+                    showSection(currentSectionIndex);
+                    alert('Willkommen zur\u00fcck! ' + numAnswered + ' von ' + totalQuestions + ' Antworten wurden geladen.');
+                }
+            }).catch(function(e) {
+                console.warn('Draft laden fehlgeschlagen:', e);
+            });
         }
 
         // Show Section Function
@@ -1593,29 +1592,29 @@ info: {
         }
 
         // Submit Test Function
-        window.submitTest = async function() {
+        window.submitTest = function() {
             if (!checkSectionComplete()) {
                 const currentSection = sections[currentSectionIndex];
                 const unanswered = currentSection.questions.filter(q => !answers[q.id]).length;
-                alert(`Bitte beantworten Sie alle ${unanswered} verbleibenden Fragen in diesem Bereich.`);
+                alert('Bitte beantworten Sie alle ' + unanswered + ' verbleibenden Fragen in diesem Bereich.');
                 return;
             }
 
             // Calculate results
             const results = calculateResults();
 
-            // Add attempt number
-            const prevAttempts = await countAttempts(testCode);
-            results.attemptNumber = prevAttempts + 1;
-
-            // Save to Firebase and localStorage
-            await saveResults(results);
-
-            // Delete draft after successful submit
-            await deleteDraft(testCode);
-
-            // Show results
+            // Show results sofort
             showResults(results);
+
+            // Async: Attempt-Nummer, speichern und Draft löschen
+            countAttempts(testCode).then(function(prev) {
+                results.attemptNumber = prev + 1;
+                return saveResults(results);
+            }).then(function() {
+                return deleteDraft(testCode);
+            }).catch(function(e) {
+                console.warn('Submit-Speicherung fehlgeschlagen:', e);
+            });
         }
 
         // Calculate Results Function
@@ -1872,10 +1871,10 @@ window.calculateResults = function() {
         }
 
         // Restart Test Function
-        window.restartTest = async function() {
-            // Delete draft if exists
+        window.restartTest = function() {
+            // Delete draft if exists (async im Hintergrund)
             if (testCode) {
-                await deleteDraft(testCode);
+                deleteDraft(testCode).catch(function(e) { console.warn(e); });
             }
 
             // Reset all variables
@@ -1892,13 +1891,15 @@ window.calculateResults = function() {
             document.getElementById('accessCode').value = '';
         }
 
-        // Enable Enter key for code input
-        document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('accessCode').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    startTest();
-                }
-            });
+        // Enable button click and Enter key for code input
+        // (Direkt ausgeführt, da Script am Ende des Body steht und DOM bereit ist)
+        document.getElementById('startTestBtn').addEventListener('click', function() {
+            startTest();
+        });
+        document.getElementById('accessCode').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                startTest();
+            }
         });
     </script>
 </body>
