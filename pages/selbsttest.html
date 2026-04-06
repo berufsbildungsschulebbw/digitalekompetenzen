@@ -712,7 +712,7 @@
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, query, where, getDocs, addDoc, setDoc, doc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Firebase initialisieren
+        // Firebase initialisieren und global verfügbar machen
         let db = null;
         let firebaseReady = false;
 
@@ -727,6 +727,12 @@
         } catch (e) {
             console.warn("Firebase nicht verfügbar, nutze lokalen Speicher:", e);
         }
+
+        // Firebase-Objekte global verfügbar machen für saveDraft/loadDraft
+        window.__fb = {
+            db, firebaseReady,
+            collection, query, where, getDocs, addDoc, setDoc, doc, deleteDoc, serverTimestamp
+        };
 
         // Complete Test Questions Database with ALL competencies
         const sections = [
@@ -1315,18 +1321,19 @@ info: {
 
         // Auto-save draft answers to Firestore
         async function saveDraft() {
-            if (!firebaseReady || !db || !testCode) return;
+            const fb = window.__fb;
+            if (!fb || !fb.firebaseReady || !fb.db || !testCode) return;
             try {
                 const draftData = {
                     code: testCode,
                     answers: answers,
                     currentSectionIndex: currentSectionIndex,
-                    lastUpdated: serverTimestamp(),
+                    lastUpdated: fb.serverTimestamp(),
                     type: "draft"
                 };
-                const draftRef = doc(db, 'drafts', testCode);
-                await setDoc(draftRef, draftData);
-                console.log("Draft gespeichert");
+                const draftRef = fb.doc(fb.db, 'drafts', testCode);
+                await fb.setDoc(draftRef, draftData);
+                console.log("Draft gespeichert (" + Object.keys(answers).length + " Antworten)");
             } catch (e) {
                 console.warn("Draft-Speicherung fehlgeschlagen:", e);
             }
@@ -1334,10 +1341,11 @@ info: {
 
         // Load saved draft from Firestore
         async function loadDraft(code) {
-            if (!firebaseReady || !db) return null;
+            const fb = window.__fb;
+            if (!fb || !fb.firebaseReady || !fb.db) return null;
             try {
-                const draftRef = doc(db, 'drafts', code);
                 const { getDoc: getDocFn } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
+                const draftRef = fb.doc(fb.db, 'drafts', code);
                 const draftSnap = await getDocFn(draftRef);
                 if (draftSnap.exists()) {
                     const data = draftSnap.data();
@@ -1352,11 +1360,12 @@ info: {
 
         // Count previous completed attempts for this code
         async function countAttempts(code) {
-            if (!firebaseReady || !db) return 0;
+            const fb = window.__fb;
+            if (!fb || !fb.firebaseReady || !fb.db) return 0;
             try {
-                const resultsRef = collection(db, 'results');
-                const q = query(resultsRef, where("testCode", "==", code));
-                const snap = await getDocs(q);
+                const resultsRef = fb.collection(fb.db, 'results');
+                const q = fb.query(resultsRef, fb.where("testCode", "==", code));
+                const snap = await fb.getDocs(q);
                 return snap.size;
             } catch (e) {
                 return 0;
@@ -1365,10 +1374,11 @@ info: {
 
         // Delete draft after successful submit
         async function deleteDraft(code) {
-            if (!firebaseReady || !db) return;
+            const fb = window.__fb;
+            if (!fb || !fb.firebaseReady || !fb.db) return;
             try {
-                const draftRef = doc(db, 'drafts', code);
-                await deleteDoc(draftRef);
+                const draftRef = fb.doc(fb.db, 'drafts', code);
+                await fb.deleteDoc(draftRef);
                 console.log("Draft gelöscht");
             } catch (e) {
                 console.warn("Draft löschen fehlgeschlagen:", e);
@@ -1830,21 +1840,22 @@ window.calculateResults = function() {
             let allResults = JSON.parse(localStorage.getItem('bbw_test_results') || '[]');
             allResults.push(results);
             localStorage.setItem('bbw_test_results', JSON.stringify(allResults));
-            
+
             // Firebase Speicherung
-            if (firebaseReady && db) {
+            const fb = window.__fb;
+            if (fb && fb.firebaseReady && fb.db) {
                 try {
                     // Prüfe ob Code existiert
-                    const codesRef = collection(db, 'codes');
-                    const q = query(codesRef, where("code", "==", results.testCode));
-                    const querySnapshot = await getDocs(q);
-                    
+                    const codesRef = fb.collection(fb.db, 'codes');
+                    const q = fb.query(codesRef, fb.where("code", "==", results.testCode));
+                    const querySnapshot = await fb.getDocs(q);
+
                     if (!querySnapshot.empty || results.testCode === "0HDM-V3EU" || results.testCode === "TEST-1234") {
                         // Code existiert oder ist Test-Code - speichere Ergebnis
-                        const resultsRef = collection(db, 'results');
-                        await addDoc(resultsRef, {
+                        const resultsRef = fb.collection(fb.db, 'results');
+                        await fb.addDoc(resultsRef, {
                             ...results,
-                            createdAt: serverTimestamp()
+                            createdAt: fb.serverTimestamp()
                         });
                         console.log("Ergebnisse in Firebase gespeichert");
                     } else {
