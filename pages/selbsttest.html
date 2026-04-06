@@ -598,21 +598,64 @@
             }
         }
 
-        @media print {
-            body {
-                background: white;
-            }
-            
-            .container {
-                box-shadow: none;
-                padding: 20px;
-            }
+        /* ===== Themen-Badges: 5 Formen ===== */
+        .badge-theme {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 36px; height: 36px; color: #fff; font-weight: 700; font-size: 12px;
+            vertical-align: middle; margin-right: 8px; flex-shrink: 0;
+        }
+        .badge-theme.bt-gk { background: #2E75B6; border-radius: 50%; }
+        .badge-theme.bt-au { background: #28a745; border-radius: 4px; }
+        .badge-theme.bt-mi { background: #D4760A; border-radius: 4px; transform: rotate(45deg); }
+        .badge-theme.bt-mi span { transform: rotate(-45deg); display: block; }
+        .badge-theme.bt-ds { background: #8E44AD; clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); width: 38px; height: 38px; }
+        .badge-theme.bt-kk { background: #E74C3C; border-radius: 30%; width: 44px; height: 32px; font-size: 11px; }
+        .badge-theme-sm { width: 24px; height: 24px; font-size: 9px; margin-right: 6px; }
+        .badge-theme-sm.bt-ds { width: 26px; height: 26px; }
+        .badge-theme-sm.bt-kk { width: 30px; height: 22px; }
 
-            .back-button,
-            .action-buttons,
-            .info-button {
-                display: none;
-            }
+        /* ===== Niveau-Badges ===== */
+        .badge-niveau {
+            display: inline-block; padding: 2px 10px; border-radius: 12px;
+            font-size: 12px; font-weight: 600; color: #fff; vertical-align: middle; margin-left: 8px;
+        }
+        .badge-niveau.bn-excellent { background: #28a745; }
+        .badge-niveau.bn-good { background: #ffc107; color: #333; }
+        .badge-niveau.bn-improvement { background: #ff9800; }
+        .badge-niveau.bn-low { background: #ff69b4; }
+
+        /* ===== Namensfeld ===== */
+        .name-input-section {
+            text-align: center; margin: 20px 0; padding: 15px;
+            background: #f8f9fa; border-radius: 10px;
+        }
+        .name-input-section label { font-size: 0.95em; color: #495057; margin-right: 10px; }
+        .name-input-section input {
+            padding: 8px 16px; border: 2px solid #dee2e6; border-radius: 8px;
+            font-size: 1em; width: 300px; max-width: 80%;
+        }
+
+        /* ===== Print-Header (nur im Druck sichtbar) ===== */
+        .print-header { display: none; }
+
+        /* ===== Legende ===== */
+        .badge-legend { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin: 16px 0; padding: 12px; background: #f8f9fa; border-radius: 10px; }
+        .badge-legend-item { display: flex; align-items: center; gap: 4px; font-size: 12px; color: #495057; }
+
+        @media print {
+            body { background: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .container { box-shadow: none; padding: 15px; max-width: 100%; }
+            .back-button, .action-buttons, .info-button, .name-input-section, #codeEntry, #testSection, .progress-container { display: none !important; }
+            .print-header { display: block !important; text-align: center; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #2E75B6; }
+            .print-header h2 { color: #1B3A5C; font-size: 1.4em; margin: 0; }
+            .print-header p { color: #666; font-size: 0.85em; margin: 4px 0 0; }
+            .results-section { display: block !important; }
+            .category-result { break-inside: avoid; page-break-inside: avoid; margin-bottom: 12px; }
+            .recommendations { break-before: auto; page-break-before: auto; }
+            .score-circle { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .badge-theme, .badge-niveau { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .result-bar { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .badge-legend { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
         }
     </style>
 </head>
@@ -667,6 +710,11 @@
         </div>
 
         <div id="resultsSection" class="results-section">
+            <div class="print-header">
+                <h2>Selbsteinsch\u00e4tzung Digitale Kompetenzen \u2013 BBW</h2>
+                <p id="printName"></p>
+                <p id="printDate"></p>
+            </div>
             <div class="results-header">
                 <h2>Ihre Ergebnisse</h2>
                 <div id="scoreCircle" class="score-circle">
@@ -683,12 +731,19 @@
                     </div>
             </div>
 
+            <div id="badgeLegend" class="badge-legend"></div>
+
+            <div class="name-input-section">
+                <label for="resultName">Name (optional f\u00fcr PDF):</label>
+                <input type="text" id="resultName" placeholder="Vor- und Nachname">
+            </div>
+
             <div class="action-buttons">
-                <button class="action-button print-button" onclick="window.print()">
-                    📄 Ergebnisse drucken
+                <button class="action-button print-button" onclick="preparePrint()">
+                    \uD83D\uDCC4 Ergebnisse als PDF drucken
                 </button>
                 <button class="action-button restart-button" onclick="restartTest()">
-                    🔄 Neuer Test
+                    \uD83D\uDD04 Neuer Test
                 </button>
             </div>
         </div>
@@ -1715,6 +1770,32 @@ window.calculateResults = function() {
     scoreText.textContent = 'Sie haben erste Grundlagen gelegt. Mit gezielter Weiterbildung können Sie Ihre Kompetenzen ausbauen.';
 }
             
+            // Badge-Definitionen
+            const themeBadges = [
+                { cls: 'bt-gk', label: 'GK', needsSpan: false },
+                { cls: 'bt-au', label: 'AU', needsSpan: false },
+                { cls: 'bt-mi', label: 'MI', needsSpan: true },
+                { cls: 'bt-ds', label: 'DS', needsSpan: false },
+                { cls: 'bt-kk', label: 'KK', needsSpan: false },
+            ];
+            function makeBadge(b, small) {
+                var sm = small ? ' badge-theme-sm' : '';
+                var inner = b.needsSpan ? '<span>' + b.label + '</span>' : b.label;
+                return '<div class="badge-theme ' + b.cls + sm + '">' + inner + '</div>';
+            }
+            function niveauBadge(pct) {
+                if (pct >= 80) return '<span class="badge-niveau bn-excellent">\u2605\u2605\u2605\u2605</span>';
+                if (pct >= 60) return '<span class="badge-niveau bn-good">\u2605\u2605\u2605</span>';
+                if (pct >= 40) return '<span class="badge-niveau bn-improvement">\u2605\u2605</span>';
+                return '<span class="badge-niveau bn-low">\u2605</span>';
+            }
+            function niveauText(pct) {
+                if (pct >= 80) return 'Ausgezeichnet';
+                if (pct >= 60) return 'Gut';
+                if (pct >= 40) return 'Aufbau';
+                return 'Basis';
+            }
+
             // Category Results with subcategories
             const categoryNames = [
                 "Grundkenntnisse IKT",
@@ -1723,41 +1804,50 @@ window.calculateResults = function() {
                 "Datenverwaltung und Datensicherheit",
                 "Kommunikation und Kollaboration"
             ];
-            
+
             const categoryResultsHTML = categoryNames.map((name, i) => {
                 const categoryNum = i + 1;
                 const percentage = results.categoryPercentages[categoryNum];
-                const barColor = percentage >= 80 ? '#28a745' : 
-                 percentage >= 60 ? '#ffc107' : 
-                 percentage >= 40 ? '#ff9800' : 
+                const barColor = percentage >= 80 ? '#28a745' :
+                 percentage >= 60 ? '#ffc107' :
+                 percentage >= 40 ? '#ff9800' :
                  '#ff69b4';
-                
+                const badge = themeBadges[i];
+
                 // Get subcategory details
                 let subcategoryHTML = '';
                 if (results.subcategoryScores[categoryNum]) {
                     subcategoryHTML = '<div class="subcategory-results">';
                     for (const [subcat, data] of Object.entries(results.subcategoryScores[categoryNum])) {
                         const subPercentage = Math.round((data.score / data.maxScore) * 100);
-                        subcategoryHTML += `<div class="subcategory-item">${subcat}: ${subPercentage}%</div>`;
+                        subcategoryHTML += '<div class="subcategory-item">' + makeBadge(badge, true) + subcat + ': ' + subPercentage + '% ' + niveauBadge(subPercentage) + '</div>';
                     }
                     subcategoryHTML += '</div>';
                 }
-                
-                return `
-                    <div class="category-result">
-                        <div class="category-result-header">
-                            <span class="category-result-title">${name}</span>
-                            <span class="category-result-score">${percentage}%</span>
-                        </div>
-                        <div class="result-bar-container">
-                            <div class="result-bar" 
-                                 style="width: ${percentage}%; background: ${barColor};">
-                            </div>
-                        </div>
-                        ${subcategoryHTML}
-                    </div>
-                `;
+
+                return '<div class="category-result">' +
+                    '<div class="category-result-header">' +
+                        '<span class="category-result-title">' + makeBadge(badge, false) + ' ' + name + '</span>' +
+                        '<span class="category-result-score">' + percentage + '% ' + niveauBadge(percentage) + '</span>' +
+                    '</div>' +
+                    '<div class="result-bar-container">' +
+                        '<div class="result-bar" style="width: ' + percentage + '%; background: ' + barColor + ';"></div>' +
+                    '</div>' +
+                    subcategoryHTML +
+                '</div>';
             }).join('');
+
+            // Legende
+            var legendHTML = '<strong style="font-size:12px;margin-right:8px;">Themen:</strong>';
+            categoryNames.forEach(function(n, i) {
+                legendHTML += '<span class="badge-legend-item">' + makeBadge(themeBadges[i], true) + ' ' + n + '</span>';
+            });
+            legendHTML += '<br><strong style="font-size:12px;margin-right:8px;margin-top:6px;">Niveaus:</strong>';
+            legendHTML += '<span class="badge-legend-item"><span class="badge-niveau bn-excellent">\u2605\u2605\u2605\u2605</span> Ausgezeichnet (\u226580%)</span>';
+            legendHTML += '<span class="badge-legend-item"><span class="badge-niveau bn-good">\u2605\u2605\u2605</span> Gut (60-79%)</span>';
+            legendHTML += '<span class="badge-legend-item"><span class="badge-niveau bn-improvement">\u2605\u2605</span> Aufbau (40-59%)</span>';
+            legendHTML += '<span class="badge-legend-item"><span class="badge-niveau bn-low">\u2605</span> Basis (&lt;40%)</span>';
+            document.getElementById('badgeLegend').innerHTML = legendHTML;
             
             document.getElementById('categoryResults').innerHTML = categoryResultsHTML;
             
@@ -1889,6 +1979,20 @@ window.calculateResults = function() {
             document.getElementById('testSection').classList.remove('active');
             document.getElementById('codeEntry').style.display = 'block';
             document.getElementById('accessCode').value = '';
+        }
+
+        // Prepare Print: Name + Datum in Print-Header setzen
+        window.preparePrint = function() {
+            var nameVal = document.getElementById('resultName').value.trim();
+            var printName = document.getElementById('printName');
+            var printDate = document.getElementById('printDate');
+            if (nameVal) {
+                printName.textContent = nameVal;
+            } else {
+                printName.textContent = '';
+            }
+            printDate.textContent = 'Datum: ' + new Date().toLocaleDateString('de-CH');
+            window.print();
         }
 
         // Enable button click and Enter key for code input
