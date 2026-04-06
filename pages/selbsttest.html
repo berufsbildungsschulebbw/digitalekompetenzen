@@ -710,7 +710,7 @@
         // Firebase imports
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, query, where, getDocs, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, query, where, getDocs, addDoc, setDoc, doc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // Firebase initialisieren
         let db = null;
@@ -816,7 +816,7 @@
                         text: "Wie routiniert nutzen Sie Cloud-Dienste (z.B. OneDrive) für die Erstellung und Verwaltung von Unterrichtsressourcen?",
                         info: {
                             examples: "OneDrive-Ordnerstruktur, SharePoint-Bibliotheken, Teams-Dateien, Versionsverwaltung, Freigabeeinstellungen",
-                            tools: "Microsoft OneDrive, SharePoint, Teams Files, Google Drive",
+                            tools: "Microsoft OneDrive, SharePoint, Teams Files",
                             tips: "Strukturieren Sie Ordner nach Klassen/Fächern. Nutzen Sie die Suchfunktion. Aktivieren Sie automatische Synchronisation.",
                             ikt: "KN 🌐 - Vernetzung",
                             paed: "PDM 🛠️ - Digitale Organisation"
@@ -997,7 +997,7 @@ info: {
                         text: "Wie gut können Sie mit Lernenden digitale Hilfsmittel und KI für die Quellensuche anwenden?",
                         info: {
                             examples: "KI-gestützte Recherche, Suchstrategien, wissenschaftliche Datenbanken, Zitiertools, Plagiatsprüfung",
-                            tools: "Medienarchive wie Statista, E-Thek oder swissdox, KI-Suchmaschinen in Fobizz, Google, Lumo oder Opera",
+                            tools: "Medienarchive wie Statista, E-Thek oder swissdox, KI-Suchmaschinen in Fobizz, Lumo oder Opera, NotebookLM für Inhaltsaufbereitung",
                             tips: "Lehren Sie kritische Bewertung. Zeigen Sie verschiedene Suchstrategien. Üben Sie Quellenangaben.",
                             ikt: "HE 💡 - Vielfalt",
                             paed: "PU 📚 - Recherchekompetenz"
@@ -1311,28 +1311,107 @@ info: {
         let answers = {};
         let testCode = "";
         let testStartTime = null;
+        let draftDocId = null; // Firestore doc ID for draft auto-save
+
+        // Auto-save draft answers to Firestore
+        async function saveDraft() {
+            if (!firebaseReady || !db || !testCode) return;
+            try {
+                const draftData = {
+                    code: testCode,
+                    answers: answers,
+                    currentSectionIndex: currentSectionIndex,
+                    lastUpdated: serverTimestamp(),
+                    type: "draft"
+                };
+                const draftRef = doc(db, 'drafts', testCode);
+                await setDoc(draftRef, draftData);
+                console.log("Draft gespeichert");
+            } catch (e) {
+                console.warn("Draft-Speicherung fehlgeschlagen:", e);
+            }
+        }
+
+        // Load saved draft from Firestore
+        async function loadDraft(code) {
+            if (!firebaseReady || !db) return null;
+            try {
+                const draftRef = doc(db, 'drafts', code);
+                const { getDoc: getDocFn } = await import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js");
+                const draftSnap = await getDocFn(draftRef);
+                if (draftSnap.exists()) {
+                    const data = draftSnap.data();
+                    console.log("Draft geladen:", Object.keys(data.answers || {}).length, "Antworten");
+                    return data;
+                }
+            } catch (e) {
+                console.warn("Draft laden fehlgeschlagen:", e);
+            }
+            return null;
+        }
+
+        // Count previous completed attempts for this code
+        async function countAttempts(code) {
+            if (!firebaseReady || !db) return 0;
+            try {
+                const resultsRef = collection(db, 'results');
+                const q = query(resultsRef, where("testCode", "==", code));
+                const snap = await getDocs(q);
+                return snap.size;
+            } catch (e) {
+                return 0;
+            }
+        }
+
+        // Delete draft after successful submit
+        async function deleteDraft(code) {
+            if (!firebaseReady || !db) return;
+            try {
+                const draftRef = doc(db, 'drafts', code);
+                await deleteDoc(draftRef);
+                console.log("Draft gelöscht");
+            } catch (e) {
+                console.warn("Draft löschen fehlgeschlagen:", e);
+            }
+        }
 
         // Start Test Function
-        window.startTest = function() {
+        window.startTest = async function() {
             const codeInput = document.getElementById('accessCode');
             const code = codeInput.value.trim().toUpperCase();
-            
+
             console.log('Eingegebener Code:', code);
-            
+
             if (code.length < 4) {
                 alert('Bitte geben Sie einen gültigen Code ein.');
                 return;
             }
-            
+
             testCode = code;
             testStartTime = new Date();
-            
+
+            // Try to load saved draft
+            const draft = await loadDraft(code);
+            if (draft && draft.answers && Object.keys(draft.answers).length > 0) {
+                answers = draft.answers;
+                currentSectionIndex = draft.currentSectionIndex || 0;
+                const numAnswered = Object.keys(answers).length;
+                const totalQuestions = sections.reduce((sum, s) => sum + s.questions.length, 0);
+                alert(`Willkommen zurück! ${numAnswered} von ${totalQuestions} Antworten wurden geladen. Sie können dort weitermachen, wo Sie aufgehört haben.`);
+            }
+
+            // Check previous attempts
+            const prevAttempts = await countAttempts(code);
+            if (prevAttempts > 0) {
+                console.log(`${prevAttempts} frühere Durchführung(en) für diesen Code.`);
+            }
+
             // Hide code entry, show test
             document.getElementById('codeEntry').style.display = 'none';
             document.getElementById('testSection').classList.add('active');
-            
-            // Initialize first section
-            showSection(0);
+
+            // Initialize section (resume from saved position)
+            showSection(currentSectionIndex);
         }
 
         // Show Section Function
@@ -1442,11 +1521,11 @@ info: {
         // Select Answer Function
         window.selectAnswer = function(questionId, value, element) {
             answers[questionId] = value;
-            
+
             // Update UI
             const questionCard = document.getElementById(`question-${questionId}`);
             questionCard.classList.add('answered');
-            
+
             // Update selected state for this question's options
             const options = questionCard.querySelectorAll('.answer-option');
             options.forEach(option => {
@@ -1454,7 +1533,7 @@ info: {
             });
             element.classList.add('selected');
             element.querySelector('input').checked = true;
-            
+
             // Update section progress display without reloading
             const section = sections[currentSectionIndex];
             const answeredInSection = section.questions.filter(q => answers[q.id] !== undefined).length;
@@ -1463,6 +1542,9 @@ info: {
             if (progressElement) {
                 progressElement.textContent = `${answeredInSection} von ${totalInSection} Fragen beantwortet`;
             }
+
+            // Auto-save draft after each answer
+            saveDraft();
         }
 
         // Check if all questions in current section are answered
@@ -1491,28 +1573,37 @@ info: {
                 alert(`Bitte beantworten Sie alle ${unanswered} verbleibenden Fragen in diesem Bereich.`);
                 return;
             }
-            
+
             if (currentSectionIndex < sections.length - 1) {
                 currentSectionIndex++;
                 showSection(currentSectionIndex);
+                // Save progress including current section
+                saveDraft();
             }
         }
 
         // Submit Test Function
-        window.submitTest = function() {
+        window.submitTest = async function() {
             if (!checkSectionComplete()) {
                 const currentSection = sections[currentSectionIndex];
                 const unanswered = currentSection.questions.filter(q => !answers[q.id]).length;
                 alert(`Bitte beantworten Sie alle ${unanswered} verbleibenden Fragen in diesem Bereich.`);
                 return;
             }
-            
+
             // Calculate results
             const results = calculateResults();
-            
+
+            // Add attempt number
+            const prevAttempts = await countAttempts(testCode);
+            results.attemptNumber = prevAttempts + 1;
+
             // Save to Firebase and localStorage
-            saveResults(results);
-            
+            await saveResults(results);
+
+            // Delete draft after successful submit
+            await deleteDraft(testCode);
+
             // Show results
             showResults(results);
         }
@@ -1770,13 +1861,19 @@ window.calculateResults = function() {
         }
 
         // Restart Test Function
-        window.restartTest = function() {
+        window.restartTest = async function() {
+            // Delete draft if exists
+            if (testCode) {
+                await deleteDraft(testCode);
+            }
+
             // Reset all variables
             currentSectionIndex = 0;
             answers = {};
             testCode = "";
             testStartTime = null;
-            
+            draftDocId = null;
+
             // Reset UI
             document.getElementById('resultsSection').classList.remove('active');
             document.getElementById('testSection').classList.remove('active');
