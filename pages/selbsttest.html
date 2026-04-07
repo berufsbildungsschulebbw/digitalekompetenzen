@@ -1427,6 +1427,31 @@ info: {
             }
         }
 
+        // Load last completed result from Firestore
+        async function loadLastResult(code) {
+            const fb = window.__fb;
+            if (!fb || !fb.firebaseReady || !fb.db) return null;
+            try {
+                const resultsRef = fb.collection(fb.db, 'results');
+                const q = fb.query(resultsRef, fb.where("testCode", "==", code));
+                const snap = await fb.getDocs(q);
+                if (snap.empty) return null;
+                // Find most recent by timestamp
+                let latest = null;
+                snap.forEach(function(doc) {
+                    const d = doc.data();
+                    if (!latest || (d.timestamp && d.timestamp > latest.timestamp)) {
+                        latest = d;
+                    }
+                });
+                console.log("Letztes Ergebnis geladen: " + (latest ? latest.totalPercentage + "%" : "keins"));
+                return latest;
+            } catch (e) {
+                console.warn("Ergebnis laden fehlgeschlagen:", e);
+                return null;
+            }
+        }
+
         // Delete draft after successful submit
         async function deleteDraft(code) {
             const fb = window.__fb;
@@ -1455,27 +1480,102 @@ info: {
             testCode = code;
             testStartTime = new Date();
 
-            // Hide code entry, show test sofort
-            document.getElementById('codeEntry').style.display = 'none';
-            document.getElementById('testSection').classList.add('active');
+            // Async: Prüfe ob Ergebnisse oder Draft existieren
+            Promise.all([loadLastResult(code), loadDraft(code), countAttempts(code)]).then(function(res) {
+                var lastResult = res[0];
+                var draft = res[1];
+                var attempts = res[2];
 
-            // Initialize first section
-            showSection(0);
-
-            // Async: Draft laden (im Hintergrund, aktualisiert UI nach Laden)
-            loadDraft(code).then(function(draft) {
+                // Fall 1: Es gibt einen Draft (angefangener Test)
                 if (draft && draft.answers && Object.keys(draft.answers).length > 0) {
                     answers = draft.answers;
                     currentSectionIndex = draft.currentSectionIndex || 0;
-                    const numAnswered = Object.keys(answers).length;
-                    const totalQuestions = sections.reduce((sum, s) => sum + s.questions.length, 0);
-                    // UI aktualisieren mit geladenen Antworten
-                    showSection(currentSectionIndex);
-                    alert('Willkommen zur\u00fcck! ' + numAnswered + ' von ' + totalQuestions + ' Antworten wurden geladen.');
+                    var numAnswered = Object.keys(answers).length;
+                    var totalQuestions = sections.reduce(function(sum, s) { return sum + s.questions.length; }, 0);
+
+                    if (lastResult && attempts > 0) {
+                        // Draft UND abgeschlossene Ergebnisse
+                        showChoiceDialog(code, attempts, lastResult, numAnswered, totalQuestions);
+                    } else {
+                        // Nur Draft, kein abgeschlossenes Ergebnis
+                        document.getElementById('codeEntry').style.display = 'none';
+                        document.getElementById('testSection').classList.add('active');
+                        showSection(currentSectionIndex);
+                        alert('Willkommen zurück! ' + numAnswered + ' von ' + totalQuestions + ' Antworten wurden geladen.');
+                    }
+                }
+                // Fall 2: Kein Draft, aber abgeschlossene Ergebnisse
+                else if (lastResult && attempts > 0) {
+                    showChoiceDialog(code, attempts, lastResult, 0, 0);
+                }
+                // Fall 3: Weder Draft noch Ergebnisse – normaler Start
+                else {
+                    document.getElementById('codeEntry').style.display = 'none';
+                    document.getElementById('testSection').classList.add('active');
+                    showSection(0);
                 }
             }).catch(function(e) {
-                console.warn('Draft laden fehlgeschlagen:', e);
+                console.warn('Laden fehlgeschlagen, starte normal:', e);
+                document.getElementById('codeEntry').style.display = 'none';
+                document.getElementById('testSection').classList.add('active');
+                showSection(0);
             });
+        }
+
+        // Auswahl-Dialog: Letzte Ergebnisse anzeigen oder neuen Test starten
+        function showChoiceDialog(code, attempts, lastResult, draftAnswers, totalQuestions) {
+            var codeEntry = document.getElementById('codeEntry');
+            var msg = '<div style="text-align:center; padding: 20px;">';
+            msg += '<h2 style="color:#1B3A5C; margin-bottom:15px;">Willkommen zurück!</h2>';
+            msg += '<p style="color:#495057; margin-bottom:8px;">Code: <strong>' + code + '</strong></p>';
+            msg += '<p style="color:#495057; margin-bottom:8px;">' + attempts + ' abgeschlossene Durchführung(en) vorhanden.</p>';
+            if (lastResult) {
+                msg += '<p style="color:#495057; margin-bottom:5px;">Letztes Ergebnis: <strong>' + lastResult.totalPercentage + '%</strong>';
+                if (lastResult.timestamp) {
+                    var d = new Date(lastResult.timestamp);
+                    msg += ' vom ' + d.toLocaleDateString('de-CH');
+                }
+                msg += '</p>';
+            }
+            if (draftAnswers > 0) {
+                msg += '<p style="color:#D4760A; margin-bottom:5px;">Ausserdem: ' + draftAnswers + ' von ' + totalQuestions + ' Antworten eines angefangenen Tests gespeichert.</p>';
+            }
+            msg += '<div style="display:flex; gap:15px; justify-content:center; margin-top:25px; flex-wrap:wrap;">';
+            msg += '<button onclick="showLastResult()" style="padding:12px 24px; background:#2E75B6; color:white; border:none; border-radius:10px; font-size:1em; cursor:pointer; font-weight:600;">📊 Letzte Ergebnisse anzeigen</button>';
+            if (draftAnswers > 0) {
+                msg += '<button onclick="resumeDraft()" style="padding:12px 24px; background:#D4760A; color:white; border:none; border-radius:10px; font-size:1em; cursor:pointer; font-weight:600;">📝 Angefangenen Test fortsetzen</button>';
+            }
+            msg += '<button onclick="startFresh()" style="padding:12px 24px; background:#28a745; color:white; border:none; border-radius:10px; font-size:1em; cursor:pointer; font-weight:600;">🆕 Neuen Test starten</button>';
+            msg += '</div></div>';
+
+            codeEntry.innerHTML = msg;
+            // Store lastResult for later use
+            window._lastResult = lastResult;
+        }
+
+        // Letzte Ergebnisse anzeigen
+        window.showLastResult = function() {
+            if (window._lastResult) {
+                document.getElementById('codeEntry').style.display = 'none';
+                showResults(window._lastResult);
+            }
+        }
+
+        // Angefangenen Test fortsetzen
+        window.resumeDraft = function() {
+            document.getElementById('codeEntry').style.display = 'none';
+            document.getElementById('testSection').classList.add('active');
+            showSection(currentSectionIndex);
+        }
+
+        // Frisch starten (Draft löschen)
+        window.startFresh = function() {
+            answers = {};
+            currentSectionIndex = 0;
+            deleteDraft(testCode).catch(function(e) { console.warn(e); });
+            document.getElementById('codeEntry').style.display = 'none';
+            document.getElementById('testSection').classList.add('active');
+            showSection(0);
         }
 
         // Show Section Function
