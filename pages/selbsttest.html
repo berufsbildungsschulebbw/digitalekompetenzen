@@ -650,12 +650,17 @@
             .print-header h2 { color: #1B3A5C; font-size: 1.4em; margin: 0; }
             .print-header p { color: #666; font-size: 0.85em; margin: 4px 0 0; }
             .results-section { display: block !important; }
-            .category-result { break-inside: avoid; page-break-inside: avoid; margin-bottom: 12px; }
-            .recommendations { break-before: auto; page-break-before: auto; }
-            .score-circle { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            .badge-theme, .badge-niveau { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            .result-bar { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            .badge-legend { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .results-header h2 { font-size: 1.2em; }
+            .score-circle { width: 100px !important; height: 100px !important; font-size: 1.8em !important; }
+            /* Kompakte Darstellung: Subcategories im Druck ausblenden */
+            .subcategory-results { display: none !important; }
+            .category-result { break-inside: avoid; page-break-inside: avoid; margin-bottom: 8px; padding: 8px !important; }
+            .category-result-header { font-size: 0.95em; }
+            .result-bar-container { height: 12px !important; }
+            .recommendations { margin-top: 15px; }
+            .recommendation-item { font-size: 0.9em; margin-bottom: 8px !important; }
+            .score-circle, .badge-theme, .badge-niveau, .result-bar, .badge-legend { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .badge-legend { font-size: 10px; padding: 8px; margin: 10px 0; }
         }
     </style>
 </head>
