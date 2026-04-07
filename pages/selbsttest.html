@@ -1492,6 +1492,7 @@ info: {
 
             testCode = code;
             testStartTime = new Date();
+            sessionStorage.setItem('bbw_testCode', code);
 
             // Async: Prüfe ob Ergebnisse oder Draft existieren
             Promise.all([loadLastResult(code), loadDraft(code), countAttempts(code)]).then(function(res) {
@@ -2090,6 +2091,9 @@ window.calculateResults = function() {
                 deleteDraft(testCode).catch(function(e) { console.warn(e); });
             }
 
+            // Session löschen
+            sessionStorage.removeItem('bbw_testCode');
+
             // Reset all variables
             currentSectionIndex = 0;
             answers = {};
@@ -2097,11 +2101,15 @@ window.calculateResults = function() {
             testStartTime = null;
             draftDocId = null;
 
-            // Reset UI
+            // Reset UI – codeEntry wiederherstellen (falls überschrieben durch Auswahl-Dialog)
+            var codeEntry = document.getElementById('codeEntry');
+            codeEntry.innerHTML = '<h2>Zugangs-Code eingeben</h2><p>Bitte geben Sie den Code ein, den Sie von Ihrer Abteilungsleitung erhalten haben.</p><div class="code-input-group"><input type="text" id="accessCode" class="code-input" placeholder="CODE-XXXX" maxlength="20"><button id="startTestBtn" class="start-button">Test starten</button></div><p class="code-hint">Der Code dient zur anonymen Zuordnung Ihrer Ergebnisse zu Ihrer Abteilung.</p>';
+            codeEntry.style.display = 'block';
             document.getElementById('resultsSection').classList.remove('active');
             document.getElementById('testSection').classList.remove('active');
-            document.getElementById('codeEntry').style.display = 'block';
-            document.getElementById('accessCode').value = '';
+            // Event-Listener neu binden
+            document.getElementById('startTestBtn').addEventListener('click', function() { startTest(); });
+            document.getElementById('accessCode').addEventListener('keypress', function(e) { if (e.key === 'Enter') startTest(); });
         }
 
         // Prepare Print: Name + Datum in Print-Header setzen
@@ -2119,7 +2127,6 @@ window.calculateResults = function() {
         }
 
         // Enable button click and Enter key for code input
-        // (Direkt ausgeführt, da Script am Ende des Body steht und DOM bereit ist)
         document.getElementById('startTestBtn').addEventListener('click', function() {
             startTest();
         });
@@ -2128,6 +2135,23 @@ window.calculateResults = function() {
                 startTest();
             }
         });
+
+        // Auto-Login: Wenn Session-Code vorhanden, automatisch starten
+        (function() {
+            var savedCode = sessionStorage.getItem('bbw_testCode');
+            if (savedCode) {
+                document.getElementById('accessCode').value = savedCode;
+                // Kurz warten bis Firebase bereit ist, dann starten
+                var checkFb = setInterval(function() {
+                    if (window.__fb && window.__fb.firebaseReady) {
+                        clearInterval(checkFb);
+                        startTest();
+                    }
+                }, 200);
+                // Timeout nach 5s: trotzdem starten
+                setTimeout(function() { clearInterval(checkFb); startTest(); }, 5000);
+            }
+        })();
     </script>
 </body>
 </html>
