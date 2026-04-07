@@ -1959,20 +1959,26 @@ window.calculateResults = function() {
             
             document.getElementById('categoryResults').innerHTML = categoryResultsHTML;
             
-            // Recommendations
+            // Recommendations: die 2 schwächsten Bereiche gezielt aufführen
             const recommendations = generateRecommendations(results);
-            const recommendationsHTML = recommendations.map(rec => `
-                <div class="recommendation-item">
-                    <strong>${rec.title}:</strong> ${rec.text}
-                </div>
-            `).join('');
-            
-            document.getElementById('recommendationsList').innerHTML = recommendationsHTML;
+            var recHTML = '';
+            recommendations.forEach(function(rec) {
+                recHTML += '<div class="recommendation-item" style="display:flex; align-items:flex-start; gap:10px; margin-bottom:12px;">' +
+                    makeBadge(themeBadges[rec.catIndex], false) +
+                    '<div><strong>' + rec.title + '</strong> ' + niveauBadge(rec.percentage) +
+                    '<span style="color:#666; font-size:0.9em;"> (' + rec.percentage + '%)</span>' +
+                    '<br><span style="color:#495057;">' + rec.text + '</span></div></div>';
+            });
+            // IKT-Konzept Hinweis
+            recHTML += '<div style="margin-top:18px; padding:12px 16px; background:#f0f4f8; border-left:3px solid #2E75B6; border-radius:4px; font-size:0.9em; color:#495057; line-height:1.5;">' +
+                '<em>«Für die BBW-Lehrpersonen besteht grundsätzlich die Pflicht, mindestens ein Angebot der vier erwähnten Weiterbildungskategorien pro Jahr zu besuchen und dieses im Rahmen der Q-Dokumentation festzuhalten.»</em>' +
+                '<br><span style="color:#888;">— IKT-Konzept BBW, Punkt 5.4</span></div>';
+
+            document.getElementById('recommendationsList').innerHTML = recHTML;
         }
 
-        // Generate Recommendations Function
+        // Generate Recommendations Function – zeigt die 2 schwächsten Bereiche
         window.generateRecommendations = function(results) {
-            const recommendations = [];
             const categoryNames = [
                 "Grundkenntnisse IKT",
                 "Anwendung im Unterricht",
@@ -1980,55 +1986,56 @@ window.calculateResults = function() {
                 "Datenverwaltung und Datensicherheit",
                 "Kommunikation und Kollaboration"
             ];
-            
+
             const categoryRecommendations = {
                 1: [
-                    "Besuchen Sie Basis-Schulungen zu Office 365 und Cloud-Diensten",
-                    "Nutzen Sie die IT-Sprechstunde für individuelle Unterstützung",
-                    "Erkunden Sie systematisch die Lizenzangebote Ihrer Schule"
+                    "Besuchen Sie Basis-Schulungen zu Microsoft 365 und Cloud-Diensten.",
+                    "Nutzen Sie die TIKT-Sprechstunde für individuelle Unterstützung bei Geräten und Software.",
+                    "Verschaffen Sie sich einen Überblick über die Lizenzangebote der Schule (PIKT-Help-Seite)."
                 ],
                 2: [
-                    "Experimentieren Sie mit interaktiven Tools wie to-teach.ai, Quizlet oder Fobizz",
-                    "Besuchen Sie Workshops zu digitaler Unterrichtsgestaltung",
-                    "Entwickeln Sie erste digitale Lerneinheiten mit to-teach.ai"
+                    "Experimentieren Sie mit interaktiven Tools (z.\u00a0B. Quizlet, Actionbound) für Ihre Unterrichtsvorbereitung.",
+                    "Besuchen Sie Workshops zu digitaler Unterrichtsgestaltung und LMS-Nutzung (OpenOlat).",
+                    "Nutzen Sie KI-Generatoren gezielt für die Erstellung von Aufgaben und Materialien."
                 ],
                 3: [
-                    "Lernen Sie Tools zur Erstellung multimedialer Inhalte kennen",
-                    "Integrieren Sie Medienkritik als festen Unterrichtsbestandteil",
-                    "Erstellen Sie erste eigene Lernvideos oder Podcasts mit Hilfe von Fobizz"
+                    "Erstellen Sie erste Kurzvideos oder Podcasts für Ihren Unterricht.",
+                    "Integrieren Sie Quellenkritik und Medienkompetenz als festen Unterrichtsbestandteil.",
+                    "Nutzen Sie Medienarchive (Statista, E-Thek, swissdox, nanoo.tv) für aktuelle Unterrichtsinhalte."
                 ],
                 4: [
-                    "Nehmen Sie an einer Datenschutz-Schulung teil",
-                    "Implementieren Sie ein Passwort-Management-System",
-                    "Entwickeln Sie eine strukturierte Dateiablage mit klaren Namenskonventionen"
+                    "Nehmen Sie an einer Datenschutz-Schulung teil (Vorgaben MBA Kanton Zürich).",
+                    "Teilen Sie Dokumente in Clouds nur mit eingeschränktem Personenkreis (Need-to-know-Prinzip).",
+                    "Entwickeln Sie eine strukturierte Dateiablage mit klaren Namenskonventionen und nutzen Sie Suchfunktionen."
                 ],
                 5: [
-                    "Nutzen Sie Teams aktiver für die Zusammenarbeit",
-                    "Lernen Sie kollaborative Arbeitsweisen mit Office 365 kennen",
-                    "Etablieren Sie klare digitale Kommunikationsregeln"
+                    "Nutzen Sie Microsoft Teams aktiver für die Zusammenarbeit im Kollegium.",
+                    "Setzen Sie Versandterminierung für E-Mails ein und etablieren Sie klare Kommunikationsregeln.",
+                    "Besuchen Sie einen PIKT-Digital-Lunch zum Thema kollaborative Arbeitsweisen."
                 ]
             };
-            
-            // Find weakest areas (below 60%)
-            for (let i = 1; i <= 5; i++) {
-                if (results.categoryPercentages[i] < 60) {
-                    const recList = categoryRecommendations[i];
-                    recommendations.push({
-                        title: categoryNames[i - 1],
-                        text: recList[Math.floor(Math.random() * recList.length)]
-                    });
-                }
+
+            // Alle Kategorien nach Prozent sortieren (aufsteigend = schwächste zuerst)
+            var sorted = [];
+            for (var i = 1; i <= 5; i++) {
+                sorted.push({ cat: i, pct: results.categoryPercentages[i] || 0 });
             }
-            
-            // If no weak areas, suggest advanced topics
-            if (recommendations.length === 0) {
+            sorted.sort(function(a, b) { return a.pct - b.pct; });
+
+            // Die 2 schwächsten nehmen
+            var recommendations = [];
+            for (var j = 0; j < Math.min(2, sorted.length); j++) {
+                var cat = sorted[j].cat;
+                var recList = categoryRecommendations[cat];
                 recommendations.push({
-                    title: "Fortgeschrittene Kompetenzen",
-                    text: "Erkunden Sie KI-Tools für den Unterricht und werden Sie Digital-Mentor für Ihr Kollegium"
+                    catIndex: cat - 1,
+                    title: categoryNames[cat - 1],
+                    percentage: sorted[j].pct,
+                    text: recList[Math.floor(Math.random() * recList.length)]
                 });
             }
-            
-            return recommendations.slice(0, 3); // Return max 3 recommendations
+
+            return recommendations;
         }
 
         // Save Results Function with Firebase-Integration
