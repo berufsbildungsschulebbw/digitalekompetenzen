@@ -1354,6 +1354,10 @@ const categoryNames = [
                 currentUser = username;
                 currentDepartment = department;
                 window.currentDepartment = department; // Global verfügbar machen
+
+                // Session speichern für Refresh-Persistenz
+                sessionStorage.setItem('bbw_admin_user', username);
+                sessionStorage.setItem('bbw_admin_dept', department);
                 
                 // Hide login section and back button
                 document.getElementById('loginSection').style.display = 'none';
@@ -1389,6 +1393,10 @@ const categoryNames = [
             currentUser = null;
             currentDepartment = null;
             window.currentDepartment = null;
+
+            // Session löschen
+            sessionStorage.removeItem('bbw_admin_user');
+            sessionStorage.removeItem('bbw_admin_dept');
             
             // Show login section and back button
             document.getElementById('dashboardSection').classList.remove('active');
@@ -2540,6 +2548,28 @@ function exportResults() {
                     updateDownloadButtonState();
                 }
             });
+
+            // Auto-Login: Session wiederherstellen nach Refresh
+            const savedUser = sessionStorage.getItem('bbw_admin_user');
+            const savedDept = sessionStorage.getItem('bbw_admin_dept');
+            if (savedUser && savedDept) {
+                console.log('Session wiederherstellen:', savedUser, savedDept);
+                document.getElementById('username').value = savedUser;
+                document.getElementById('department').value = savedDept;
+                // Simuliere Login ohne Passwort-Prüfung
+                currentUser = savedUser;
+                currentDepartment = savedDept;
+                window.currentDepartment = savedDept;
+                document.getElementById('loginSection').style.display = 'none';
+                document.getElementById('backButton').classList.add('hidden');
+                document.getElementById('dashboardSection').classList.add('active');
+                document.getElementById('userDepartment').textContent = (typeof deptNames !== 'undefined' && deptNames[savedDept]) ? deptNames[savedDept] : savedDept;
+                document.getElementById('userName').textContent = 'Benutzer: ' + savedUser;
+                const isAdmin = savedDept === 'admin';
+                document.getElementById('adminTabButton').style.display = isAdmin ? 'block' : 'none';
+                document.getElementById('adminDepartmentSelector').style.display = isAdmin ? 'block' : 'none';
+                loadInitialData().then(() => { loadDashboardData(); if (isAdmin) loadUserList(); });
+            }
         });
     </script>
 </body>
