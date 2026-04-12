@@ -1993,11 +1993,17 @@ window.calculateResults = function() {
             const recommendations = generateRecommendations(results);
             var recHTML = '';
             recommendations.forEach(function(rec) {
-                recHTML += '<div class="recommendation-item" style="display:flex; align-items:flex-start; gap:10px; margin-bottom:12px;">' +
+                var textsHTML = '';
+                if (rec.texts && rec.texts.length) {
+                    rec.texts.forEach(function(t) {
+                        textsHTML += '<div style="color:#495057; margin-top:4px; padding-left:8px; border-left:2px solid #dee2e6;">' + t + '</div>';
+                    });
+                }
+                recHTML += '<div class="recommendation-item" style="display:flex; align-items:flex-start; gap:10px; margin-bottom:16px;">' +
                     makeBadge(themeBadges[rec.catIndex], false) +
                     '<div><strong>' + rec.title + '</strong> ' + niveauBadge(rec.percentage) +
                     '<span style="color:#666; font-size:0.9em;"> (' + rec.percentage + '%)</span>' +
-                    '<br><span style="color:#495057;">' + rec.text + '</span></div></div>';
+                    textsHTML + '</div></div>';
             });
 
             document.getElementById('recommendationsList').innerHTML = recHTML;
@@ -2013,7 +2019,7 @@ window.calculateResults = function() {
 
         // Generate Recommendations Function – zeigt die 2 schwächsten Bereiche
         window.generateRecommendations = function(results) {
-            const categoryNames = [
+            var categoryNames = [
                 "Grundkenntnisse IKT",
                 "Anwendung im Unterricht",
                 "Medien- und Informationskompetenz",
@@ -2021,51 +2027,65 @@ window.calculateResults = function() {
                 "Kommunikation und Kollaboration"
             ];
 
-            const categoryRecommendations = {
-                1: [
-                    "Vertiefen Sie Ihre Kenntnisse im Umgang mit den digitalen Arbeitsgeräten und den an der Schule verfügbaren Softwareanwendungen.",
-                    "Nutzen Sie die technische Sprechstunde (TIKT) für individuelle Unterstützung bei Geräten, Software und Systemeinstellungen.",
-                    "Verschaffen Sie sich einen Überblick über die digitalen Lizenz- und Toolangebote der Schule und probieren Sie gezielt 2\u20133 neue Anwendungen aus."
-                ],
-                2: [
-                    "Setzen Sie digitale Werkzeuge gezielt für die Vorbereitung, Durchführung und Auswertung Ihres Unterrichts ein.",
-                    "Vertiefen Sie Ihre Kompetenzen in der Organisation und Durchführung des Lernens mit digitalen Medien \u2013 besuchen Sie entsprechende interne Weiterbildungen.",
-                    "Nutzen Sie KI-gestützte Werkzeuge gezielt für die Erstellung von Aufgaben, Materialien und individualisierten Lernwegen."
-                ],
-                3: [
-                    "Erstellen Sie erste multimediale Lerninhalte (z.\u2009B. Kurzvideos, Podcasts) und setzen Sie diese im Unterricht ein.",
-                    "Integrieren Sie Quellenkritik, Faktencheck und Medienkompetenz als festen Bestandteil Ihres Unterrichts.",
-                    "Nutzen Sie die verfügbaren Medienarchive und Recherchetools für aktuelle, quellenbasierte Unterrichtsinhalte."
-                ],
-                4: [
-                    "Vertiefen Sie Ihre Kenntnisse zu Datenschutz und Informationssicherheit \u2013 besuchen Sie eine entsprechende Schulung.",
-                    "Achten Sie beim Teilen von Dokumenten in der Cloud auf den eingeschränkten Personenkreis (Need-to-know-Prinzip) und nutzen Sie Zugriffsrechte bewusst.",
-                    "Entwickeln Sie eine strukturierte Dateiablage mit klaren Benennungen und nutzen Sie Suchfunktionen für einen effizienten Zugriff."
-                ],
-                5: [
-                    "Setzen Sie digitale Kommunikations- und Kollaborationswerkzeuge aktiver für die Zusammenarbeit im Kollegium ein.",
-                    "Nutzen Sie Funktionen wie Versandterminierung, automatische Antworten und Kommunikationsregeln für eine professionelle digitale Kommunikation.",
-                    "Posten Sie Fragen und Best Practices im TIKT/PIKT-Teams-Kanal oder nutzen Sie den Direkt-Support durch die PIKTs, um von den Erfahrungen anderer Lehrpersonen zu profitieren."
-                ]
+            // Pro Kategorie + Niveau: je 2 passende Empfehlungen
+            var niveauRec = {
+                1: { // Grundkenntnisse IKT
+                    excellent: ["Geben Sie Ihr Wissen als Mentor/in an Kolleginnen und Kollegen weiter.", "Evaluieren Sie neue digitale Werkzeuge und geben Sie Empfehlungen an das PIKT-Team."],
+                    good: ["Vertiefen Sie gezielt einzelne Anwendungen und erkunden Sie erweiterte Funktionen.", "Testen Sie neue Lizenzangebote der Schule und integrieren Sie diese in Ihren Alltag."],
+                    improvement: ["Nutzen Sie die technische Sprechstunde (TIKT) f\u00fcr individuelle Unterst\u00fctzung bei Ger\u00e4ten und Software.", "Verschaffen Sie sich einen \u00dcberblick \u00fcber die digitalen Lizenz- und Toolangebote der Schule."],
+                    low: ["Besuchen Sie eine Basis-Schulung zu den digitalen Arbeitsger\u00e4ten und Grundanwendungen.", "Lassen Sie sich von einer TIKT-Ansprechperson pers\u00f6nlich in die wichtigsten Tools einf\u00fchren."]
+                },
+                2: { // Anwendung im Unterricht
+                    excellent: ["Entwickeln Sie innovative digitale Unterrichtskonzepte und teilen Sie diese mit Fachkolleginnen und -kollegen.", "Begleiten Sie andere Lehrpersonen als Coach bei der Integration digitaler Medien in den Unterricht."],
+                    good: ["Nutzen Sie KI-gest\u00fctzte Werkzeuge gezielt f\u00fcr die Erstellung von Aufgaben und individualisierten Lernwegen.", "Vertiefen Sie die Organisation und Durchf\u00fchrung des Lernens mit digitalen Medien."],
+                    improvement: ["Setzen Sie digitale Werkzeuge gezielt f\u00fcr die Vorbereitung und Auswertung Ihres Unterrichts ein.", "Besuchen Sie eine interne Weiterbildung zur digitalen Unterrichtsgestaltung."],
+                    low: ["Starten Sie mit einem einfachen digitalen Werkzeug f\u00fcr die Unterrichtsvorbereitung und sammeln Sie erste Erfahrungen.", "Lassen Sie sich von einer PIKT-Ansprechperson ein konkretes Unterrichtsbeispiel zeigen."]
+                },
+                3: { // Medien- und Informationskompetenz
+                    excellent: ["Entwickeln Sie Unterrichtseinheiten zur Medienkompetenz und Quellenkritik f\u00fcr Ihre Fachschaft.", "Produzieren Sie professionelle multimediale Lerninhalte und teilen Sie Ihre Erfahrungen im Kollegium."],
+                    good: ["Integrieren Sie Quellenkritik und Faktencheck regelm\u00e4ssig in Ihren Unterricht.", "Nutzen Sie die verf\u00fcgbaren Medienarchive und Recherchetools f\u00fcr aktuelle Unterrichtsinhalte."],
+                    improvement: ["Erstellen Sie erste multimediale Lerninhalte (z.\u2009B. Kurzvideos, Podcasts) und setzen Sie diese im Unterricht ein.", "Machen Sie sich mit den verf\u00fcgbaren Medienarchiven und Recherchetools vertraut."],
+                    low: ["Besuchen Sie eine Einf\u00fchrung in die Nutzung von Medienarchiven und digitalen Recherchetools.", "Lassen Sie sich zeigen, wie Sie einfache multimediale Inhalte f\u00fcr Ihren Unterricht erstellen k\u00f6nnen."]
+                },
+                4: { // Datenverwaltung und Datensicherheit
+                    excellent: ["Unterst\u00fctzen Sie Ihr Team als Ansprechperson f\u00fcr Datenschutzfragen und Best Practices.", "Entwickeln Sie Vorlagen und Prozesse f\u00fcr den sicheren Umgang mit Daten in Ihrer Fachschaft."],
+                    good: ["Vertiefen Sie Ihre Kenntnisse zu den Datenschutzvorgaben des MBA Kanton Z\u00fcrich.", "Optimieren Sie Ihre Dateiablage und Zugriffsrechte systematisch (Need-to-know-Prinzip)."],
+                    improvement: ["Achten Sie beim Teilen von Dokumenten in der Cloud auf den eingeschr\u00e4nkten Personenkreis und nutzen Sie Zugriffsrechte bewusst.", "Entwickeln Sie eine strukturierte Dateiablage mit klaren Benennungen und nutzen Sie Suchfunktionen."],
+                    low: ["Besuchen Sie eine Datenschutz-Schulung zu den Vorgaben im schulischen Kontext.", "Lassen Sie sich die Grundlagen der sicheren Dateiablage und des Dokumentenschutzes zeigen."]
+                },
+                5: { // Kommunikation und Kollaboration
+                    excellent: ["Initiieren Sie neue digitale Zusammenarbeitsformate im Kollegium und \u00fcber Abteilungsgrenzen hinweg.", "Geben Sie Ihre Erfahrungen mit digitalen Kommunikationswerkzeugen als Vorbild an andere weiter."],
+                    good: ["Nutzen Sie Funktionen wie Versandterminierung und Kommunikationsregeln f\u00fcr eine professionelle digitale Kommunikation.", "Posten Sie Fragen und Best Practices im TIKT/PIKT-Teams-Kanal."],
+                    improvement: ["Setzen Sie digitale Kommunikations- und Kollaborationswerkzeuge aktiver f\u00fcr die Zusammenarbeit ein.", "Nutzen Sie den Direkt-Support durch die PIKTs, um von den Erfahrungen anderer Lehrpersonen zu profitieren."],
+                    low: ["Besuchen Sie eine Einf\u00fchrung in die digitalen Kommunikationswerkzeuge der Schule.", "Lassen Sie sich zeigen, wie Sie digitale Kan\u00e4le f\u00fcr den kollegialen Austausch nutzen k\u00f6nnen."]
+                }
             };
 
-            // Alle Kategorien nach Prozent sortieren (aufsteigend = schwächste zuerst)
+            function getNiveau(pct) {
+                if (pct >= 80) return 'excellent';
+                if (pct >= 60) return 'good';
+                if (pct >= 40) return 'improvement';
+                return 'low';
+            }
+
+            // Die 2 schwächsten Kategorien, je 2 niveaugerechte Empfehlungen
             var sorted = [];
             for (var i = 1; i <= 5; i++) {
                 sorted.push({ cat: i, pct: results.categoryPercentages[i] || 0 });
             }
             sorted.sort(function(a, b) { return a.pct - b.pct; });
 
-            // Die 2 schwächsten nehmen
             var recommendations = [];
             for (var j = 0; j < Math.min(2, sorted.length); j++) {
                 var cat = sorted[j].cat;
-                var recList = categoryRecommendations[cat];
+                var pct = sorted[j].pct;
+                var niveau = getNiveau(pct);
+                var recs = niveauRec[cat][niveau];
                 recommendations.push({
                     catIndex: cat - 1,
                     title: categoryNames[cat - 1],
-                    percentage: sorted[j].pct,
-                    text: recList[Math.floor(Math.random() * recList.length)]
+                    percentage: pct,
+                    texts: recs // Array mit 2 Empfehlungen
                 });
             }
 
