@@ -614,13 +614,13 @@
         .badge-theme-sm.bt-ds { width: 26px; height: 26px; }
         .badge-theme-sm.bt-kk { width: 30px; height: 22px; }
 
-        /* ===== Niveau-Badges ===== */
+        /* ===== Niveau-Badges (Griechische Buchstaben) ===== */
         .badge-niveau {
             display: inline-flex; align-items: center; justify-content: center;
-            padding: 2px 6px; border-radius: 12px;
-            font-size: 12px; font-weight: 600; color: #fff; vertical-align: middle; margin-left: 8px;
+            width: 26px; height: 26px; border-radius: 50%;
+            font-size: 16px; font-weight: 700; color: #fff; vertical-align: middle; margin-left: 8px;
+            font-family: 'Times New Roman', Georgia, serif;
         }
-        .badge-niveau svg { width: 18px; height: 18px; vertical-align: middle; }
         .badge-niveau.bn-excellent { background: #28a745; }
         .badge-niveau.bn-good { background: #ffc107; color: #333; }
         .badge-niveau.bn-improvement { background: #ff9800; }
@@ -1907,22 +1907,13 @@ window.calculateResults = function() {
                 var inner = b.needsSpan ? '<span>' + b.label + '</span>' : b.label;
                 return '<div class="badge-theme ' + b.cls + sm + '">' + inner + '</div>';
             }
-            // Adinkra SVGs für Niveaustufen
-            var adinkra = {
-                // Adinkrahene (Chief symbol) - konzentrische Kreise
-                excellent: '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="6" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="2.5" fill="currentColor"/></svg>',
-                // Aya (Fern) - symmetrisches Farnblatt
-                good: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2v20M12 6c-3-2-6 0-6 3s3 3 6 1M12 6c3-2 6 0 6 3s-3 3-6 1M12 13c-3-2-6 0-6 3s3 3 6 1M12 13c3-2 6 0 6 3s-3 3-6 1" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
-                // Tabono (Paddle) - Kreuzform mit abgerundeten Enden
-                improvement: '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="10" y="2" width="4" height="20" rx="2" fill="currentColor"/><rect x="2" y="10" width="20" height="4" rx="2" fill="currentColor"/></svg>',
-                // Dwennimmen (Ram\'s Horn) - vier verbundene Spiralen
-                low: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 12c0-4-3-7-6-5s-1 6 2 5"/><path d="M12 12c0-4 3-7 6-5s1 6-2 5"/><path d="M12 12c0 4-3 7-6 5s-1-6 2-5"/><path d="M12 12c0 4 3 7 6 5s1-6-2-5"/></svg>'
-            };
+            // Griechische Buchstaben für Niveaustufen
+            // Ω (Omega) = Vollendung | Σ (Sigma) = Summe | Δ (Delta) = Veränderung | α (Alpha) = Anfang
             function niveauBadge(pct) {
-                if (pct >= 80) return '<span class="badge-niveau bn-excellent">' + adinkra.excellent + '</span>';
-                if (pct >= 60) return '<span class="badge-niveau bn-good">' + adinkra.good + '</span>';
-                if (pct >= 40) return '<span class="badge-niveau bn-improvement">' + adinkra.improvement + '</span>';
-                return '<span class="badge-niveau bn-low">' + adinkra.low + '</span>';
+                if (pct >= 80) return '<span class="badge-niveau bn-excellent">\u03A9</span>';
+                if (pct >= 60) return '<span class="badge-niveau bn-good">\u03A3</span>';
+                if (pct >= 40) return '<span class="badge-niveau bn-improvement">\u0394</span>';
+                return '<span class="badge-niveau bn-low">\u03B1</span>';
             }
             function niveauText(pct) {
                 if (pct >= 80) return 'Ausgezeichnet';
@@ -1978,10 +1969,10 @@ window.calculateResults = function() {
                 legendHTML += '<span class="badge-legend-item">' + makeBadge(themeBadges[i], true) + ' ' + n + '</span>';
             });
             legendHTML += '<br><strong style="font-size:12px;margin-right:8px;margin-top:6px;">Niveaus:</strong>';
-            legendHTML += '<span class="badge-legend-item"><span class="badge-niveau bn-excellent">' + adinkra.excellent + '</span> Ausgezeichnet (\u226580%)</span>';
-            legendHTML += '<span class="badge-legend-item"><span class="badge-niveau bn-good">' + adinkra.good + '</span> Gut (60-79%)</span>';
-            legendHTML += '<span class="badge-legend-item"><span class="badge-niveau bn-improvement">' + adinkra.improvement + '</span> Aufbau (40-59%)</span>';
-            legendHTML += '<span class="badge-legend-item"><span class="badge-niveau bn-low">' + adinkra.low + '</span> Basis (&lt;40%)</span>';
+            legendHTML += '<span class="badge-legend-item"><span class="badge-niveau bn-excellent">\u03A9</span> Ausgezeichnet (\u226580%)</span>';
+            legendHTML += '<span class="badge-legend-item"><span class="badge-niveau bn-good">\u03A3</span> Gut (60-79%)</span>';
+            legendHTML += '<span class="badge-legend-item"><span class="badge-niveau bn-improvement">\u0394</span> Aufbau (40-59%)</span>';
+            legendHTML += '<span class="badge-legend-item"><span class="badge-niveau bn-low">\u03B1</span> Basis (&lt;40%)</span>';
             document.getElementById('badgeLegend').innerHTML = legendHTML;
             
             document.getElementById('categoryResults').innerHTML = categoryResultsHTML;
