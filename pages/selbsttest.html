@@ -646,8 +646,7 @@
             body { background: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             .container { box-shadow: none; padding: 15px; max-width: 100%; }
             .back-button, .action-buttons, .info-button, .name-input-section, #codeEntry, #testSection, .progress-container { display: none !important; }
-            .print-header { display: block !important; text-align: center; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 2px solid #2E75B6; }
-            .print-header h2 { color: #1B3A5C; font-size: 1.4em; margin: 0; }
+            .print-header { display: block !important; text-align: center; margin-bottom: 10px; }
             .print-header p { color: #666; font-size: 0.85em; margin: 4px 0 0; }
             .results-section { display: block !important; }
             .results-header h2 { font-size: 1.2em; }
@@ -716,7 +715,6 @@
 
         <div id="resultsSection" class="results-section">
             <div class="print-header">
-                <h2>Selbsteinschätzung Digitale Kompetenzen – BBW</h2>
                 <p id="printName"></p>
                 <p id="printDate"></p>
             </div>
@@ -738,17 +736,19 @@
 
             <div id="badgeLegend" class="badge-legend"></div>
 
+            <div id="piktHinweis"></div>
+            <div id="iktZitat"></div>
+
             <div style="background: #e8f5e9; border-left: 4px solid #28a745; padding: 16px 20px; border-radius: 8px; margin: 20px 0;">
                 <p style="color: #1B3A5C; margin: 0; line-height: 1.5;">
                     <strong>Nächster Schritt:</strong> Melden Sie sich auf Basis Ihrer Ergebnisse für passende interne Weiterbildungen an.
-                    Gemäss IKT-Konzept der BBW ist die Teilnahme an mindestens einer internen Weiterbildung zu digitalen Kompetenzen pro Jahr verpflichtend.
-                    Nutzen Sie die Themen- und Niveausymbole oben, um das für Sie passende Angebot zu finden.
                 </p>
             </div>
 
             <div class="name-input-section">
                 <label for="resultName">Name (optional für PDF):</label>
                 <input type="text" id="resultName" placeholder="Vor- und Nachname">
+                <p style="font-size: 0.8em; color: #999; margin-top: 6px;">Der Name erscheint nur auf dem gedruckten Dokument und wird nicht im System gespeichert.</p>
             </div>
 
             <div class="action-buttons">
@@ -1975,15 +1975,16 @@ window.calculateResults = function() {
                     '<span style="color:#666; font-size:0.9em;"> (' + rec.percentage + '%)</span>' +
                     '<br><span style="color:#495057;">' + rec.text + '</span></div></div>';
             });
-            // PIKT-Hinweis
-            recHTML += '<div style="margin-top:18px; padding:12px 16px; background:#e8f5e9; border-left:3px solid #28a745; border-radius:4px; font-size:0.9em; color:#495057; line-height:1.5;">' +
-                '<strong>Ihr PIKT-Team unterstützt Sie:</strong> Bei didaktisch-pädagogischen Fragen rund um digitale Kompetenzen steht Ihnen das PIKT-Team als Ansprechstelle zur Verfügung – auch abteilungsübergreifend. Nutzen Sie die internen Weiterbildungsangebote, die PIKT-Help-Seite und die niederschwelligen Austauschformate (z.\u00a0B. Digital Lunch).</div>';
-            // IKT-Konzept Hinweis
-            recHTML += '<div style="margin-top:10px; padding:12px 16px; background:#f0f4f8; border-left:3px solid #2E75B6; border-radius:4px; font-size:0.9em; color:#495057; line-height:1.5;">' +
-                '<em>«Für die BBW-Lehrpersonen besteht grundsätzlich die Pflicht, mindestens ein Angebot der vier erwähnten Weiterbildungskategorien pro Jahr zu besuchen und dieses im Rahmen der Q-Dokumentation festzuhalten.»</em>' +
-                '<br><span style="color:#888;">— IKT-Konzept BBW, Punkt 5.4</span></div>';
 
             document.getElementById('recommendationsList').innerHTML = recHTML;
+
+            // PIKT-Hinweis (nach Legende)
+            document.getElementById('piktHinweis').innerHTML = '<div style="padding:12px 16px; background:#e8f5e9; border-left:3px solid #28a745; border-radius:4px; font-size:0.9em; color:#495057; line-height:1.5; margin-bottom:10px;">' +
+                '<strong>Ihr PIKT-Team unterstützt Sie:</strong> Bei didaktisch-pädagogischen Fragen rund um digitale Kompetenzen steht Ihnen das PIKT-Team als Ansprechstelle zur Verfügung \u2013 auch abteilungsübergreifend. Nutzen Sie die internen Weiterbildungsangebote, die PIKT-Help-Seite und die niederschwelligen Austauschformate (z.\u00a0B. Digital Lunch).</div>';
+            // IKT-Konzept Zitat (nach PIKT-Hinweis)
+            document.getElementById('iktZitat').innerHTML = '<div style="padding:12px 16px; background:#f0f4f8; border-left:3px solid #2E75B6; border-radius:4px; font-size:0.9em; color:#495057; line-height:1.5;">' +
+                '<em>\u00abFür die BBW-Lehrpersonen besteht grundsätzlich die Pflicht, mindestens ein Angebot der vier erwähnten Weiterbildungskategorien pro Jahr zu besuchen und dieses im Rahmen der Q-Dokumentation festzuhalten.\u00bb</em>' +
+                '<br><span style="color:#888;">\u2014 IKT-Konzept BBW, Punkt 5.4</span></div>';
         }
 
         // Generate Recommendations Function – zeigt die 2 schwächsten Bereiche
@@ -1998,29 +1999,29 @@ window.calculateResults = function() {
 
             const categoryRecommendations = {
                 1: [
-                    "Besuchen Sie Basis-Schulungen zu Microsoft 365 und Cloud-Diensten.",
-                    "Nutzen Sie die TIKT-Sprechstunde für individuelle Unterstützung bei Geräten und Software.",
-                    "Verschaffen Sie sich einen Überblick über die Lizenzangebote der Schule (PIKT-Help-Seite)."
+                    "Vertiefen Sie Ihre Kenntnisse im Umgang mit den digitalen Arbeitsgeräten und den an der Schule verfügbaren Softwareanwendungen.",
+                    "Nutzen Sie die technische Sprechstunde (TIKT) für individuelle Unterstützung bei Geräten, Software und Systemeinstellungen.",
+                    "Verschaffen Sie sich einen Überblick über die digitalen Lizenz- und Toolangebote der Schule und probieren Sie gezielt 2\u20133 neue Anwendungen aus."
                 ],
                 2: [
-                    "Experimentieren Sie mit interaktiven Tools (z.\u00a0B. Quizlet, Actionbound) für Ihre Unterrichtsvorbereitung.",
-                    "Besuchen Sie Workshops zu digitaler Unterrichtsgestaltung und LMS-Nutzung (OpenOlat).",
-                    "Nutzen Sie KI-Generatoren gezielt für die Erstellung von Aufgaben und Materialien."
+                    "Setzen Sie digitale Werkzeuge gezielt für die Vorbereitung, Durchführung und Auswertung Ihres Unterrichts ein.",
+                    "Vertiefen Sie Ihre Kompetenzen in der Organisation und Durchführung des Lernens mit digitalen Medien \u2013 besuchen Sie entsprechende interne Weiterbildungen.",
+                    "Nutzen Sie KI-gestützte Werkzeuge gezielt für die Erstellung von Aufgaben, Materialien und individualisierten Lernwegen."
                 ],
                 3: [
-                    "Erstellen Sie erste Kurzvideos oder Podcasts für Ihren Unterricht.",
-                    "Integrieren Sie Quellenkritik und Medienkompetenz als festen Unterrichtsbestandteil.",
-                    "Nutzen Sie Medienarchive (Statista, E-Thek, swissdox, nanoo.tv) für aktuelle Unterrichtsinhalte."
+                    "Erstellen Sie erste multimediale Lerninhalte (z.\u2009B. Kurzvideos, Podcasts) und setzen Sie diese im Unterricht ein.",
+                    "Integrieren Sie Quellenkritik, Faktencheck und Medienkompetenz als festen Bestandteil Ihres Unterrichts.",
+                    "Nutzen Sie die verfügbaren Medienarchive und Recherchetools für aktuelle, quellenbasierte Unterrichtsinhalte."
                 ],
                 4: [
-                    "Nehmen Sie an einer Datenschutz-Schulung teil (Vorgaben MBA Kanton Zürich).",
-                    "Teilen Sie Dokumente in Clouds nur mit eingeschränktem Personenkreis (Need-to-know-Prinzip).",
-                    "Entwickeln Sie eine strukturierte Dateiablage mit klaren Namenskonventionen und nutzen Sie Suchfunktionen."
+                    "Vertiefen Sie Ihre Kenntnisse zu Datenschutz und Informationssicherheit \u2013 besuchen Sie eine entsprechende Schulung.",
+                    "Achten Sie beim Teilen von Dokumenten in der Cloud auf den eingeschränkten Personenkreis (Need-to-know-Prinzip) und nutzen Sie Zugriffsrechte bewusst.",
+                    "Entwickeln Sie eine strukturierte Dateiablage mit klaren Benennungen und nutzen Sie Suchfunktionen für einen effizienten Zugriff."
                 ],
                 5: [
-                    "Nutzen Sie Microsoft Teams aktiver für die Zusammenarbeit im Kollegium.",
-                    "Setzen Sie Versandterminierung für E-Mails ein und etablieren Sie klare Kommunikationsregeln.",
-                    "Besuchen Sie einen PIKT-Digital-Lunch zum Thema kollaborative Arbeitsweisen."
+                    "Setzen Sie digitale Kommunikations- und Kollaborationswerkzeuge aktiver für die Zusammenarbeit im Kollegium ein.",
+                    "Nutzen Sie Funktionen wie Versandterminierung, automatische Antworten und Kommunikationsregeln für eine professionelle digitale Kommunikation.",
+                    "Besuchen Sie niederschwellige Austauschformate (z.\u2009B. Digital Lunch), um von den Erfahrungen anderer Lehrpersonen zu profitieren."
                 ]
             };
 
