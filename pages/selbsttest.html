@@ -647,37 +647,44 @@
         .badge-legend { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin: 16px 0; padding: 12px; background: #f8f9fa; border-radius: 10px; }
         .badge-legend-item { display: flex; align-items: center; gap: 4px; font-size: 12px; color: #495057; }
 
+        /* PDF-Sektions-Titel: im Browser dezent, im Print prominent */
+        .pdf-section-title { display: none; }
+
         @media print {
             @page { margin: 10mm 12mm; size: A4; }
             body { background: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; font-size: 9pt !important; }
             .container { box-shadow: none; padding: 8px; max-width: 100%; margin: 0; }
             .back-button, .action-buttons, .info-button, .name-input-section, #codeEntry, #testSection, .progress-container { display: none !important; }
-            .print-header { display: block !important; text-align: center; margin-bottom: 6px; }
+            .print-header { display: block !important; text-align: center; margin-bottom: 4px; }
             .print-header p { color: #666; font-size: 8pt; margin: 2px 0 0; }
             .results-section { display: block !important; }
-            .results-header { margin-bottom: 4px; }
-            .results-header h2 { font-size: 11pt; margin-bottom: 2px; }
-            .score-circle { width: 60px !important; height: 60px !important; font-size: 1.3em !important; margin: 2px auto !important; }
-            #scoreText { font-size: 8.5pt !important; margin-bottom: 4px; }
-            /* Seite 1: Ergebnisse mit Unterthemen als schmale Balken */
-            .category-result { break-inside: avoid; margin-bottom: 3px !important; padding: 3px 6px !important; }
+            /* PDF-Sektions-Titel sichtbar im Druck */
+            .pdf-section-title { display: block !important; font-size: 10pt !important; color: #1B3A5C !important; margin: 8px 0 3px !important; border-bottom: 1px solid #2E75B6; padding-bottom: 2px; }
+            /* Seite 1: Überblick Ergebnisse */
+            .results-header { margin-bottom: 3px; }
+            .score-circle { width: 55px !important; height: 55px !important; font-size: 1.2em !important; margin: 2px auto !important; }
+            #scoreText { font-size: 8pt !important; margin-bottom: 3px; }
+            .category-result { break-inside: avoid; margin-bottom: 2px !important; padding: 2px 6px !important; }
             .category-result-header { font-size: 8pt; }
-            .result-bar-container { height: 7px !important; margin-top: 1px; }
-            /* Subcategories: schmale Farbbalken im Druck */
+            .result-bar-container { height: 6px !important; margin-top: 1px; }
+            /* Subcategories: schmale Farbbalken */
             .subcategory-results { display: block !important; margin: 1px 0 2px 0 !important; padding: 0 !important; }
-            .subcategory-item { height: 4px !important; margin: 1px 0 !important; position: relative; overflow: hidden; background: #e9ecef; border-radius: 2px; }
+            .subcategory-item { height: 3px !important; margin: 1px 0 !important; position: relative; overflow: hidden; background: #e9ecef; border-radius: 2px; }
             .sub-text-screen { display: none !important; }
             .sub-bar-print { display: block !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            /* Seite 2: Empfehlungen, PIKT, IKT */
+            /* Seite 2: Empfehlungen ab hier */
             .recommendations { break-before: page; page-break-before: always; margin-top: 0; }
-            .recommendations h3 { font-size: 10pt; margin-bottom: 4px; }
             .recommendation-item { font-size: 8.5pt; margin-bottom: 5px !important; gap: 6px !important; }
             .recommendation-item .badge-theme { width: 22px !important; height: 22px !important; font-size: 8px !important; }
-            .badge-legend { font-size: 7.5pt; padding: 4px 6px; margin: 4px 0; gap: 4px !important; }
+            .recommendation-item ul { font-size: 8pt; margin: 2px 0 !important; padding-left: 16px !important; }
+            .recommendation-item li { margin-bottom: 1px !important; }
+            /* Symbolgebung */
+            .badge-legend { font-size: 7.5pt; padding: 3px 6px; margin: 3px 0; gap: 4px !important; }
             .badge-legend-item { gap: 2px !important; }
-            #piktHinweis div, #iktZitat div { font-size: 8pt !important; padding: 6px 10px !important; margin-bottom: 4px !important; }
+            /* Hinweise */
+            #piktHinweis div, #iktZitat div { font-size: 7.5pt !important; padding: 4px 8px !important; margin-bottom: 3px !important; }
+            .results-section > div[style*="e8f5e9"] { font-size: 8pt; padding: 4px 8px !important; margin: 3px 0 !important; }
             .score-circle, .badge-theme, .badge-niveau, .result-bar, .badge-legend { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            .results-section > div[style*="e8f5e9"] { font-size: 8pt; padding: 5px 10px !important; margin: 4px 0 !important; }
         }
     </style>
 </head>
@@ -736,8 +743,9 @@
                 <p id="printName"></p>
                 <p id="printDate"></p>
             </div>
+
+            <h2 class="pdf-section-title" style="color:#1B3A5C; font-size:1.3em; margin:10px 0 5px;">Überblick Ergebnisse</h2>
             <div class="results-header">
-                <h2>Ihre Ergebnisse</h2>
                 <div id="scoreCircle" class="score-circle">
                     </div>
                 <p id="scoreText" style="font-size: 1.2em; color: #495057;"></p>
@@ -746,18 +754,20 @@
             <div id="categoryResults" class="category-results">
                 </div>
 
+            <h2 class="pdf-section-title" style="color:#1B3A5C; font-size:1.3em; margin:20px 0 5px;">Empfehlungen</h2>
             <div id="recommendations" class="recommendations">
-                <h3>Empfohlene Entwicklungsmassnahmen</h3>
                 <div id="recommendationsList">
                     </div>
             </div>
 
+            <h2 class="pdf-section-title" style="color:#1B3A5C; font-size:1.3em; margin:20px 0 5px;">Symbolgebung</h2>
             <div id="badgeLegend" class="badge-legend"></div>
 
+            <h2 class="pdf-section-title" style="color:#1B3A5C; font-size:1.3em; margin:20px 0 5px;">Hinweise</h2>
             <div id="piktHinweis"></div>
             <div id="iktZitat"></div>
 
-            <div style="background: #e8f5e9; border-left: 4px solid #28a745; padding: 16px 20px; border-radius: 8px; margin: 20px 0;">
+            <div style="background: #e8f5e9; border-left: 4px solid #28a745; padding: 16px 20px; border-radius: 8px; margin: 10px 0;">
                 <p style="color: #1B3A5C; margin: 0; line-height: 1.5;">
                     <strong>Nächster Schritt:</strong> Melden Sie sich auf Basis Ihrer Ergebnisse für passende interne Weiterbildungen an.
                 </p>
@@ -1993,24 +2003,25 @@ window.calculateResults = function() {
             const recommendations = generateRecommendations(results);
             var recHTML = '';
             recommendations.forEach(function(rec) {
-                var textsHTML = '';
+                var bulletsHTML = '<ul style="margin:6px 0 0 0; padding-left:20px; color:#495057;">';
                 if (rec.texts && rec.texts.length) {
                     rec.texts.forEach(function(t) {
-                        textsHTML += '<div style="color:#495057; margin-top:4px; padding-left:8px; border-left:2px solid #dee2e6;">' + t + '</div>';
+                        bulletsHTML += '<li style="margin-bottom:3px;">' + t + '</li>';
                     });
                 }
+                bulletsHTML += '</ul>';
                 recHTML += '<div class="recommendation-item" style="display:flex; align-items:flex-start; gap:10px; margin-bottom:16px;">' +
                     makeBadge(themeBadges[rec.catIndex], false) +
                     '<div><strong>' + rec.title + '</strong> ' + niveauBadge(rec.percentage) +
                     '<span style="color:#666; font-size:0.9em;"> (' + rec.percentage + '%)</span>' +
-                    textsHTML + '</div></div>';
+                    bulletsHTML + '</div></div>';
             });
 
             document.getElementById('recommendationsList').innerHTML = recHTML;
 
             // PIKT-Hinweis (nach Legende)
             document.getElementById('piktHinweis').innerHTML = '<div style="padding:12px 16px; background:#e8f5e9; border-left:3px solid #28a745; border-radius:4px; font-size:0.9em; color:#495057; line-height:1.5; margin-bottom:10px;">' +
-                '<strong>Ihr PIKT-Team unterstützt Sie:</strong> Bei didaktisch-pädagogischen Fragen rund um digitale Kompetenzen steht Ihnen das PIKT-Team als Ansprechstelle zur Verfügung \u2013 auch abteilungsübergreifend. Posten Sie Fragen und Best Practices im TIKT/PIKT-Teams-Kanal oder nutzen Sie den Direkt-Support durch die PIKTs.</div>';
+                '<strong>Ihr PIKT-Team unterstützt Sie:</strong> Bei didaktisch-pädagogischen Fragen rund um digitale Kompetenzen steht Ihnen das PIKT-Team als Ansprechstelle zur Verfügung \u2013 auch abteilungsübergreifend. Posten Sie Fragen und Best Practices im TIKT/PIKT-Teams-Kanal oder nutzen Sie den Direkt-Support durch die PIKTS.</div>';
             // IKT-Konzept Zitat (nach PIKT-Hinweis)
             document.getElementById('iktZitat').innerHTML = '<div style="padding:12px 16px; background:#f0f4f8; border-left:3px solid #2E75B6; border-radius:4px; font-size:0.9em; color:#495057; line-height:1.5;">' +
                 '<em>\u00abFür die BBW-Lehrpersonen besteht grundsätzlich die Pflicht, mindestens ein Angebot der vier erwähnten Weiterbildungskategorien pro Jahr zu besuchen und dieses im Rahmen der Q-Dokumentation festzuhalten.\u00bb</em>' +
@@ -2032,13 +2043,13 @@ window.calculateResults = function() {
                 1: { // Grundkenntnisse IKT
                     excellent: ["Geben Sie Ihr Wissen als Mentor/in an Kolleginnen und Kollegen weiter.", "Evaluieren Sie neue digitale Werkzeuge und geben Sie Empfehlungen an das PIKT-Team."],
                     good: ["Vertiefen Sie gezielt einzelne Anwendungen und erkunden Sie erweiterte Funktionen.", "Testen Sie neue Lizenzangebote der Schule und integrieren Sie diese in Ihren Alltag."],
-                    improvement: ["Nutzen Sie die technische Sprechstunde (TIKT) f\u00fcr individuelle Unterst\u00fctzung bei Ger\u00e4ten und Software.", "Verschaffen Sie sich einen \u00dcberblick \u00fcber die digitalen Lizenz- und Toolangebote der Schule."],
+                    improvement: ["Holen Sie sich Unterst\u00fctzung bei den TIKTS f\u00fcr Fragen zu Ger\u00e4ten und Software.", "Verschaffen Sie sich einen \u00dcberblick \u00fcber die digitalen Lizenz- und Toolangebote der Schule."],
                     low: ["Besuchen Sie eine Basis-Schulung zu den digitalen Arbeitsger\u00e4ten und Grundanwendungen.", "Lassen Sie sich von einer TIKT-Ansprechperson pers\u00f6nlich in die wichtigsten Tools einf\u00fchren."]
                 },
                 2: { // Anwendung im Unterricht
                     excellent: ["Entwickeln Sie innovative digitale Unterrichtskonzepte und teilen Sie diese mit Fachkolleginnen und -kollegen.", "Begleiten Sie andere Lehrpersonen als Coach bei der Integration digitaler Medien in den Unterricht."],
                     good: ["Nutzen Sie KI-gest\u00fctzte Werkzeuge gezielt f\u00fcr die Erstellung von Aufgaben und individualisierten Lernwegen.", "Vertiefen Sie die Organisation und Durchf\u00fchrung des Lernens mit digitalen Medien."],
-                    improvement: ["Setzen Sie digitale Werkzeuge gezielt f\u00fcr die Vorbereitung und Auswertung Ihres Unterrichts ein.", "Besuchen Sie eine interne Weiterbildung zur digitalen Unterrichtsgestaltung."],
+                    improvement: ["Setzen Sie digitale Werkzeuge gezielt f\u00fcr die Vorbereitung und Auswertung Ihres Unterrichts ein.", "Erproben Sie ein konkretes digitales Unterrichtsszenario und reflektieren Sie die Erfahrungen."],
                     low: ["Starten Sie mit einem einfachen digitalen Werkzeug f\u00fcr die Unterrichtsvorbereitung und sammeln Sie erste Erfahrungen.", "Lassen Sie sich von einer PIKT-Ansprechperson ein konkretes Unterrichtsbeispiel zeigen."]
                 },
                 3: { // Medien- und Informationskompetenz
@@ -2056,7 +2067,7 @@ window.calculateResults = function() {
                 5: { // Kommunikation und Kollaboration
                     excellent: ["Initiieren Sie neue digitale Zusammenarbeitsformate im Kollegium und \u00fcber Abteilungsgrenzen hinweg.", "Geben Sie Ihre Erfahrungen mit digitalen Kommunikationswerkzeugen als Vorbild an andere weiter."],
                     good: ["Nutzen Sie Funktionen wie Versandterminierung und Kommunikationsregeln f\u00fcr eine professionelle digitale Kommunikation.", "Posten Sie Fragen und Best Practices im TIKT/PIKT-Teams-Kanal."],
-                    improvement: ["Setzen Sie digitale Kommunikations- und Kollaborationswerkzeuge aktiver f\u00fcr die Zusammenarbeit ein.", "Nutzen Sie den Direkt-Support durch die PIKTs, um von den Erfahrungen anderer Lehrpersonen zu profitieren."],
+                    improvement: ["Setzen Sie digitale Kommunikations- und Kollaborationswerkzeuge aktiver f\u00fcr die Zusammenarbeit ein.", "Nutzen Sie den Direkt-Support durch die PIKTS, um von den Erfahrungen anderer Lehrpersonen zu profitieren."],
                     low: ["Besuchen Sie eine Einf\u00fchrung in die digitalen Kommunikationswerkzeuge der Schule.", "Lassen Sie sich zeigen, wie Sie digitale Kan\u00e4le f\u00fcr den kollegialen Austausch nutzen k\u00f6nnen."]
                 }
             };
