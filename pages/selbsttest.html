@@ -671,9 +671,10 @@
             .subcategory-results { display: block !important; margin: 1px 0 2px 0 !important; padding: 0 !important; }
             .subcategory-item { height: 3px !important; margin: 1px 0 !important; position: relative; overflow: hidden; background: #e9ecef; border-radius: 2px; }
             .sub-text-screen { display: none !important; }
-            .sub-bar-print { display: block !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            /* Seite 2: Empfehlungen ab hier */
-            .recommendations { break-before: page; page-break-before: always; margin-top: 0; }
+            .sub-bar-print { display: block !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
+            /* Seite 2: Seitenumbruch VOR dem Empfehlungen-Titel */
+            .pdf-page2-start { break-before: page; page-break-before: always; }
+            .recommendations { margin-top: 0; }
             .recommendation-item { font-size: 8.5pt; margin-bottom: 5px !important; gap: 6px !important; }
             .recommendation-item .badge-theme { width: 22px !important; height: 22px !important; font-size: 8px !important; }
             .recommendation-item ul { font-size: 8pt; margin: 2px 0 !important; padding-left: 16px !important; }
@@ -754,7 +755,7 @@
             <div id="categoryResults" class="category-results">
                 </div>
 
-            <h2 class="pdf-section-title" style="color:#1B3A5C; font-size:1.3em; margin:20px 0 5px;">Empfehlungen</h2>
+            <h2 class="pdf-section-title pdf-page2-start" style="color:#1B3A5C; font-size:1.3em; margin:20px 0 5px;">Empfehlungen</h2>
             <div id="recommendations" class="recommendations">
                 <div id="recommendationsList">
                     </div>
