@@ -1511,6 +1511,21 @@ info: {
         }
 
         // Start Test Function (synchron, async-Teile intern)
+        // Code gegen Firestore validieren
+        async function validateCode(code) {
+            var fb = window.__fb;
+            if (!fb || !fb.firebaseReady || !fb.db) return false;
+            try {
+                var codesRef = fb.collection(fb.db, 'codes');
+                var q = fb.query(codesRef, fb.where("code", "==", code));
+                var snap = await fb.getDocs(q);
+                return !snap.empty;
+            } catch (e) {
+                console.warn("Code-Validierung fehlgeschlagen:", e);
+                return false;
+            }
+        }
+
         window.startTest = function() {
             const codeInput = document.getElementById('accessCode');
             const code = codeInput.value.trim().toUpperCase();
@@ -1522,12 +1537,23 @@ info: {
                 return;
             }
 
-            testCode = code;
-            testStartTime = new Date();
-            sessionStorage.setItem('bbw_testCode', code);
+            // Zuerst Code validieren, dann weiter
+            validateCode(code).then(function(isValid) {
+                // Test-Codes immer erlauben
+                if (!isValid && code !== "TEST-1234" && code !== "0HDM-V3EU") {
+                    alert('Ungültiger Code. Bitte verwenden Sie den Code, den Sie von Ihrer Abteilungsleitung erhalten haben.');
+                    sessionStorage.removeItem('bbw_testCode');
+                    return;
+                }
 
-            // Async: Prüfe ob Ergebnisse oder Draft existieren
-            Promise.all([loadLastResult(code), loadDraft(code), countAttempts(code)]).then(function(res) {
+                testCode = code;
+                testStartTime = new Date();
+                sessionStorage.setItem('bbw_testCode', code);
+
+                // Async: Prüfe ob Ergebnisse oder Draft existieren
+                return Promise.all([loadLastResult(code), loadDraft(code), countAttempts(code)]);
+            }).then(function(res) {
+                if (!res) return; // Code war ungültig
                 var lastResult = res[0];
                 var draft = res[1];
                 var attempts = res[2];
