@@ -667,13 +667,15 @@
             .category-result { break-inside: avoid; margin-bottom: 2px !important; padding: 2px 6px !important; }
             .category-result-header { font-size: 8pt; }
             .result-bar-container { height: 6px !important; margin-top: 1px; }
-            /* Subcategories: schmale Farbbalken */
-            .subcategory-results { display: block !important; margin: 1px 0 2px 0 !important; padding: 0 !important; }
-            .subcategory-item { height: 3px !important; margin: 1px 0 !important; position: relative; overflow: hidden; background: #e9ecef; border-radius: 2px; }
-            .sub-text-screen { display: none !important; }
-            .sub-bar-print { display: block !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
+            /* Subcategories: wie Online-Version anzeigen (Text + Badges) */
+            .subcategory-results { display: block !important; margin: 1px 0 3px 0 !important; }
+            .subcategory-item { height: auto !important; margin: 1px 0 !important; font-size: 7.5pt !important; color: #6c757d !important; overflow: visible !important; background: none !important; }
+            .sub-text-screen { display: inline !important; }
+            .sub-bar-print { display: none !important; }
+            .subcategory-item .badge-theme { width: 16px !important; height: 16px !important; font-size: 7px !important; }
+            .subcategory-item .badge-niveau { width: 18px !important; height: 18px !important; font-size: 10px !important; margin-left: 3px !important; padding: 1px 3px !important; }
             /* Seite 2: Seitenumbruch VOR dem Empfehlungen-Titel */
-            .pdf-page2-start { break-before: page; page-break-before: always; }
+            .pdf-page2-start { break-before: page; page-break-before: always; padding-top: 10px; }
             .recommendations { margin-top: 0; }
             .recommendation-item { font-size: 8.5pt; margin-bottom: 5px !important; gap: 6px !important; }
             .recommendation-item .badge-theme { width: 22px !important; height: 22px !important; font-size: 8px !important; }
