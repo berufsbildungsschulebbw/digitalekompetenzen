@@ -5,11 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BBW Digitale Kompetenzen für Lehrpersonen</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -20,190 +16,151 @@
         }
 
         .container {
-            max-width: 900px;
+            max-width: 1050px;
             margin: 0 auto;
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(255, 255, 255, 0.97);
             border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             padding: 40px;
-            backdrop-filter: blur(10px);
             min-height: calc(100vh - 30px);
         }
 
         .header {
             text-align: center;
-            margin-bottom: 40px;
+            margin-bottom: 25px;
         }
-
-        .header h1 {
-            color: #2d3748;
-            font-size: 2.2em;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .header .subtitle {
-            color: #718096;
-            font-size: 1.1em;
-            margin-bottom: 20px;
-        }
+        .header h1 { color: #1B3A5C; font-size: 2em; margin-bottom: 6px; }
+        .header .subtitle { color: #718096; font-size: 1em; }
 
         .intro-text {
-            max-width: 700px;
-            margin: 0 auto 40px;
+            max-width: 750px;
+            margin: 0 auto 30px;
             text-align: center;
-            line-height: 1.7;
-            font-size: 1em;
+            line-height: 1.6;
+            font-size: 0.95em;
             color: #4a5568;
             background: #f7fafc;
-            padding: 25px;
+            padding: 20px 25px;
             border-radius: 12px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
         }
 
+        /* 3-Karten Grid */
         .main-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 25px;
-            margin-top: 35px;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 25px;
         }
 
         .main-card {
             background: white;
             border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-            transition: all 0.4s ease;
+            padding: 28px 24px;
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
             cursor: pointer;
             display: flex;
             flex-direction: column;
+            border-top: 4px solid transparent;
         }
-
-        .main-card:before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 5px;
-            background: var(--card-color);
-        }
-
         .main-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 36px rgba(0, 0, 0, 0.18);
         }
-        
-        .card-content {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-        }
+
+        .grundlagen-card { border-top-color: #2E75B6; }
+        .kompetenzen-card { border-top-color: #D4760A; }
+        .selbsttest-card { border-top-color: #28a745; }
 
         .card-icon {
-            width: 55px;
-            height: 55px;
-            background: var(--card-color);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 1.6em;
-            margin: 0 auto 20px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-            flex-shrink: 0;
+            font-size: 2.5em;
+            margin-bottom: 12px;
         }
-
         .card-title {
-            font-size: 1.3em;
-            color: #2d3748;
-            margin-bottom: 15px;
-            text-align: center;
-            font-weight: bold;
+            font-size: 1.15em;
+            color: #1B3A5C;
+            margin-bottom: 10px;
+            font-weight: 700;
         }
-
         .card-description {
+            font-size: 0.88em;
             color: #4a5568;
             line-height: 1.5;
-            margin-bottom: 20px;
-            text-align: center;
-            font-size: 0.9em;
             flex-grow: 1;
+            margin-bottom: 14px;
         }
 
-        .card-features {
-            list-style: none;
-            margin-bottom: 20px;
+        .access-info {
+            font-size: 0.78em;
+            padding: 6px 10px;
+            border-radius: 6px;
+            margin-bottom: 14px;
         }
-
-        .card-features li {
-            padding: 4px 0;
-            color: #4a5568;
-            display: flex;
-            align-items: center;
-            font-size: 0.85em;
-        }
-
-        .card-features li:before {
-            content: "✓";
-            color: var(--card-color);
-            font-weight: bold;
-            margin-right: 8px;
-        }
+        .access-free { background: #e8f5e9; color: #2E7D32; }
+        .access-code { background: #fff3e0; color: #e65100; }
 
         .card-button {
+            display: block;
             width: 100%;
-            padding: 10px 20px;
-            background: var(--card-color);
+            padding: 10px;
+            background: #1B3A5C;
             color: white;
             border: none;
             border-radius: 8px;
             font-size: 0.9em;
-            font-weight: bold;
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-top: auto;
+            transition: background 0.3s;
         }
+        .card-button:hover { background: #2E75B6; }
+        .selbsttest-card .card-button { background: #28a745; }
+        .selbsttest-card .card-button:hover { background: #218838; }
 
-        .card-button:hover {
-            background: var(--card-color-dark);
-            transform: translateY(-2px);
+        /* Admin-Link unten */
+        .admin-link {
+            text-align: center;
+            padding: 12px 0;
+            border-top: 1px solid #e2e8f0;
+            margin-top: 10px;
         }
+        .admin-link a {
+            color: #718096;
+            font-size: 0.85em;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        .admin-link a:hover { color: #1B3A5C; text-decoration: underline; }
+        .admin-link a span { font-size: 0.9em; }
 
-        .access-info {
-            padding: 8px;
-            border-radius: 6px;
-            margin: 12px 0;
-            font-size: 0.8em;
-            border: 1px solid;
+        /* Abteilungen */
+        .abteilungen-info {
+            margin-top: 20px;
             text-align: center;
         }
-
-        .access-free { background: #d4edda; color: #155724; border-color: #c3e6cb; }
-        .access-code { background: #fff3cd; color: #856404; border-color: #ffeaa7; }
-        .access-restricted { background: #f8d7da; color: #721c24; border-color: #f5c6cb; }
-
-        /* Card Colors */
-        .grundlagen-card { --card-color: #4CAF50; --card-color-dark: #388E3C; }
-        .kompetenzen-card { --card-color: #2196F3; --card-color-dark: #1565C0; }
-        .selbsttest-card { --card-color: #FF6B6B; --card-color-dark: #E53E3E; }
-        .intra-card { --card-color: #9C27B0; --card-color-dark: #7B1FA2; }
-
-        .abteilungen-info { background: linear-gradient(45deg, #f8f9fa, #e9ecef); border-radius: 12px; padding: 25px; margin-top: 35px; text-align: center; }
-        .abteilungen-info h3 { color: #495057; margin-bottom: 15px; font-size: 1.1em; }
-        .abteilungen-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 15px; }
-        .abteilung-item { background: white; padding: 15px; border-radius: 8px; border-left: 3px solid #667eea; font-weight: 500; text-align: center; font-size: 0.9em; }
+        .abteilungen-info h3 { color: #1B3A5C; font-size: 0.95em; margin-bottom: 8px; }
+        .abteilungen-info p { font-size: 0.82em; color: #718096; margin-bottom: 10px; }
+        .abteilungen-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+        .abteilung-item {
+            background: #f7fafc;
+            padding: 10px;
+            border-radius: 8px;
+            border-left: 3px solid #667eea;
+            font-weight: 600;
+            font-size: 0.82em;
+            color: #1B3A5C;
+        }
 
         @media (max-width: 768px) {
             .container { padding: 20px; }
-            .header h1 { font-size: 1.8em; }
-            .main-grid { grid-template-columns: 1fr; gap: 20px; }
-            .abteilungen-grid { grid-template-columns: 1fr; }
+            .header h1 { font-size: 1.6em; }
+            .main-grid { grid-template-columns: 1fr; gap: 16px; }
+            .abteilungen-grid { grid-template-columns: repeat(2, 1fr); }
         }
     </style>
 </head>
@@ -216,76 +173,66 @@
 
         <div class="intro-text">
             <p>
-                Willkommen zum Kompetenzerfassungssystem der BBW. Erkunden Sie die digitalen Kompetenzen, 
-                führen Sie Selbsteinschätzungen durch oder greifen Sie auf interne Auswertungen zu. 
-                Das System bietet anonyme Code-basierte Tests mit individualisierten Entwicklungsempfehlungen.
+                Erkunden Sie die digitalen Kompetenzbereiche, informieren Sie sich über die Grundlagen
+                und führen Sie die Selbsteinschätzung durch. Das System bietet anonyme Code-basierte
+                Tests mit individualisierten Entwicklungsempfehlungen.
             </p>
         </div>
 
         <div class="main-grid">
+            <!-- 1. Grundlagen (links) -->
             <div class="main-card grundlagen-card" onclick="navigateTo('grundlagen.html')">
-                <div class="card-content">
-                    <div class="card-icon">📚</div>
-                    <h2 class="card-title">Grundlagen & Konzepte</h2>
-                    <p class="card-description">
-                        Umfassende Darstellung der digitalen Kompetenzen mit Verknüpfung zu IKT- und pädagogisch-didaktischen Konzepten der BBW.
-                    </p>
-                    <div class="access-info access-free">
-                        <strong>Freier Zugang:</strong> Keine Anmeldung erforderlich
-                    </div>
+                <div class="card-icon">📚</div>
+                <h2 class="card-title">Grundlagen & Konzepte</h2>
+                <p class="card-description">
+                    Darstellung der digitalen Kompetenzen mit Verknüpfung zu IKT- und pädagogisch-didaktischen Konzepten der BBW.
+                </p>
+                <div class="access-info access-free">
+                    Freier Zugang
                 </div>
                 <button class="card-button">Grundlagen erkunden</button>
             </div>
 
-            <div class="main-card selbsttest-card" onclick="navigateTo('selbsttest.html')">
-                <div class="card-content">
-                    <div class="card-icon">✓</div>
-                    <h2 class="card-title">Selbsteinschätzung</h2>
-                    <p class="card-description">
-                        Anonymer Kompetenztest mit automatischer Auswertung und personalisierten Entwicklungsempfehlungen.
-                    </p>
-                    <div class="access-info access-code">
-                        <strong>Code erforderlich:</strong> Zugangs-Code von Ihrer Abteilungsleitung
-                    </div>
-                </div>
-                <button class="card-button">Test durchführen</button>
-            </div>
-
+            <!-- 2. Kompetenzbereiche (Mitte) -->
             <div class="main-card kompetenzen-card" onclick="navigateTo('kompetenzbereiche.html')">
-                <div class="card-content">
-                    <div class="card-icon">🎯</div>
-                    <h2 class="card-title">Kompetenzbereiche</h2>
-                    <p class="card-description">
-                        Detaillierte Übersicht aller Einzelkompetenzen mit praktischen Anwendungsbeispielen und Tool-Empfehlungen.
-                    </p>
-                    <div class="access-info access-free">
-                        <strong>Freier Zugang:</strong> Keine Anmeldung erforderlich
-                    </div>
+                <div class="card-icon">🎯</div>
+                <h2 class="card-title">Kompetenzbereiche</h2>
+                <p class="card-description">
+                    Detaillierte Übersicht aller Einzelkompetenzen mit praktischen Anwendungsbeispielen und Tool-Empfehlungen.
+                </p>
+                <div class="access-info access-free">
+                    Freier Zugang
                 </div>
                 <button class="card-button">Kompetenzen durchsuchen</button>
             </div>
 
-            <div class="main-card intra-card" onclick="navigateTo('intra.html')">
-                <div class="card-content" style="justify-content: center; text-align: center;">
-                    <div class="card-icon">🔐</div>
-                    <h2 class="card-title">Intra</h2>
-                    <div class="access-info access-restricted" style="margin-top: 20px; margin-bottom: 20px;">
-                        <strong>Passwort-geschützt:</strong> Login erforderlich
-                    </div>
+            <!-- 3. Selbsteinschätzung (rechts) -->
+            <div class="main-card selbsttest-card" onclick="navigateTo('selbsttest.html')">
+                <div class="card-icon">✅</div>
+                <h2 class="card-title">Selbsteinschätzung</h2>
+                <p class="card-description">
+                    Anonymer Kompetenztest mit automatischer Auswertung und personalisierten Entwicklungsempfehlungen.
+                </p>
+                <div class="access-info access-code">
+                    Code erforderlich (von Ihrer Abteilungsleitung)
                 </div>
-                <button class="card-button">Zum Intra-Bereich</button>
+                <button class="card-button">Test durchführen</button>
             </div>
         </div>
 
         <div class="abteilungen-info">
             <h3>Abteilungen der BBW</h3>
-            <p>Das System erfasst Kompetenzen für alle vier Abteilungen der BBW:</p>
+            <p>Das System erfasst Kompetenzen für alle vier Abteilungen:</p>
             <div class="abteilungen-grid">
-                <div class="abteilung-item"><strong>Bau</strong></div>
-                <div class="abteilung-item"><strong>Technik | Ernährung</strong></div>
-                <div class="abteilung-item"><strong>Maschinenbau</strong></div>
-                <div class="abteilung-item"><strong>Informatik | Naturwissenschaften</strong></div>
+                <div class="abteilung-item">Bau</div>
+                <div class="abteilung-item">Technik | Ernährung</div>
+                <div class="abteilung-item">Maschinenbau</div>
+                <div class="abteilung-item">Informatik | NW</div>
             </div>
+        </div>
+
+        <div class="admin-link">
+            <a href="pages/intra.html"><span>🔐</span> Intra-Bereich (Login erforderlich)</a>
         </div>
     </div>
 
