@@ -1988,16 +1988,25 @@ window.calculateResults = function() {
                 '</div>';
             }).join('');
 
-            // Legende
-            var legendHTML = '<strong style="font-size:12px;margin-right:8px;">Themen:</strong>';
+            // Legende: zwei separate Boxen
+            var legendHTML = '<div style="display:flex; flex-wrap:wrap; gap:8px;">';
+            // Box Themen
+            legendHTML += '<div style="flex:1; min-width:280px; background:#f0f4f8; border:1px solid #dee2e6; border-radius:8px; padding:8px 12px;">';
+            legendHTML += '<strong style="font-size:11px; color:#1B3A5C; display:block; margin-bottom:6px;">Themen</strong>';
+            legendHTML += '<div style="display:flex; flex-wrap:wrap; gap:8px;">';
             categoryNames.forEach(function(n, i) {
                 legendHTML += '<span class="badge-legend-item">' + makeBadge(themeBadges[i], true) + ' ' + n + '</span>';
             });
-            legendHTML += '<br><strong style="font-size:12px;margin-right:8px;margin-top:6px;">Niveaus:</strong>';
+            legendHTML += '</div></div>';
+            // Box Niveaus
+            legendHTML += '<div style="flex:1; min-width:280px; background:#f8f5f0; border:1px solid #dee2e6; border-radius:8px; padding:8px 12px;">';
+            legendHTML += '<strong style="font-size:11px; color:#1B3A5C; display:block; margin-bottom:6px;">Niveaus</strong>';
+            legendHTML += '<div style="display:flex; flex-wrap:wrap; gap:8px;">';
             legendHTML += '<span class="badge-legend-item"><span class="badge-niveau bn-excellent">\u03A9</span> Ausgezeichnet (\u226580%)</span>';
             legendHTML += '<span class="badge-legend-item"><span class="badge-niveau bn-good">\u03A3</span> Gut (60-79%)</span>';
             legendHTML += '<span class="badge-legend-item"><span class="badge-niveau bn-improvement">\u0394</span> Aufbau (40-59%)</span>';
             legendHTML += '<span class="badge-legend-item"><span class="badge-niveau bn-low">\u03B1</span> Basis (&lt;40%)</span>';
+            legendHTML += '</div></div></div>';
             document.getElementById('badgeLegend').innerHTML = legendHTML;
             
             document.getElementById('categoryResults').innerHTML = categoryResultsHTML;
