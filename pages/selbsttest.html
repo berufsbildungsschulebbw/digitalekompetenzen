@@ -891,7 +891,7 @@
                             paed: "PDM 🛠️ - Methodenvielfalt"
                         },
                         options: [
-                            { value: 4, text: "Experte - Ich nutze erweiterte Funktionen wie Makros und Automatisierungen" },
+                            { value: 4, text: "Expertenwissen - Ich nutze erweiterte Funktionen wie Makros und Automatisierungen" },
                             { value: 3, text: "Fortgeschritten - Ich erstelle ansprechende Materialien mit verschiedenen Funktionen" },
                             { value: 2, text: "Grundlegend - Ich kann einfache Dokumente und Präsentationen erstellen" },
                             { value: 1, text: "Basis - Ich kenne nur die wichtigsten Grundfunktionen" }
@@ -909,7 +909,7 @@
                             paed: "PU 📚 - Praxisorientierung"
                         },
                         options: [
-                            { value: 4, text: "Expertenniveau - Ich kann komplexe fachspezifische Anwendungen souverän einsetzen" },
+                            { value: 4, text: "Expertenwissen - Ich kann komplexe fachspezifische Anwendungen souverän einsetzen" },
                             { value: 3, text: "Sicher - Ich nutze regelmässig fachspezifische Software" },
                             { value: 2, text: "Grundkenntnisse - Ich kann einfache Funktionen nutzen" },
                             { value: 1, text: "Wenig - Ich nutze kaum fachspezifische Software" }
@@ -1109,7 +1109,7 @@ info: {
                             paed: "PU 📚 - Recherchekompetenz"
                         },
                         options: [
-                            { value: 4, text: "Expertenniveau - Ich lehre systematisch digitale Recherchekompetenzen" },
+                            { value: 4, text: "Expertenwissen - Ich lehre systematisch digitale Recherchekompetenzen" },
                             { value: 3, text: "Gut - Ich zeige regelmässig digitale Recherchemethoden" },
                             { value: 2, text: "Grundlegend - Gelegentliche Hinweise zur digitalen Suche" },
                             { value: 1, text: "Wenig - Kaum Vermittlung digitaler Suchkompetenzen" }
@@ -1323,7 +1323,7 @@ info: {
                         info: {
                             examples: "Höfliche Anrede, klare Betreffzeilen, respektvoller Ton, passende Emoji-Nutzung",
                             tools: "E-Mail-Etikette, Chat-Regeln, Video-Call-Etikette",
-                            tips: "Seien Sie ein Vorbild. Kommunizieren Sie Erwartungen klar. Bleiben Sie professionell.",
+                            tips: "Gehen Sie mit gutem Beispiel voran. Kommunizieren Sie Erwartungen klar. Bleiben Sie professionell.",
                             ikt: "MG 🛠️ - Gestaltung",
                             paed: "PLL 👥 - Wertschätzung"
                         },
@@ -1347,7 +1347,7 @@ info: {
                             paed: "PU 📚 - Teamwork"
                         },
                         options: [
-                            { value: 4, text: "Expertenniveau - Ich leite komplexe kollaborative Projekte" },
+                            { value: 4, text: "Expertenwissen - Ich leite komplexe kollaborative Projekte" },
                             { value: 3, text: "Routiniert - Regelmässige Arbeit mit geteilten Dokumenten" },
                             { value: 2, text: "Grundkenntnisse - Gelegentliche Nutzung" },
                             { value: 1, text: "Wenig - Ich arbeite lieber mit eigenen Dateien" }
@@ -2080,13 +2080,13 @@ window.calculateResults = function() {
             // Pro Kategorie + Niveau: je 2 passende Empfehlungen
             var niveauRec = {
                 1: { // Grundkenntnisse IKT
-                    excellent: ["Geben Sie Ihr Wissen als Mentor/in an Kolleginnen und Kollegen weiter.", "Evaluieren Sie neue digitale Werkzeuge und geben Sie Empfehlungen an das PIKT-Team."],
+                    excellent: ["Geben Sie Ihr Wissen an Kolleginnen und Kollegen weiter.", "Evaluieren Sie neue digitale Werkzeuge und geben Sie Empfehlungen an das PIKT-Team."],
                     good: ["Vertiefen Sie gezielt einzelne Anwendungen und erkunden Sie erweiterte Funktionen.", "Testen Sie neue Lizenzangebote der Schule und integrieren Sie diese in Ihren Alltag."],
                     improvement: ["Holen Sie sich Unterst\u00fctzung bei den TIKTS f\u00fcr Fragen zu Ger\u00e4ten und Software.", "Verschaffen Sie sich einen \u00dcberblick \u00fcber die digitalen Lizenz- und Toolangebote der Schule."],
                     low: ["Besuchen Sie eine Basis-Schulung zu den digitalen Arbeitsger\u00e4ten und Grundanwendungen.", "Lassen Sie sich von einer TIKT-Ansprechperson pers\u00f6nlich in die wichtigsten Tools einf\u00fchren."]
                 },
                 2: { // Anwendung im Unterricht
-                    excellent: ["Entwickeln Sie innovative digitale Unterrichtskonzepte und teilen Sie diese mit Fachkolleginnen und -kollegen.", "Begleiten Sie andere Lehrpersonen als Coach bei der Integration digitaler Medien in den Unterricht."],
+                    excellent: ["Entwickeln Sie innovative digitale Unterrichtskonzepte und teilen Sie diese mit Fachkolleginnen und -kollegen.", "Begleiten Sie andere Lehrpersonen bei der Integration digitaler Medien in den Unterricht."],
                     good: ["Nutzen Sie KI-gest\u00fctzte Werkzeuge gezielt f\u00fcr die Erstellung von Aufgaben und individualisierten Lernwegen.", "Vertiefen Sie die Organisation und Durchf\u00fchrung des Lernens mit digitalen Medien."],
                     improvement: ["Setzen Sie digitale Werkzeuge gezielt f\u00fcr die Vorbereitung und Auswertung Ihres Unterrichts ein.", "Erproben Sie ein konkretes digitales Unterrichtsszenario und reflektieren Sie die Erfahrungen."],
                     low: ["Starten Sie mit einem einfachen digitalen Werkzeug f\u00fcr die Unterrichtsvorbereitung und sammeln Sie erste Erfahrungen.", "Lassen Sie sich von einer PIKT-Ansprechperson ein konkretes Unterrichtsbeispiel zeigen."]
@@ -2104,7 +2104,7 @@ window.calculateResults = function() {
                     low: ["Besuchen Sie eine Datenschutz-Schulung zu den Vorgaben im schulischen Kontext.", "Lassen Sie sich die Grundlagen der sicheren Dateiablage und des Dokumentenschutzes zeigen."]
                 },
                 5: { // Kommunikation und Kollaboration
-                    excellent: ["Initiieren Sie neue digitale Zusammenarbeitsformate im Kollegium und \u00fcber Abteilungsgrenzen hinweg.", "Geben Sie Ihre Erfahrungen mit digitalen Kommunikationswerkzeugen als Vorbild an andere weiter."],
+                    excellent: ["Initiieren Sie neue digitale Zusammenarbeitsformate im Kollegium und \u00fcber Abteilungsgrenzen hinweg.", "Geben Sie Ihre Erfahrungen mit digitalen Kommunikationswerkzeugen an andere Lehrpersonen weiter."],
                     good: ["Nutzen Sie Funktionen wie Versandterminierung und Kommunikationsregeln f\u00fcr eine professionelle digitale Kommunikation.", "Posten Sie Fragen und Best Practices im TIKT/PIKT-Teams-Kanal."],
                     improvement: ["Setzen Sie digitale Kommunikations- und Kollaborationswerkzeuge aktiver f\u00fcr die Zusammenarbeit ein.", "Nutzen Sie den Direkt-Support durch die PIKTS, um von den Erfahrungen anderer Lehrpersonen zu profitieren."],
                     low: ["Besuchen Sie eine Einf\u00fchrung in die digitalen Kommunikationswerkzeuge der Schule.", "Lassen Sie sich zeigen, wie Sie digitale Kan\u00e4le f\u00fcr den kollegialen Austausch nutzen k\u00f6nnen."]
