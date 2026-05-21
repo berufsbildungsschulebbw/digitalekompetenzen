@@ -1,0 +1,38 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAdmin() {
+      return request.auth != null && request.auth.token.role == 'admin';
+    }
+    function isDeptAdmin(dept) {
+      return request.auth != null
+        && request.auth.token.role == 'department'
+        && request.auth.token.department == dept;
+    }
+    function isAdminOrDept(dept) {
+      return isAdmin() || isDeptAdmin(dept);
+    }
+
+    match /codes/{codeId} {
+      allow read: if request.auth != null;
+      allow create: if isAdminOrDept(request.resource.data.department);
+      allow update, delete: if isAdminOrDept(resource.data.department);
+    }
+
+    match /results/{resultId} {
+      allow create: if request.auth != null;
+      allow read: if isAdmin() || request.auth.token.role == 'department';
+      allow update: if false;
+      allow delete: if isAdmin();
+    }
+
+    match /drafts/{draftId} {
+      allow read, write: if request.auth != null;
+    }
+
+    match /config/{document} {
+      allow read, write: if false;
+    }
+  }
+}

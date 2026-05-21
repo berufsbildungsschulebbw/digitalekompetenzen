@@ -1032,7 +1032,7 @@
     <script type="module">
         // Firebase Imports
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { 
             getFirestore, 
             doc, 
@@ -1062,6 +1062,8 @@
 
         const hasValidFirebaseConfig = firebaseConfig && firebaseConfig.apiKey && firebaseConfig.projectId;
 
+        const CLOUD_FUNCTION_URL = 'https://manageusers-stycxdfhoa-ew.a.run.app';
+
         // Initialize Firebase guarded
         let app = null, db = null, auth = null;
         let firebaseReady = false;
@@ -1085,19 +1087,18 @@
         // Firestore Collection References (nur wenn verfügbar)
         let codesCollection = null;
         let resultsCollection = null;
-        let accountsDocRef = null;
         if (db) {
             codesCollection = collection(db, 'codes');
             resultsCollection = collection(db, 'results');
-            accountsDocRef = doc(db, 'config', 'userAccounts');
         }
 
         // State Management
         let currentUser = null;
         let currentDepartment = null;
+        let currentRole = null;
         let generatedCodes = [];
         let testResults = [];
-        let userAccounts = {};
+        let managedUsers = [];
 
         // Global verfügbar machen für Debugging
         window.generatedCodes = generatedCodes;
@@ -1168,96 +1169,54 @@ const categoryNames = [
     "Kommunikation und Kollaboration"
 ];
         async function initializeAppWithFirebase() {
-            // Wenn Firebase nicht bereit ist: Local-Mode mit Demologins
-            if (!firebaseReady || !auth || !db || !accountsDocRef) {
-                console.warn("Initialize: Firebase nicht verfügbar – Demologins aktiv.");
-                userAccounts = {
-                    'bau': { user: 'demo', pass: 'demo123' },
-                    'technik': { user: 'demo', pass: 'demo123' },
-                    'maschinenbau': { user: 'demo', pass: 'demo123' },
-                    'informatik': { user: 'demo', pass: 'demo123' },
-                    'admin': { user: 'admin', pass: 'admin123' }
-                };
+            if (!firebaseReady || !auth || !db) {
+                console.warn("Firebase nicht verfügbar.");
                 return;
             }
+            console.log("Firebase bereit, warte auf Login...");
+        }
 
-            try {
-                // Sign in using the provided token or anonymously
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
-                }
-
-                const docSnap = await getDoc(accountsDocRef);
-                if (docSnap.exists()) {
-                    userAccounts = docSnap.data();
-                    console.log("User accounts loaded from Firestore");
-                } else {
-                    console.log("No account config found, creating default accounts...");
-                    userAccounts = {
-                        'bau': [],
-                        'technik': [],
-                        'maschinenbau': [],
-                        'informatik': [],
-                        'admin': [{ user: 'admin', pass: 'admin123' }]
-                    };
-                    await setDoc(accountsDocRef, userAccounts);
-                }
-
-                // Real-time listeners mit besserer Fehlerbehandlung
-                if (codesCollection) {
-                    const unsubscribeCodes = onSnapshot(codesCollection, 
-                        (snapshot) => {
-                            generatedCodes = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                            window.generatedCodes = generatedCodes; // Global verfügbar machen
-                            console.log("Codes aktualisiert:", generatedCodes.length);
-                            if (currentUser) {
-                                loadDashboardData();
-                                if (document.getElementById('resultsTab').classList.contains('active')) { loadResultsData(); }
-                                if (document.getElementById('statisticsTab').classList.contains('active')) { loadStatisticsData(); }
-                            }
-                        },
-                        (error) => {
-                            console.error("Fehler beim Codes-Listener:", error);
+        function setupRealtimeListeners() {
+            if (codesCollection) {
+                onSnapshot(codesCollection,
+                    (snapshot) => {
+                        generatedCodes = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                        window.generatedCodes = generatedCodes;
+                        console.log("Codes aktualisiert:", generatedCodes.length);
+                        if (currentUser) {
+                            loadDashboardData();
+                            if (document.getElementById('resultsTab').classList.contains('active')) { loadResultsData(); }
+                            if (document.getElementById('statisticsTab').classList.contains('active')) { loadStatisticsData(); }
                         }
-                    );
-                }
-
-                if (resultsCollection) {
-                    const unsubscribeResults = onSnapshot(resultsCollection, 
-                        (snapshot) => {
-                            testResults = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                            window.testResults = testResults; // Global verfügbar machen
-                            console.log("Results aktualisiert:", testResults.length);
-                            if (currentUser) {
-                                updateStatistics();
-                                if (document.getElementById('resultsTab').classList.contains('active')) { loadResultsData(); }
-                                if (document.getElementById('statisticsTab').classList.contains('active')) { loadStatisticsData(); }
-                            }
-                        },
-                        (error) => {
-                            console.error("Fehler beim Results-Listener:", error);
-                        }
-                    );
-                }
-
-                // Initiale Daten laden
-                await loadInitialData();
-                
-            } catch (error) {
-                console.error('Fehler bei der Firebase-Initialisierung:', error);
-                // Fallback auf Local-Mode
-                if (!userAccounts || Object.keys(userAccounts).length === 0) {
-                    userAccounts = {
-                        'bau': [],
-                        'technik': [],
-                        'maschinenbau': [],
-                        'informatik': [],
-                        'admin': [{ user: 'admin', pass: 'admin123' }]
-                    };
-                }
+                    },
+                    (error) => {
+                        console.error("Fehler beim Codes-Listener:", error);
+                    }
+                );
             }
+
+            if (resultsCollection) {
+                onSnapshot(resultsCollection,
+                    (snapshot) => {
+                        testResults = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                        window.testResults = testResults;
+                        console.log("Results aktualisiert:", testResults.length);
+                        if (currentUser) {
+                            updateStatistics();
+                            if (document.getElementById('resultsTab').classList.contains('active')) { loadResultsData(); }
+                            if (document.getElementById('statisticsTab').classList.contains('active')) { loadStatisticsData(); }
+                        }
+                    },
+                    (error) => {
+                        console.error("Fehler beim Results-Listener:", error);
+                    }
+                );
+            }
+        }
+
+        async function getAuthToken() {
+            if (!auth || !auth.currentUser) return null;
+            return await auth.currentUser.getIdToken();
         }
 
         // Neue Funktion: Initiale Daten laden
@@ -1321,94 +1280,86 @@ const categoryNames = [
         // Login Handler with Back Button hiding
         async function handleLogin(event) {
             event.preventDefault();
-            
+
             const department = document.getElementById('department').value;
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
-            
-            const account = userAccounts[department];
-            
-            // Check if login is valid
-            let loginOk = false;
-            
-            // If account is an array, check all users
-            if (Array.isArray(account)) {
-                loginOk = account.some(acc => username === acc.user && password === acc.pass);
-            } 
-            // If account is a single object (legacy format)
-            else if (account && typeof account === 'object' && account.user) {
-                loginOk = (username === account.user && password === account.pass);
-            }
-            
-            // Demo login is allowed if:
-            // 1. No users exist for the department (empty array or no account)
-            // 2. Department is not admin
-            const demoAllowed = (
-                (!account || (Array.isArray(account) && account.length === 0)) && 
-                department && 
-                department !== 'admin'
-            );
-            
-            // Accept login if either regular login is valid OR demo login is allowed
-            if ((loginOk && department) || (demoAllowed && username === 'demo' && password === 'demo123')) {
-                currentUser = username;
-                currentDepartment = department;
-                window.currentDepartment = department; // Global verfügbar machen
 
-                // Session speichern für Refresh-Persistenz
-                sessionStorage.setItem('bbw_admin_user', username);
-                sessionStorage.setItem('bbw_admin_dept', department);
-                
+            if (!department || !username || !password) {
+                document.getElementById('errorMessage').style.display = 'block';
+                setTimeout(() => { document.getElementById('errorMessage').style.display = 'none'; }, 3000);
+                return;
+            }
+
+            const loginButton = document.querySelector('.login-button');
+            if (loginButton) { loginButton.disabled = true; loginButton.textContent = 'Anmelden...'; }
+
+            try {
+                const email = `${username}.${department}@ikt-komp-bbw.local`;
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const tokenResult = await userCredential.user.getIdTokenResult();
+                const claims = tokenResult.claims;
+
+                currentUser = username;
+                currentDepartment = claims.department || department;
+                currentRole = claims.role || 'department';
+                window.currentDepartment = currentDepartment;
+
+                const isAdmin = currentRole === 'admin';
+
                 // Hide login section and back button
                 document.getElementById('loginSection').style.display = 'none';
                 document.getElementById('backButton').classList.add('hidden');
                 document.getElementById('dashboardSection').classList.add('active');
-                
-                document.getElementById('userDepartment').textContent = deptNames[department] || department;
+
+                document.getElementById('userDepartment').textContent = deptNames[currentDepartment] || currentDepartment;
                 document.getElementById('userName').textContent = `Benutzer: ${username}`;
-                
-                const isAdmin = department === 'admin';
+
                 document.getElementById('adminTabButton').style.display = isAdmin ? 'block' : 'none';
                 document.getElementById('adminDepartmentSelector').style.display = isAdmin ? 'block' : 'none';
-                
-                // Nach Login: Daten neu laden
+
+                // Realtime-Listener und Daten laden
+                setupRealtimeListeners();
                 await loadInitialData();
                 loadDashboardData();
-                
-                // If admin, load user list
+
                 if (isAdmin) {
                     loadUserList();
                 }
-            } else {
+            } catch (error) {
+                console.error('Login fehlgeschlagen:', error);
                 const errorMessage = document.getElementById('errorMessage');
                 errorMessage.style.display = 'block';
-                setTimeout(() => {
-                   errorMessage.style.display = 'none';
-                }, 3000);
+                setTimeout(() => { errorMessage.style.display = 'none'; }, 3000);
+            } finally {
+                if (loginButton) { loginButton.disabled = false; loginButton.textContent = 'Anmelden'; }
             }
         }
 
         // Logout Handler with Back Button showing
-        function handleLogout() {
+        async function handleLogout() {
+            try {
+                if (auth) await signOut(auth);
+            } catch (e) {
+                console.error('Logout-Fehler:', e);
+            }
+
             currentUser = null;
             currentDepartment = null;
+            currentRole = null;
             window.currentDepartment = null;
 
-            // Session löschen
-            sessionStorage.removeItem('bbw_admin_user');
-            sessionStorage.removeItem('bbw_admin_dept');
-            
             // Show login section and back button
             document.getElementById('dashboardSection').classList.remove('active');
             document.getElementById('loginSection').style.display = 'block';
             document.getElementById('backButton').classList.remove('hidden');
             document.getElementById('adminTabButton').style.display = 'none';
-            
+
             // Clear form
             document.getElementById('department').value = '';
             document.getElementById('username').value = '';
             document.getElementById('password').value = '';
-            
+
             // Reset to first tab
             document.querySelectorAll('.tab-button').forEach(btn => {
                 btn.classList.remove('active');
@@ -1481,7 +1432,7 @@ const categoryNames = [
                 const description = document.getElementById('codeDescription').value.trim();
                 const quantity = parseInt(document.getElementById('codeQuantity').value);
                 
-                const isAdmin = currentDepartment === 'admin';
+                const isAdmin = currentRole === 'admin';
                 const targetDepartment = isAdmin 
                     ? document.getElementById('adminDepartmentSelect').value 
                     : currentDepartment;
@@ -1560,7 +1511,7 @@ const categoryNames = [
         // Load Dashboard Data
         function loadDashboardData() {
             const codeTableBody = document.getElementById('codeTableBody');
-            const isAdmin = currentDepartment === 'admin';
+            const isAdmin = currentRole === 'admin';
             const departmentCodes = isAdmin ? generatedCodes : generatedCodes.filter(c => c.department === currentDepartment);
 
             console.log("LoadDashboard - Alle Codes:", generatedCodes.length, "Department Codes:", departmentCodes.length);
@@ -1612,7 +1563,7 @@ const categoryNames = [
             console.log("Loading results data...");
             console.log("Test Results available:", testResults.length);
             
-            const isAdmin = currentDepartment === 'admin';
+            const isAdmin = currentRole === 'admin';
             const departmentCodes = isAdmin ? generatedCodes : generatedCodes.filter(c => c.department === currentDepartment);
             
             const codeList = departmentCodes.map(c => c.code);
@@ -1816,118 +1767,111 @@ const categoryNames = [
         let __editingDept = null;
         let __editingUser = null;
         
-        // Load User List for Admin
-        function loadUserList() {
-            if (currentDepartment !== 'admin') return;
-            
+        // Load User List for Admin (via API)
+        async function loadUserList() {
+            if (currentRole !== 'admin') return;
+
             const userList = document.getElementById('userList');
             if (!userList) return;
-            
-            let html = '';
-            for (const [dept, users] of Object.entries(userAccounts)) {
-                html += `<div style="margin-bottom: 15px;">`;
-                html += `<strong>${deptNames[dept] || dept}:</strong><br>`;
-                
-                if (Array.isArray(users) && users.length > 0) {
-                    users.forEach(user => {
-                        html += `<div style=\"margin-left: 20px; padding: 5px;\">`;
-                        html += `${user.user} `;
-                        html += `<button class=\"action-button view-button\" onclick=\"editUser('${dept}', '${user.user}')\">Bearbeiten</button>`;
-                        html += `<button class=\"action-button delete-button\" onclick=\"removeUser('${dept}', '${user.user}')\">Entfernen</button>`;
-                        html += `</div>`;
-                    });
-                } else if (users && typeof users === 'object' && users.user) {
-                    html += `<div style="margin-left: 20px; padding: 5px;">`;
-                    html += `${users.user} `;
-                    html += `<button class=\"action-button view-button\" onclick=\"editUser('${dept}', '${users.user}')\">Bearbeiten</button>`;
-                    html += `<button class=\"action-button delete-button\" onclick=\"removeUser('${dept}', '${users.user}')\">Entfernen</button>`;
-                    html += `</div>`;
-                } else {
-                    html += `<div style="margin-left: 20px; color: #6c757d; padding: 5px;">Keine Benutzer (Demo-Login aktiv)</div>`;
+
+            try {
+                const token = await getAuthToken();
+                const resp = await fetch(CLOUD_FUNCTION_URL, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (!resp.ok) throw new Error('Fehler beim Laden der Benutzer');
+                const data = await resp.json();
+                managedUsers = data.users || [];
+
+                const byDept = {};
+                for (const dept of Object.keys(deptNames)) {
+                    byDept[dept] = managedUsers.filter(u => u.department === dept);
                 }
-                html += `</div>`;
+
+                let html = '';
+                for (const [dept, users] of Object.entries(byDept)) {
+                    html += `<div style="margin-bottom: 15px;">`;
+                    html += `<strong>${deptNames[dept] || dept}:</strong><br>`;
+                    if (users.length > 0) {
+                        users.forEach(user => {
+                            html += `<div style="margin-left: 20px; padding: 5px;">`;
+                            html += `${user.username} `;
+                            html += `<button class="action-button view-button" onclick="editUser('${user.uid}', '${user.username}', '${dept}')">Bearbeiten</button>`;
+                            html += `<button class="action-button delete-button" onclick="removeUser('${user.uid}', '${user.username}', '${dept}')">Entfernen</button>`;
+                            html += `</div>`;
+                        });
+                    } else {
+                        html += `<div style="margin-left: 20px; color: #6c757d; padding: 5px;">Keine Benutzer</div>`;
+                    }
+                    html += `</div>`;
+                }
+                userList.innerHTML = html;
+            } catch (error) {
+                console.error('Fehler beim Laden der Benutzer:', error);
+                userList.innerHTML = '<div style="color: #dc3545;">Fehler beim Laden der Benutzerliste.</div>';
             }
-            userList.innerHTML = html;
         }
 
         
-       // Start editing an existing user
-        window.editUser = function(dept, username) {
+        // Start editing an existing user
+        window.editUser = function(uid, username, dept) {
             __editingDept = dept;
-            __editingUser = username;
-            const formDept = document.getElementById('userDepartment');
+            __editingUser = uid;
+            const formDept = document.getElementById('newUserDepartmentSelect');
             const userInput = document.getElementById('newUsername');
             const passInput = document.getElementById('newPassword');
-            
-            // Set and disable department selector during edit
+
             if (formDept) {
                 formDept.value = dept;
                 formDept.disabled = true;
-                document.getElementById('deptEditHint').style.display = 'block';
             }
-            
+
             if (userInput) userInput.value = username;
             if (passInput) {
                 passInput.value = '';
                 passInput.placeholder = 'Leer lassen für keine Änderung';
             }
-            
+
             const btn = document.getElementById('addUserBtn');
             if (btn) btn.textContent = 'Änderungen speichern';
-            
-            const cancelBtn = document.getElementById('cancelEditBtn');
-            if (cancelBtn) cancelBtn.style.display = 'inline-block';
-            
-            showCustomAlert('Bearbeitungsmodus für ' + username + ' (' + (deptNames[dept] || dept) + '): Benutzerdaten anpassen und „Änderungen speichern" klicken.');
+
+            showCustomAlert('Bearbeitungsmodus für ' + username + ' (' + (deptNames[dept] || dept) + '): Passwort ändern und „Änderungen speichern" klicken.');
         };
-        
+
         // Cancel edit mode
         window.cancelEdit = function() {
             __editingDept = null;
             __editingUser = null;
-            
+
             const formDept = document.getElementById('newUserDepartmentSelect');
-            if (formDept) {
-                formDept.disabled = false;
-                document.getElementById('deptEditHint').style.display = 'none';
-            }
-            
+            if (formDept) formDept.disabled = false;
+
             document.getElementById('newUsername').value = '';
             document.getElementById('newPassword').value = '';
             document.getElementById('newPassword').placeholder = 'Mind. 6 Zeichen';
-            
+
             const btn = document.getElementById('addUserBtn');
             if (btn) btn.textContent = 'Benutzer hinzufügen';
-            
-            const cancelBtn = document.getElementById('cancelEditBtn');
-            if (cancelBtn) cancelBtn.style.display = 'none';
         };
 
         async function saveEditUser() {
-            const dept = document.getElementById('newUserDepartmentSelect').value;
-            const username = document.getElementById('newUsername').value.trim();
             const password = document.getElementById('newPassword').value;
+            if (!__editingUser) return false;
 
-            if (!__editingDept || !__editingUser) return false;
-
-            if (!Array.isArray(userAccounts[dept])) {
-                if (userAccounts[dept] && userAccounts[dept].user) userAccounts[dept] = [userAccounts[dept]];
-                else userAccounts[dept] = [];
-            }
-            if (dept === __editingDept) {
-                const idx = userAccounts[dept].findIndex(u => u.user === __editingUser);
-                if (idx >= 0) {
-                    userAccounts[dept][idx] = { user: username, pass: (password || userAccounts[dept][idx].pass) };
+            try {
+                const token = await getAuthToken();
+                const resp = await fetch(CLOUD_FUNCTION_URL, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ uid: __editingUser, password: password || undefined })
+                });
+                if (!resp.ok) {
+                    const err = await resp.json();
+                    throw new Error(err.error);
                 }
-            } else {
-                if (Array.isArray(userAccounts[__editingDept])) {
-                    userAccounts[__editingDept] = userAccounts[__editingDept].filter(u => u.user != __editingUser);
-                }
-                userAccounts[dept].push({ user: username, pass: password || 'changeme' });
-            }
-
-            if (firebaseReady && accountsDocRef) {
-                await setDoc(accountsDocRef, userAccounts);
+                showCustomAlert('Benutzerdaten wurden gespeichert.');
+            } catch (error) {
+                showCustomAlert('Fehler: ' + error.message);
             }
 
             __editingDept = null;
@@ -1936,14 +1880,17 @@ const categoryNames = [
             if (btn) btn.textContent = 'Benutzer hinzufügen';
             document.getElementById('newUsername').value = '';
             document.getElementById('newPassword').value = '';
-            loadUserList();
-            showCustomAlert('Benutzerdaten wurden gespeichert.');
+            document.getElementById('newPassword').placeholder = 'Mind. 6 Zeichen';
+            const formDept = document.getElementById('newUserDepartmentSelect');
+            if (formDept) formDept.disabled = false;
+            await loadUserList();
             return true;
         }
 
-        // Add User Function
+        // Add User Function (via API)
         async function addUser() {
             if (__editingDept && __editingUser) { await saveEditUser(); return; }
+
             const dept = document.getElementById('newUserDepartmentSelect').value;
             const username = document.getElementById('newUsername').value.trim();
             const password = document.getElementById('newPassword').value;
@@ -1953,71 +1900,46 @@ const categoryNames = [
                 return;
             }
 
-            // Convert to array format if needed
-            if (!Array.isArray(userAccounts[dept])) {
-                if (userAccounts[dept] && userAccounts[dept].user) {
-                    userAccounts[dept] = [userAccounts[dept]];
-                } else {
-                    userAccounts[dept] = [];
-                }
-            }
-
-            // Check if user already exists
-            if (userAccounts[dept].some(u => u.user === username)) {
-                showCustomAlert('Benutzer existiert bereits für diese Abteilung.');
+            try {
+                const token = await getAuthToken();
+                const resp = await fetch(CLOUD_FUNCTION_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ username, password, department: dept })
+                });
+                const data = await resp.json();
+                if (!resp.ok) throw new Error(data.error);
+                showCustomAlert(`Benutzer ${username} wurde erfolgreich hinzugefügt.`);
+            } catch (error) {
+                showCustomAlert('Fehler: ' + error.message);
                 return;
             }
 
-            // Add new user
-            userAccounts[dept].push({ user: username, pass: password });
-
-            // Save to Firestore if available
-            if (firebaseReady && accountsDocRef) {
-                try {
-                    await setDoc(accountsDocRef, userAccounts);
-                    showCustomAlert(`Benutzer ${username} wurde erfolgreich hinzugefügt.`);
-                } catch (error) {
-                    console.error('Fehler beim Speichern:', error);
-                    showCustomAlert('Fehler beim Speichern: ' + error.message);
-                }
-            } else {
-                showCustomAlert(`Benutzer ${username} wurde lokal hinzugefügt.`);
-            }
-
-            // Clear form
             document.getElementById('newUsername').value = '';
             document.getElementById('newPassword').value = '';
-            
-            // Reload user list
-            loadUserList();
+            await loadUserList();
         }
 
-        // Remove User Function (global for inline onclick)
-        window.removeUser = async function(dept, username) {
+        // Remove User Function (via API)
+        window.removeUser = async function(uid, username, dept) {
             showCustomConfirm(
                 `Möchten Sie den Benutzer <strong>${username}</strong> aus der Abteilung <strong>${deptNames[dept]}</strong> wirklich entfernen?`,
                 "Entfernen",
                 async () => {
-                    if (Array.isArray(userAccounts[dept])) {
-                        userAccounts[dept] = userAccounts[dept].filter(u => u.user !== username);
-                    } else if (userAccounts[dept] && userAccounts[dept].user === username) {
-                        userAccounts[dept] = [];
+                    try {
+                        const token = await getAuthToken();
+                        const resp = await fetch(CLOUD_FUNCTION_URL, {
+                            method: 'DELETE',
+                            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                            body: JSON.stringify({ uid })
+                        });
+                        const data = await resp.json();
+                        if (!resp.ok) throw new Error(data.error);
+                        showCustomAlert(`Benutzer ${username} wurde entfernt.`);
+                    } catch (error) {
+                        showCustomAlert('Fehler: ' + error.message);
                     }
-
-                    // Save to Firestore if available
-                    if (firebaseReady && accountsDocRef) {
-                        try {
-                            await setDoc(accountsDocRef, userAccounts);
-                            showCustomAlert(`Benutzer ${username} wurde entfernt.`);
-                        } catch (error) {
-                            console.error('Fehler beim Speichern:', error);
-                            showCustomAlert('Fehler beim Speichern: ' + error.message);
-                        }
-                    } else {
-                        showCustomAlert(`Benutzer ${username} wurde lokal entfernt.`);
-                    }
-
-                    loadUserList();
+                    await loadUserList();
                 }
             );
         };
@@ -2025,7 +1947,7 @@ const categoryNames = [
         // Update Statistics
         function updateStatistics() {
             console.log("Updating statistics...");
-            const isAdmin = currentDepartment === 'admin';
+            const isAdmin = currentRole === 'admin';
             const departmentCodes = isAdmin ? generatedCodes : generatedCodes.filter(c => c.department === currentDepartment);
             const codeList = departmentCodes.map(c => c.code);
             const relevantResults = testResults.filter(r => r && r.testCode && codeList.includes(r.testCode));
@@ -2354,7 +2276,7 @@ if (result.totalPercentage >= 80) {
         }
 
 function exportResults() {
-    const isAdmin = currentDepartment === 'admin';
+    const isAdmin = currentRole === 'admin';
     const departmentCodes = isAdmin
         ? generatedCodes.map(c => c.code)
         : generatedCodes.filter(c => c.department === currentDepartment).map(c => c.code);
@@ -2461,7 +2383,7 @@ function exportResults() {
 
         function filterResults() {
             const selectedCode = document.getElementById('codeFilter').value;
-            const isAdmin = currentDepartment === 'admin';
+            const isAdmin = currentRole === 'admin';
             const departmentCodes = isAdmin
                 ? generatedCodes
                 : generatedCodes.filter(c => c.department === currentDepartment);
@@ -2549,26 +2471,43 @@ function exportResults() {
                 }
             });
 
-            // Auto-Login: Session wiederherstellen nach Refresh
-            const savedUser = sessionStorage.getItem('bbw_admin_user');
-            const savedDept = sessionStorage.getItem('bbw_admin_dept');
-            if (savedUser && savedDept) {
-                console.log('Session wiederherstellen:', savedUser, savedDept);
-                document.getElementById('username').value = savedUser;
-                document.getElementById('department').value = savedDept;
-                // Simuliere Login ohne Passwort-Prüfung
-                currentUser = savedUser;
-                currentDepartment = savedDept;
-                window.currentDepartment = savedDept;
-                document.getElementById('loginSection').style.display = 'none';
-                document.getElementById('backButton').classList.add('hidden');
-                document.getElementById('dashboardSection').classList.add('active');
-                document.getElementById('userDepartment').textContent = (typeof deptNames !== 'undefined' && deptNames[savedDept]) ? deptNames[savedDept] : savedDept;
-                document.getElementById('userName').textContent = 'Benutzer: ' + savedUser;
-                const isAdmin = savedDept === 'admin';
-                document.getElementById('adminTabButton').style.display = isAdmin ? 'block' : 'none';
-                document.getElementById('adminDepartmentSelector').style.display = isAdmin ? 'block' : 'none';
-                loadInitialData().then(() => { loadDashboardData(); if (isAdmin) loadUserList(); });
+            // Auto-Login: Firebase Auth Session wiederherstellen nach Refresh
+            if (auth) {
+                auth.onAuthStateChanged(async (user) => {
+                    if (user && !currentUser) {
+                        try {
+                            const tokenResult = await user.getIdTokenResult();
+                            const claims = tokenResult.claims;
+                            if (!claims.role) return;
+
+                            const emailParts = user.email.split('@')[0].split('.');
+                            const username = emailParts[0];
+                            const department = claims.department;
+
+                            currentUser = username;
+                            currentDepartment = department;
+                            currentRole = claims.role;
+                            window.currentDepartment = department;
+
+                            const isAdmin = currentRole === 'admin';
+
+                            document.getElementById('loginSection').style.display = 'none';
+                            document.getElementById('backButton').classList.add('hidden');
+                            document.getElementById('dashboardSection').classList.add('active');
+                            document.getElementById('userDepartment').textContent = deptNames[department] || department;
+                            document.getElementById('userName').textContent = 'Benutzer: ' + username;
+                            document.getElementById('adminTabButton').style.display = isAdmin ? 'block' : 'none';
+                            document.getElementById('adminDepartmentSelector').style.display = isAdmin ? 'block' : 'none';
+
+                            setupRealtimeListeners();
+                            await loadInitialData();
+                            loadDashboardData();
+                            if (isAdmin) loadUserList();
+                        } catch (e) {
+                            console.error('Session-Wiederherstellung fehlgeschlagen:', e);
+                        }
+                    }
+                });
             }
         });
     </script>
