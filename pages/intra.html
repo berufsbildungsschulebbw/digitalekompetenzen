@@ -1062,6 +1062,8 @@
 
         const hasValidFirebaseConfig = firebaseConfig && firebaseConfig.apiKey && firebaseConfig.projectId;
 
+        const CLOUD_FUNCTION_URL = 'https://manageusers-stycxdfhoa-ew.a.run.app';
+
         // Initialize Firebase guarded
         let app = null, db = null, auth = null;
         let firebaseReady = false;
@@ -1774,7 +1776,7 @@ const categoryNames = [
 
             try {
                 const token = await getAuthToken();
-                const resp = await fetch('/api/manage-users', {
+                const resp = await fetch(CLOUD_FUNCTION_URL, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 if (!resp.ok) throw new Error('Fehler beim Laden der Benutzer');
@@ -1858,7 +1860,7 @@ const categoryNames = [
 
             try {
                 const token = await getAuthToken();
-                const resp = await fetch('/api/manage-users', {
+                const resp = await fetch(CLOUD_FUNCTION_URL, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                     body: JSON.stringify({ uid: __editingUser, password: password || undefined })
@@ -1900,7 +1902,7 @@ const categoryNames = [
 
             try {
                 const token = await getAuthToken();
-                const resp = await fetch('/api/manage-users', {
+                const resp = await fetch(CLOUD_FUNCTION_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                     body: JSON.stringify({ username, password, department: dept })
@@ -1926,7 +1928,7 @@ const categoryNames = [
                 async () => {
                     try {
                         const token = await getAuthToken();
-                        const resp = await fetch('/api/manage-users', {
+                        const resp = await fetch(CLOUD_FUNCTION_URL, {
                             method: 'DELETE',
                             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                             body: JSON.stringify({ uid })
