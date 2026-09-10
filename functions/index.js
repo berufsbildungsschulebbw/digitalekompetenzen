@@ -184,8 +184,14 @@ exports.migrateUsers = onRequest({ region: "europe-west1", invoker: "public" }, 
 // werden im Adminbereich als eigene Abteilung geführt.
 
 const ANON_DEPARTMENT = "anonym";
-const ANON_MAX_PER_IP_PER_HOUR = 3;
-const ANON_MAX_GLOBAL_PER_HOUR = 60;
+// Drei gestaffelte Kontingente im rollierenden Stundenfenster:
+// - pro Browser-Identität (anonyme Firebase-UID): bremst Klick-Spam aus einem Browser
+// - pro Anschluss (IP-Hash): bewusst grosszügig, weil im Schulhaus alle Lehrpersonen
+//   hinter derselben öffentlichen IP sitzen (NAT)
+// - global: Notbremse gegen verteilte Anfragen
+const ANON_MAX_PER_USER_PER_HOUR = 2;
+const ANON_MAX_PER_IP_PER_HOUR = 100;
+const ANON_MAX_GLOBAL_PER_HOUR = 200;
 const ANON_WINDOW_MS = 60 * 60 * 1000;
 
 function clientIp(req) {
@@ -211,20 +217,39 @@ function randomAnonCode() {
   return `ANON-${suffix}`;
 }
 
-// Rollierendes Stundenfenster, transaktional pro Schlüssel.
-async function consumeQuota(db, key, limit) {
-  const ref = db.collection("anonRateLimits").doc(key);
+// Prüft alle Kontingente atomar in einer Transaktion. Die Zähler werden nur
+// erhöht, wenn jedes Kontingent Platz hat – eine abgewiesene Anfrage verbraucht
+// also nichts (sonst würde z. B. die globale Bremse das Browser-Kontingent leeren).
+async function consumeQuotas(db, quotas) {
+  const refs = quotas.map((q) => db.collection("anonRateLimits").doc(q.key));
   return db.runTransaction(async (tx) => {
-    const snap = await tx.get(ref);
     const now = Date.now();
-    const data = snap.exists ? snap.data() : null;
-    const windowStart = data && now - data.windowStart < ANON_WINDOW_MS ? data.windowStart : now;
-    const count = data && windowStart === data.windowStart ? data.count : 0;
+    const snaps = await tx.getAll(...refs);
+    const states = snaps.map((snap) => {
+      const data = snap.exists ? snap.data() : null;
+      const expired = !data || now - data.windowStart >= ANON_WINDOW_MS;
+      return {
+        windowStart: expired ? now : data.windowStart,
+        count: expired ? 0 : data.count,
+      };
+    });
 
-    if (count >= limit) {
-      return { allowed: false, retryAfterMs: windowStart + ANON_WINDOW_MS - now };
+    for (let i = 0; i < quotas.length; i++) {
+      if (states[i].count >= quotas[i].limit) {
+        return {
+          allowed: false,
+          scope: quotas[i].scope,
+          retryAfterMs: states[i].windowStart + ANON_WINDOW_MS - now,
+        };
+      }
     }
-    tx.set(ref, { windowStart, count: count + 1, lastRequest: now }, { merge: true });
+    for (let i = 0; i < quotas.length; i++) {
+      tx.set(
+        refs[i],
+        { windowStart: states[i].windowStart, count: states[i].count + 1, lastRequest: now },
+        { merge: true }
+      );
+    }
     return { allowed: true };
   });
 }
@@ -241,8 +266,9 @@ exports.createAnonCode = onRequest({ region: "europe-west1", invoker: "public" }
       if (!authHeader || !authHeader.startsWith("Bearer ")) {
         return res.status(401).json({ error: "Nicht angemeldet." });
       }
+      let caller;
       try {
-        await auth.verifyIdToken(authHeader.split("Bearer ")[1]);
+        caller = await auth.verifyIdToken(authHeader.split("Bearer ")[1]);
       } catch (e) {
         return res.status(401).json({ error: "Anmeldung ungültig." });
       }
@@ -250,19 +276,19 @@ exports.createAnonCode = onRequest({ region: "europe-west1", invoker: "public" }
       const db = admin.firestore();
       const ipHash = hashIp(clientIp(req));
 
-      const ipQuota = await consumeQuota(db, `ip_${ipHash}`, ANON_MAX_PER_IP_PER_HOUR);
-      if (!ipQuota.allowed) {
-        const minutes = Math.max(1, Math.ceil(ipQuota.retryAfterMs / 60000));
-        return res.status(429).json({
-          error: `Es wurden bereits ${ANON_MAX_PER_IP_PER_HOUR} anonyme Zugänge von diesem Anschluss erstellt. Bitte in ${minutes} Minuten erneut versuchen oder den vorhandenen Code weiterverwenden.`,
-        });
-      }
-
-      const globalQuota = await consumeQuota(db, "global", ANON_MAX_GLOBAL_PER_HOUR);
-      if (!globalQuota.allowed) {
-        return res.status(429).json({
-          error: "Aktuell werden sehr viele anonyme Zugänge erstellt. Bitte später erneut versuchen.",
-        });
+      const quota = await consumeQuotas(db, [
+        { scope: "user", key: `uid_${caller.uid}`, limit: ANON_MAX_PER_USER_PER_HOUR },
+        { scope: "ip", key: `ip_${ipHash}`, limit: ANON_MAX_PER_IP_PER_HOUR },
+        { scope: "global", key: "global", limit: ANON_MAX_GLOBAL_PER_HOUR },
+      ]);
+      if (!quota.allowed) {
+        const minutes = Math.max(1, Math.ceil(quota.retryAfterMs / 60000));
+        const messages = {
+          user: `In diesem Browser wurden bereits ${ANON_MAX_PER_USER_PER_HOUR} anonyme Zugänge erstellt. Bitte den vorhandenen Code weiterverwenden oder in ${minutes} Minuten erneut versuchen.`,
+          ip: `Aus diesem Netzwerk wurden in der letzten Stunde sehr viele anonyme Zugänge erstellt. Bitte in ${minutes} Minuten erneut versuchen.`,
+          global: "Aktuell werden sehr viele anonyme Zugänge erstellt. Bitte später erneut versuchen.",
+        };
+        return res.status(429).json({ error: messages[quota.scope] });
       }
 
       // Code erzeugen und Eindeutigkeit sicherstellen.
@@ -285,6 +311,7 @@ exports.createAnonCode = onRequest({ region: "europe-west1", invoker: "public" }
         department: ANON_DEPARTMENT,
         source: "self-service",
         ipHash,
+        authUid: caller.uid,
         created: new Date().toLocaleDateString("de-DE"),
         timestamp: Date.now(),
         createdTimestamp: admin.firestore.FieldValue.serverTimestamp(),
