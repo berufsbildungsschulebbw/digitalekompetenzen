@@ -119,6 +119,79 @@
             transform: none;
         }
 
+        /* Anonymer Selbstzugang */
+        .anon-divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 25px auto 15px;
+            max-width: 420px;
+            color: #adb5bd;
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .anon-divider::before,
+        .anon-divider::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: #dee2e6;
+        }
+
+        .anon-button {
+            padding: 12px 28px;
+            background: white;
+            color: #495057;
+            border: 2px solid #ced4da;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .anon-button:hover {
+            border-color: #FF6B6B;
+            color: #E53E3E;
+        }
+
+        .anon-button:disabled {
+            background: #f1f3f5;
+            color: #adb5bd;
+            border-color: #dee2e6;
+            cursor: not-allowed;
+        }
+
+        .anon-code-box {
+            display: none;
+            max-width: 480px;
+            margin: 20px auto 0;
+            padding: 18px 20px;
+            background: #fff8e1;
+            border: 2px solid #ffd54f;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .anon-code-box.active { display: block; }
+
+        .anon-code-value {
+            font-family: "Courier New", monospace;
+            font-size: 1.6em;
+            font-weight: bold;
+            letter-spacing: 0.1em;
+            color: #212529;
+            margin: 10px 0;
+            user-select: all;
+        }
+
+        .anon-code-note {
+            font-size: 0.9em;
+            color: #6c5200;
+            margin: 0;
+        }
+
         /* Test Section */
         .test-section {
             display: none;
@@ -717,6 +790,20 @@
             <p style="color: #6c757d; font-size: 0.9em; margin-top: 20px;">
                 Der Code dient zur anonymen Zuordnung Ihrer Ergebnisse zu Ihrer Abteilung.
             </p>
+
+            <div class="anon-divider">oder</div>
+            <button id="anonStartBtn" class="anon-button">Ohne Code teilnehmen</button>
+            <p style="color: #6c757d; font-size: 0.9em; margin-top: 12px;">
+                Sie erhalten einen Zufallscode. Ihre Ergebnisse fliessen in die Auswertung
+                der Sammelgruppe &laquo;Anonym&raquo; ein, nicht in jene Ihrer Abteilung.
+            </p>
+
+            <div id="anonCodeBox" class="anon-code-box">
+                <p class="anon-code-note"><strong>Notieren Sie diesen Code.</strong> Nur damit k&ouml;nnen Sie einen
+                unterbrochenen Test fortsetzen oder Ihr Ergebnis sp&auml;ter wieder aufrufen.</p>
+                <div id="anonCodeValue" class="anon-code-value"></div>
+                <button id="anonContinueBtn" class="start-button">Test starten</button>
+            </div>
         </div>
 
         <div id="testSection" class="test-section">
@@ -814,13 +901,16 @@
 
         // Firebase initialisieren und global verfügbar machen
         let db = null;
+        let auth = null;
         let firebaseReady = false;
+        let projectId = null;
 
         try {
             const firebaseConfig = JSON.parse(window.__firebase_config);
+            projectId = firebaseConfig.projectId;
             const app = initializeApp(firebaseConfig);
             db = getFirestore(app);
-            const auth = getAuth(app);
+            auth = getAuth(app);
             await signInAnonymously(auth);
             firebaseReady = true;
             console.log("Firebase initialisiert für Selbsttest (anonym authentifiziert)");
@@ -830,7 +920,7 @@
 
         // Firebase-Objekte global verfügbar machen für saveDraft/loadDraft
         window.__fb = {
-            db, firebaseReady,
+            db, auth, firebaseReady, projectId,
             collection, query, where, getDocs, addDoc, setDoc, doc, deleteDoc, serverTimestamp
         };
 
@@ -2198,13 +2288,12 @@ window.calculateResults = function() {
 
             // Reset UI – codeEntry wiederherstellen (falls überschrieben durch Auswahl-Dialog)
             var codeEntry = document.getElementById('codeEntry');
-            codeEntry.innerHTML = '<h2>Zugangs-Code eingeben</h2><p>Bitte geben Sie den Code ein, den Sie von Ihrer Abteilungsleitung erhalten haben.</p><div class="code-input-group"><input type="text" id="accessCode" class="code-input" placeholder="CODE-XXXX" maxlength="20"><button id="startTestBtn" class="start-button">Test starten</button></div><p class="code-hint">Der Code dient zur anonymen Zuordnung Ihrer Ergebnisse zu Ihrer Abteilung.</p>';
+            codeEntry.innerHTML = CODE_ENTRY_HTML;
             codeEntry.style.display = 'block';
             document.getElementById('resultsSection').classList.remove('active');
             document.getElementById('testSection').classList.remove('active');
             // Event-Listener neu binden
-            document.getElementById('startTestBtn').addEventListener('click', function() { startTest(); });
-            document.getElementById('accessCode').addEventListener('keypress', function(e) { if (e.key === 'Enter') startTest(); });
+            bindCodeEntry();
         }
 
         // Prepare Print: Name + Datum in Print-Header setzen
@@ -2221,19 +2310,113 @@ window.calculateResults = function() {
             window.print();
         }
 
-        // Enable button click and Enter key for code input
-        document.getElementById('startTestBtn').addEventListener('click', function() {
-            startTest();
-        });
-        document.getElementById('accessCode').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                startTest();
+        // ── Anonymer Selbstzugang ───────────────────────────────────
+        // Markup des Code-Eingabe-Blocks, damit restartTest() dieselbe Ansicht
+        // wiederherstellt wie das statische HTML.
+        var CODE_ENTRY_HTML = [
+            '<h2>Zugangs-Code eingeben</h2>',
+            '<p>Bitte geben Sie den Code ein, den Sie von Ihrer Abteilungsleitung erhalten haben.</p>',
+            '<div class="code-input-group">',
+            '<input type="text" id="accessCode" class="code-input" placeholder="CODE-XXXX" maxlength="10">',
+            '<button id="startTestBtn" class="start-button">Test starten</button>',
+            '</div>',
+            '<p style="color: #6c757d; font-size: 0.9em; margin-top: 20px;">Der Code dient zur anonymen Zuordnung Ihrer Ergebnisse zu Ihrer Abteilung.</p>',
+            '<div class="anon-divider">oder</div>',
+            '<button id="anonStartBtn" class="anon-button">Ohne Code teilnehmen</button>',
+            '<p style="color: #6c757d; font-size: 0.9em; margin-top: 12px;">Sie erhalten einen Zufallscode. Ihre Ergebnisse fliessen in die Auswertung der Sammelgruppe &laquo;Anonym&raquo; ein, nicht in jene Ihrer Abteilung.</p>',
+            '<div id="anonCodeBox" class="anon-code-box">',
+            '<p class="anon-code-note"><strong>Notieren Sie diesen Code.</strong> Nur damit k&ouml;nnen Sie einen unterbrochenen Test fortsetzen oder Ihr Ergebnis sp&auml;ter wieder aufrufen.</p>',
+            '<div id="anonCodeValue" class="anon-code-value"></div>',
+            '<button id="anonContinueBtn" class="start-button">Test starten</button>',
+            '</div>'
+        ].join('');
+
+        function anonFunctionUrl() {
+            var fb = window.__fb;
+            var project = (fb && fb.projectId) || 'ikt-komp-bbw';
+            return 'https://europe-west1-' + project + '.cloudfunctions.net/createAnonCode';
+        }
+
+        function showAnonCode(code) {
+            var box = document.getElementById('anonCodeBox');
+            var value = document.getElementById('anonCodeValue');
+            if (!box || !value) return;
+            value.textContent = code;
+            box.classList.add('active');
+            var input = document.getElementById('accessCode');
+            if (input) input.value = code;
+        }
+
+        // Holt einen Zufallscode der Abteilung "anonym" von der Cloud Function.
+        // Das Kontingent (pro Anschluss und global) wird serverseitig geprüft.
+        function requestAnonCode() {
+            var btn = document.getElementById('anonStartBtn');
+            var fb = window.__fb;
+
+            if (!fb || !fb.firebaseReady || !fb.auth || !fb.auth.currentUser) {
+                alert('Der anonyme Zugang ist momentan nicht verfügbar, da keine Verbindung zum Server besteht. Bitte laden Sie die Seite neu oder verwenden Sie den Code Ihrer Abteilungsleitung.');
+                return;
             }
-        });
+
+            var original = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = 'Code wird erstellt …';
+
+            fb.auth.currentUser.getIdToken().then(function(token) {
+                return fetch(anonFunctionUrl(), {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer ' + token,
+                        'Content-Type': 'application/json'
+                    },
+                    body: '{}'
+                });
+            }).then(function(resp) {
+                return resp.json().then(function(data) { return { ok: resp.ok, data: data }; });
+            }).then(function(res) {
+                if (!res.ok) {
+                    alert(res.data && res.data.error ? res.data.error : 'Der anonyme Zugang konnte nicht erstellt werden.');
+                    return;
+                }
+                try { localStorage.setItem('bbw_anonCode', res.data.code); } catch (e) {}
+                showAnonCode(res.data.code);
+            }).catch(function(e) {
+                console.error('Anonymer Zugang fehlgeschlagen:', e);
+                alert('Der anonyme Zugang konnte nicht erstellt werden. Bitte versuchen Sie es später erneut.');
+            }).then(function() {
+                btn.disabled = false;
+                btn.textContent = original;
+            });
+        }
+
+        function bindCodeEntry() {
+            var startBtn = document.getElementById('startTestBtn');
+            if (startBtn) startBtn.addEventListener('click', function() { startTest(); });
+
+            var input = document.getElementById('accessCode');
+            if (input) input.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') startTest();
+            });
+
+            var anonBtn = document.getElementById('anonStartBtn');
+            if (anonBtn) anonBtn.addEventListener('click', function() { requestAnonCode(); });
+
+            var anonContinue = document.getElementById('anonContinueBtn');
+            if (anonContinue) anonContinue.addEventListener('click', function() { startTest(); });
+        }
+
+        bindCodeEntry();
 
         // Auto-Login: Wenn Session-Code vorhanden, automatisch starten
         (function() {
             var savedCode = sessionStorage.getItem('bbw_testCode');
+            if (!savedCode) {
+                // Kein laufender Test: zuletzt erzeugten Anonym-Code wieder anbieten
+                var anonCode = null;
+                try { anonCode = localStorage.getItem('bbw_anonCode'); } catch (e) {}
+                if (anonCode) showAnonCode(anonCode);
+                return;
+            }
             if (savedCode) {
                 document.getElementById('accessCode').value = savedCode;
                 // Kurz warten bis Firebase bereit ist, dann starten

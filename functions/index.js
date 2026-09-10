@@ -1,6 +1,11 @@
 const { onRequest } = require("firebase-functions/v2/https");
 const admin = require("firebase-admin");
 const cors = require("cors")({ origin: true });
+const crypto = require("crypto");
+
+// Salt fuer das Hashen von IP-Adressen (Rate-Limit). Ueber Umgebungsvariable
+// ANON_IP_SALT setzbar; der Fallback ist projektspezifisch und ausreichend.
+const ANON_IP_SALT = process.env.ANON_IP_SALT || "ikt-komp-bbw-anon";
 
 admin.initializeApp();
 const auth = admin.auth();
@@ -168,6 +173,126 @@ exports.migrateUsers = onRequest({ region: "europe-west1", invoker: "public" }, 
 
       return res.status(200).json({ created, errors });
     } catch (error) {
+      return res.status(500).json({ error: error.message });
+    }
+  });
+});
+
+// ── Selbstbedienungs-Zugang «Anonym» ─────────────────────────────────────────
+// Erzeugt auf Anfrage einen Zufallscode der Abteilung "anonym". Damit können
+// Lehrpersonen ohne Code ihrer Abteilungsleitung teilnehmen; die Ergebnisse
+// werden im Adminbereich als eigene Abteilung geführt.
+
+const ANON_DEPARTMENT = "anonym";
+const ANON_MAX_PER_IP_PER_HOUR = 3;
+const ANON_MAX_GLOBAL_PER_HOUR = 60;
+const ANON_WINDOW_MS = 60 * 60 * 1000;
+
+function clientIp(req) {
+  const fwd = req.headers["x-forwarded-for"];
+  if (typeof fwd === "string" && fwd.length) return fwd.split(",")[0].trim();
+  return req.ip || "unknown";
+}
+
+// IP nie im Klartext ablegen – nur ein gesalzener Hash zur Missbrauchserkennung.
+function hashIp(ip) {
+  return crypto
+    .createHash("sha256")
+    .update(`${ANON_IP_SALT}:${ip}`)
+    .digest("hex")
+    .slice(0, 32);
+}
+
+function randomAnonCode() {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // ohne I/O/0/1
+  let suffix = "";
+  const bytes = crypto.randomBytes(5);
+  for (let i = 0; i < 5; i++) suffix += chars[bytes[i] % chars.length];
+  return `ANON-${suffix}`;
+}
+
+// Rollierendes Stundenfenster, transaktional pro Schlüssel.
+async function consumeQuota(db, key, limit) {
+  const ref = db.collection("anonRateLimits").doc(key);
+  return db.runTransaction(async (tx) => {
+    const snap = await tx.get(ref);
+    const now = Date.now();
+    const data = snap.exists ? snap.data() : null;
+    const windowStart = data && now - data.windowStart < ANON_WINDOW_MS ? data.windowStart : now;
+    const count = data && windowStart === data.windowStart ? data.count : 0;
+
+    if (count >= limit) {
+      return { allowed: false, retryAfterMs: windowStart + ANON_WINDOW_MS - now };
+    }
+    tx.set(ref, { windowStart, count: count + 1, lastRequest: now }, { merge: true });
+    return { allowed: true };
+  });
+}
+
+exports.createAnonCode = onRequest({ region: "europe-west1", invoker: "public" }, (req, res) => {
+  cors(req, res, async () => {
+    try {
+      if (req.method !== "POST") {
+        return res.status(405).json({ error: "Method not allowed" });
+      }
+
+      // Gültiger Firebase-Token nötig (anonyme Anmeldung genügt).
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        return res.status(401).json({ error: "Nicht angemeldet." });
+      }
+      try {
+        await auth.verifyIdToken(authHeader.split("Bearer ")[1]);
+      } catch (e) {
+        return res.status(401).json({ error: "Anmeldung ungültig." });
+      }
+
+      const db = admin.firestore();
+      const ipHash = hashIp(clientIp(req));
+
+      const ipQuota = await consumeQuota(db, `ip_${ipHash}`, ANON_MAX_PER_IP_PER_HOUR);
+      if (!ipQuota.allowed) {
+        const minutes = Math.max(1, Math.ceil(ipQuota.retryAfterMs / 60000));
+        return res.status(429).json({
+          error: `Es wurden bereits ${ANON_MAX_PER_IP_PER_HOUR} anonyme Zugänge von diesem Anschluss erstellt. Bitte in ${minutes} Minuten erneut versuchen oder den vorhandenen Code weiterverwenden.`,
+        });
+      }
+
+      const globalQuota = await consumeQuota(db, "global", ANON_MAX_GLOBAL_PER_HOUR);
+      if (!globalQuota.allowed) {
+        return res.status(429).json({
+          error: "Aktuell werden sehr viele anonyme Zugänge erstellt. Bitte später erneut versuchen.",
+        });
+      }
+
+      // Code erzeugen und Eindeutigkeit sicherstellen.
+      let code = null;
+      for (let attempt = 0; attempt < 5; attempt++) {
+        const candidate = randomAnonCode();
+        const existing = await db.collection("codes").where("code", "==", candidate).limit(1).get();
+        if (existing.empty) {
+          code = candidate;
+          break;
+        }
+      }
+      if (!code) {
+        return res.status(500).json({ error: "Code konnte nicht erzeugt werden. Bitte erneut versuchen." });
+      }
+
+      await db.collection("codes").add({
+        code,
+        description: "Selbstzugang (anonym)",
+        department: ANON_DEPARTMENT,
+        source: "self-service",
+        ipHash,
+        created: new Date().toLocaleDateString("de-DE"),
+        timestamp: Date.now(),
+        createdTimestamp: admin.firestore.FieldValue.serverTimestamp(),
+      });
+
+      return res.status(201).json({ code, department: ANON_DEPARTMENT });
+    } catch (error) {
+      console.error("createAnonCode error:", error);
       return res.status(500).json({ error: error.message });
     }
   });

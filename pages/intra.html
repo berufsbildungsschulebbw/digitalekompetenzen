@@ -1164,6 +1164,7 @@
                                 <option value="technik">Technik | Ernährung</option>
                                 <option value="maschinenbau">Maschinenbau</option>
                                 <option value="informatik">Informatik | Naturwissenschaften</option>
+                                <option value="anonym">Anonym (Selbstzugang)</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -1697,8 +1698,13 @@
             'technik': 'Technik | Ernährung',
             'maschinenbau': 'Maschinenbau',
             'informatik': 'Informatik | Naturwissenschaften',
+            'anonym': 'Anonym (Selbstzugang)',
             'admin': 'Administration'
         };
+
+        // Sammelgruppe für den Selbstzugang ohne Abteilungscode. Wird in den
+        // Auswertungen wie eine Abteilung geführt, zählt aber nicht als solche.
+        const ANON_DEPARTMENT = 'anonym';
         // HIER DEN FOLGENDEN BLOCK EINFÜGEN
 
 const sections = [
@@ -2409,7 +2415,8 @@ const categoryNames = [
             console.log("Loading extended admin data...");
             const adminTableBody = document.getElementById('adminTableBody');
             const departments = Object.keys(deptNames).filter(d => d !== 'admin');
-            document.getElementById('allDepartmentsCount').textContent = departments.length;
+            document.getElementById('allDepartmentsCount').textContent =
+                departments.filter(d => d !== ANON_DEPARTMENT).length;
 
             let bestDept = { name: '-', score: 0 };
             const deptStats = [];
@@ -2436,7 +2443,9 @@ const categoryNames = [
                     });
                 });
 
-                if (avg > bestDept.score) bestDept = { name: deptNames[deptKey], score: avg };
+                if (deptKey !== ANON_DEPARTMENT && avg > bestDept.score) {
+                    bestDept = { name: deptNames[deptKey], score: avg };
+                }
 
                 deptStats.push({
                     dept: deptKey,
