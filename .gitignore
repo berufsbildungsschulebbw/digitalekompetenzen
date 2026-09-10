@@ -1,1 +1,4 @@
 node_modules/
+
+# Lokale Statistik-Berichte (enthalten aggregierte Testdaten – nicht deployen)
+berichte/

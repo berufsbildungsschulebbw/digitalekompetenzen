@@ -34,5 +34,11 @@ service cloud.firestore {
     match /config/{document} {
       allow read, write: if false;
     }
+
+    // Rate-Limit-Zaehler fuer den anonymen Selbstzugang.
+    // Ausschliesslich die Cloud Function (Admin SDK) schreibt hier.
+    match /anonRateLimits/{document} {
+      allow read, write: if false;
+    }
   }
 }
