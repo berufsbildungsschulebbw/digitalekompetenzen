@@ -621,6 +621,270 @@
             color: #6c757d;
         }
 
+        /* ── Extended Statistics Styles ── */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stats-panel {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #e9ecef;
+        }
+
+        .stats-panel h4 {
+            color: #495057;
+            margin-bottom: 15px;
+            font-size: 1.05em;
+        }
+
+        .sub-bar-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+            font-size: 0.88em;
+        }
+
+        .sub-bar-label {
+            width: 220px;
+            color: #495057;
+            flex-shrink: 0;
+        }
+
+        .sub-bar-track {
+            flex: 1;
+            background: #e9ecef;
+            border-radius: 4px;
+            height: 18px;
+            position: relative;
+            overflow: hidden;
+            min-width: 80px;
+        }
+
+        .sub-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.8s ease;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 6px;
+            color: white;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+
+        .heatmap-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.88em;
+            table-layout: fixed;
+        }
+
+        .heatmap-table th {
+            padding: 10px 6px;
+            text-align: center;
+            background: #f1f3f5;
+            color: #495057;
+            font-weight: 600;
+            border: 1px solid #dee2e6;
+        }
+
+        .heatmap-table th:first-child {
+            text-align: left;
+            width: 200px;
+        }
+
+        .heatmap-table td {
+            padding: 10px 6px;
+            text-align: center;
+            border: 1px solid #dee2e6;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+
+        .heatmap-table td:first-child {
+            text-align: left;
+            background: #f8f9fa;
+            font-weight: 500;
+        }
+
+        .radar-container {
+            display: flex;
+            justify-content: center;
+            padding: 20px 0;
+        }
+
+        .insight-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px 20px;
+            margin-bottom: 12px;
+            border-left: 4px solid #667eea;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .insight-card.strength {
+            border-left-color: #28a745;
+        }
+
+        .insight-card.weakness {
+            border-left-color: #dc3545;
+        }
+
+        .insight-card.shared {
+            border-left-color: #17a2b8;
+        }
+
+        .insight-card .insight-title {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 4px;
+        }
+
+        .insight-card .insight-text {
+            color: #6c757d;
+            font-size: 0.92em;
+            line-height: 1.5;
+        }
+
+        .distribution-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+            font-size: 0.88em;
+        }
+
+        .distribution-label {
+            width: 100px;
+            color: #495057;
+            flex-shrink: 0;
+        }
+
+        .distribution-bar-track {
+            flex: 1;
+            background: #e9ecef;
+            border-radius: 4px;
+            height: 20px;
+            overflow: hidden;
+        }
+
+        .distribution-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.8s ease;
+            display: flex;
+            align-items: center;
+            padding-left: 8px;
+            color: white;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+
+        .legend-row {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin: 15px 0 5px;
+            font-size: 0.85em;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+        }
+
+        .tab-sub-nav {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab-sub-btn {
+            padding: 8px 16px;
+            border: 2px solid #dee2e6;
+            background: white;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9em;
+            color: #6c757d;
+            transition: all 0.3s;
+        }
+
+        .tab-sub-btn:hover {
+            border-color: #667eea;
+            color: #667eea;
+        }
+
+        .tab-sub-btn.active {
+            background: #667eea;
+            border-color: #667eea;
+            color: white;
+        }
+
+        .sub-section {
+            display: none;
+        }
+
+        .sub-section.active {
+            display: block;
+        }
+
+        .timeline-chart {
+            position: relative;
+            padding: 20px 0;
+        }
+
+        .timeline-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .timeline-date {
+            width: 100px;
+            font-size: 0.85em;
+            color: #6c757d;
+            flex-shrink: 0;
+            text-align: right;
+        }
+
+        .timeline-bar-track {
+            flex: 1;
+            background: #e9ecef;
+            border-radius: 4px;
+            height: 24px;
+            overflow: hidden;
+        }
+
+        .timeline-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.8s ease;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 8px;
+            color: white;
+            font-weight: 600;
+            font-size: 0.82em;
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .container {
@@ -668,6 +932,153 @@
                 width: 100%;
                 height: 40px !important;
                 border-radius: 5px;
+            }
+
+            .sub-bar-label {
+                width: 140px !important;
+                font-size: 0.82em;
+            }
+
+            .heatmap-table th:first-child,
+            .heatmap-table td:first-child {
+                width: 120px;
+                font-size: 0.82em;
+            }
+
+            .heatmap-table th, .heatmap-table td {
+                padding: 6px 4px;
+                font-size: 0.82em;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .insight-card .insight-title {
+                font-size: 0.92em;
+            }
+        }
+
+        /* Print button */
+        .print-stats-btn {
+            padding: 10px 20px;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.95em;
+        }
+
+        .print-stats-btn:hover {
+            background: #5a6268;
+        }
+
+        /* Print-only container */
+        #printStatsArea {
+            display: none;
+        }
+
+        @media print {
+            body {
+                background: white !important;
+                padding: 0 !important;
+            }
+
+            .container {
+                box-shadow: none !important;
+                padding: 15px !important;
+                max-width: 100% !important;
+                border-radius: 0 !important;
+            }
+
+            .back-button, .login-section, .tab-navigation, .tab-sub-nav,
+            .user-info, .logout-button, .print-stats-btn,
+            #codesTab, #resultsTab, #statisticsTab, #adminTab,
+            .modal, .code-generator, #adminDepartmentSelector,
+            #userList, .generate-button, .download-button, .delete-button,
+            #addUserBtn, #newUserDepartmentSelect, #newUsername, #newPassword {
+                display: none !important;
+            }
+
+            #printStatsArea {
+                display: block !important;
+            }
+
+            #printStatsArea .sub-section {
+                display: block !important;
+                page-break-inside: avoid;
+            }
+
+            #printStatsArea .department-chart,
+            #printStatsArea .stats-panel,
+            #printStatsArea .stats-grid {
+                page-break-inside: avoid;
+                break-inside: avoid;
+            }
+
+            #printStatsArea .department-chart {
+                border: 1px solid #dee2e6;
+                margin-bottom: 15px;
+            }
+
+            .print-header {
+                text-align: center;
+                margin-bottom: 25px;
+                border-bottom: 2px solid #667eea;
+                padding-bottom: 15px;
+            }
+
+            .print-header h2 {
+                color: #2d3748;
+                margin-bottom: 5px;
+            }
+
+            .print-header p {
+                color: #6c757d;
+                font-size: 0.9em;
+            }
+
+            .print-section-title {
+                color: #667eea;
+                font-size: 1.3em;
+                margin: 25px 0 15px;
+                padding-bottom: 5px;
+                border-bottom: 1px solid #dee2e6;
+                page-break-after: avoid;
+            }
+
+            .bar-fill, .sub-bar-fill, .distribution-bar-fill,
+            .timeline-bar-fill, .dept-bar {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                color-adjust: exact !important;
+            }
+
+            .heatmap-table td, .heatmap-table th,
+            .score-badge, .stat-card, .insight-card,
+            .legend-dot {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                color-adjust: exact !important;
+            }
+
+            .stat-card {
+                border: 1px solid #dee2e6;
+            }
+
+            .results-overview {
+                grid-template-columns: repeat(4, 1fr);
+            }
+
+            .stat-number {
+                font-size: 1.8em;
+            }
+
+            svg {
+                max-width: 450px !important;
             }
         }
     </style>
@@ -856,49 +1267,134 @@
                 </button>
             </div>
 
-            <!-- Tab: Statistics -->
+            <!-- Tab: Statistics (Extended) -->
             <div id="statisticsTab" class="tab-content">
-                <div class="department-chart">
-                    <div class="chart-header">Durchschnittliche Scores nach Kompetenzbereich</div>
-                    <div class="chart-bars">
-                        <div class="chart-bar">
-                            <div class="bar-label">Grundkenntnisse IKT</div>
-                            <div class="bar-container">
-                                <div class="bar-fill" id="bar1" style="width: 0%;">0%</div>
+
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <div></div>
+                    <button class="print-stats-btn" onclick="printStatistics()">🖨️ Statistik als PDF drucken</button>
+                </div>
+                <div class="tab-sub-nav" id="statsSubNav">
+                    <button class="tab-sub-btn active" data-sub="statsOverview">Übersicht</button>
+                    <button class="tab-sub-btn" data-sub="statsSubcategories">Unterbereiche</button>
+                    <button class="tab-sub-btn" data-sub="statsDistribution">Verteilung</button>
+                    <button class="tab-sub-btn" data-sub="statsTimeline">Zeitverlauf</button>
+                </div>
+
+                <!-- Sub: Overview -->
+                <div id="statsOverview" class="sub-section active">
+                    <div class="results-overview">
+                        <div class="stat-card">
+                            <div class="stat-number" id="statsTotalN">0</div>
+                            <div class="stat-label">Teilnehmende</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="statsAvgTotal">0%</div>
+                            <div class="stat-label">Gesamtdurchschnitt</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="statsMedian">0%</div>
+                            <div class="stat-label">Median</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="statsSpread">0</div>
+                            <div class="stat-label">Streuung (Std.abw.)</div>
+                        </div>
+                    </div>
+
+                    <div class="department-chart">
+                        <div class="chart-header">Durchschnittliche Scores nach Kompetenzbereich</div>
+                        <div class="chart-bars">
+                            <div class="chart-bar">
+                                <div class="bar-label">Grundkenntnisse IKT</div>
+                                <div class="bar-container">
+                                    <div class="bar-fill" id="bar1" style="width: 0%;">0%</div>
+                                </div>
+                            </div>
+                            <div class="chart-bar">
+                                <div class="bar-label">Anwendung im Unterricht</div>
+                                <div class="bar-container">
+                                    <div class="bar-fill" id="bar2" style="width: 0%;">0%</div>
+                                </div>
+                            </div>
+                            <div class="chart-bar">
+                                <div class="bar-label">Medien- & Infokompetenz</div>
+                                <div class="bar-container">
+                                    <div class="bar-fill" id="bar3" style="width: 0%;">0%</div>
+                                </div>
+                            </div>
+                            <div class="chart-bar">
+                                <div class="bar-label">Daten & Sicherheit</div>
+                                <div class="bar-container">
+                                    <div class="bar-fill" id="bar4" style="width: 0%;">0%</div>
+                                </div>
+                            </div>
+                            <div class="chart-bar">
+                                <div class="bar-label">Kommunikation</div>
+                                <div class="bar-container">
+                                    <div class="bar-fill" id="bar5" style="width: 0%;">0%</div>
+                                </div>
                             </div>
                         </div>
-                        <div class="chart-bar">
-                            <div class="bar-label">Anwendung im Unterricht</div>
-                            <div class="bar-container">
-                                <div class="bar-fill" id="bar2" style="width: 0%;">0%</div>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stats-panel">
+                            <h4>Stärkste Bereiche</h4>
+                            <div id="statsStrengths">
+                                <p style="color: #6c757d;">Keine Daten vorhanden</p>
                             </div>
                         </div>
-                        <div class="chart-bar">
-                            <div class="bar-label">Medien- & Infokompetenz</div>
-                            <div class="bar-container">
-                                <div class="bar-fill" id="bar3" style="width: 0%;">0%</div>
-                            </div>
-                        </div>
-                        <div class="chart-bar">
-                            <div class="bar-label">Daten & Sicherheit</div>
-                            <div class="bar-container">
-                                <div class="bar-fill" id="bar4" style="width: 0%;">0%</div>
-                            </div>
-                        </div>
-                        <div class="chart-bar">
-                            <div class="bar-label">Kommunikation</div>
-                            <div class="bar-container">
-                                <div class="bar-fill" id="bar5" style="width: 0%;">0%</div>
+                        <div class="stats-panel">
+                            <h4>Entwicklungsbereiche</h4>
+                            <div id="statsWeaknesses">
+                                <p style="color: #6c757d;">Keine Daten vorhanden</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="department-chart">
-                    <div class="chart-header">Entwicklung über Zeit</div>
-                    <p style="color: #6c757d; text-align: center; padding: 40px;">
-                        Hier würde ein Liniendiagramm mit der zeitlichen Entwicklung der Kompetenzen angezeigt werden.
-                    </p>
+                <!-- Sub: Subcategories -->
+                <div id="statsSubcategories" class="sub-section">
+                    <div class="department-chart">
+                        <div class="chart-header">Detaillierte Scores nach Unterbereichen</div>
+                        <div id="statsSubBars">
+                            <p style="color: #6c757d; text-align: center; padding: 30px;">Keine Daten vorhanden</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sub: Distribution -->
+                <div id="statsDistribution" class="sub-section">
+                    <div class="department-chart">
+                        <div class="chart-header">Score-Verteilung der Teilnehmenden</div>
+                        <div class="legend-row">
+                            <div class="legend-item"><div class="legend-dot" style="background:#28a745;"></div> Ausgezeichnet (≥80%)</div>
+                            <div class="legend-item"><div class="legend-dot" style="background:#ffc107;"></div> Gut (60–79%)</div>
+                            <div class="legend-item"><div class="legend-dot" style="background:#ff9800;"></div> Aufbau (40–59%)</div>
+                            <div class="legend-item"><div class="legend-dot" style="background:#ff69b4;"></div> Basis (&lt;40%)</div>
+                        </div>
+                        <div id="statsDistBars" style="margin-top: 15px;">
+                            <p style="color: #6c757d; text-align: center; padding: 30px;">Keine Daten vorhanden</p>
+                        </div>
+                    </div>
+
+                    <div class="department-chart">
+                        <div class="chart-header">Verteilung nach Kompetenzbereich</div>
+                        <div id="statsCatDist" style="overflow-x: auto;">
+                            <p style="color: #6c757d; text-align: center; padding: 30px;">Keine Daten vorhanden</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sub: Timeline -->
+                <div id="statsTimeline" class="sub-section">
+                    <div class="department-chart">
+                        <div class="chart-header">Zeitliche Entwicklung (Durchschnitt nach Monat)</div>
+                        <div id="statsTimelineChart">
+                            <p style="color: #6c757d; text-align: center; padding: 30px;">Keine Daten vorhanden</p>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -929,62 +1425,153 @@
                             Benutzer hinzufügen
                         </button>
                     </div>
-                    
+
                     <div style="margin-top: 20px;">
                         <h4>Bestehende Benutzer</h4>
                         <div id="userList" style="margin-top: 10px; background: white; padding: 15px; border-radius: 8px;">
-                            <!-- User list will be populated here -->
                         </div>
                     </div>
                 </div>
-            
-                <h3>Abteilungsübersicht</h3>
-                <div class="results-overview">
-                    <div class="stat-card">
-                        <div class="stat-number" id="allDepartmentsCount">0</div>
-                        <div class="stat-label">Aktive Abteilungen</div>
+
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <div></div>
+                    <button class="print-stats-btn" onclick="printStatistics()">🖨️ Statistik als PDF drucken</button>
+                </div>
+                <div class="tab-sub-nav" id="adminSubNav">
+                    <button class="tab-sub-btn active" data-sub="adminOverview">Übersicht</button>
+                    <button class="tab-sub-btn" data-sub="adminHeatmap">Heatmap</button>
+                    <button class="tab-sub-btn" data-sub="adminRadar">Radar-Vergleich</button>
+                    <button class="tab-sub-btn" data-sub="adminInsights">Gemeinsamkeiten & Unterschiede</button>
+                    <button class="tab-sub-btn" data-sub="adminSubcatCompare">Unterbereiche</button>
+                </div>
+
+                <!-- Sub: Overview -->
+                <div id="adminOverview" class="sub-section active">
+                    <h3>Abteilungsübersicht</h3>
+                    <div class="results-overview">
+                        <div class="stat-card">
+                            <div class="stat-number" id="allDepartmentsCount">0</div>
+                            <div class="stat-label">Aktive Abteilungen</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="totalTestsAdmin">0</div>
+                            <div class="stat-label">Tests Gesamt</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="avgScoreAdmin">0%</div>
+                            <div class="stat-label">Gesamt-Durchschnitt</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="bestDeptAdmin">-</div>
+                            <div class="stat-label">Beste Abteilung</div>
+                        </div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="totalTestsAdmin">0</div>
-                        <div class="stat-label">Tests Gesamt</div>
+
+                    <div class="dept-comparison-chart">
+                        <div class="chart-header">Durchschnittliche Scores nach Abteilung</div>
+                        <div class="dept-bars" id="deptBarsChart">
+                        </div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="avgScoreAdmin">0%</div>
-                        <div class="stat-label">Gesamt-Durchschnitt</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="bestDeptAdmin">-</div>
-                        <div class="stat-label">Beste Abteilung</div>
+
+                    <div style="overflow-x: auto;">
+                        <table class="results-table">
+                            <thead>
+                                <tr>
+                                    <th>Abteilung</th>
+                                    <th>Tests</th>
+                                    <th>Ø Score</th>
+                                    <th>Median</th>
+                                    <th>Std.abw.</th>
+                                    <th>Beste Kompetenz</th>
+                                    <th>Schwächste Kompetenz</th>
+                                    <th>Trend</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminTableBody">
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
-                <h3 style="margin: 30px 0 20px;">Abteilungsvergleich</h3>
-                
-                <!-- New Department Comparison Chart -->
-                <div class="dept-comparison-chart">
-                    <div class="chart-header">Durchschnittliche Scores nach Abteilung</div>
-                    <div class="dept-bars" id="deptBarsChart">
-                        <!-- Department bars will be generated here -->
+                <!-- Sub: Heatmap -->
+                <div id="adminHeatmap" class="sub-section">
+                    <div class="department-chart">
+                        <div class="chart-header">Kompetenz-Heatmap: Abteilungen × Kompetenzbereiche</div>
+                        <p style="color:#6c757d; font-size:0.88em; margin-bottom:15px;">Farbskala: <span style="color:#dc3545;">rot</span> = niedrig, <span style="color:#ffc107;">gelb</span> = mittel, <span style="color:#28a745;">grün</span> = hoch</p>
+                        <div style="overflow-x: auto;">
+                            <table class="heatmap-table" id="adminHeatmapTable">
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="department-chart">
+                        <div class="chart-header">Heatmap: Unterbereiche × Abteilungen</div>
+                        <div style="overflow-x: auto;">
+                            <table class="heatmap-table" id="adminSubHeatmapTable">
+                            </table>
+                        </div>
                     </div>
                 </div>
 
-                <table class="results-table">
-                    <thead>
-                        <tr>
-                            <th>Abteilung</th>
-                            <th>Anzahl Tests</th>
-                            <th>Ø Score</th>
-                            <th>Beste Kompetenz</th>
-                            <th>Schwächste Kompetenz</th>
-                            <th>Trend</th>
-                        </tr>
-                    </thead>
-                    <tbody id="adminTableBody">
-                       <!-- Admin data will be populated here -->
-                    </tbody>
-                </table>
+                <!-- Sub: Radar -->
+                <div id="adminRadar" class="sub-section">
+                    <div class="department-chart">
+                        <div class="chart-header">Kompetenzprofil-Vergleich (Radar)</div>
+                        <div class="radar-container">
+                            <svg id="adminRadarSvg" viewBox="0 0 500 450" style="max-width: 600px; width: 100%;"></svg>
+                        </div>
+                        <div id="adminRadarLegend" class="legend-row" style="justify-content: center;"></div>
+                    </div>
+                </div>
+
+                <!-- Sub: Insights -->
+                <div id="adminInsights" class="sub-section">
+                    <div class="stats-grid">
+                        <div class="stats-panel">
+                            <h4>Gemeinsame Stärken (alle Abteilungen ≥ 65%)</h4>
+                            <div id="adminSharedStrengths">
+                                <p style="color: #6c757d;">Keine Daten vorhanden</p>
+                            </div>
+                        </div>
+                        <div class="stats-panel">
+                            <h4>Gemeinsame Schwächen (alle Abteilungen &lt; 55%)</h4>
+                            <div id="adminSharedWeaknesses">
+                                <p style="color: #6c757d;">Keine Daten vorhanden</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="department-chart">
+                        <div class="chart-header">Grösste Unterschiede zwischen Abteilungen</div>
+                        <p style="color:#6c757d; font-size:0.88em; margin-bottom:15px;">Bereiche, in denen sich die Abteilungen am stärksten unterscheiden (grösste Spannweite)</p>
+                        <div id="adminDifferences">
+                            <p style="color: #6c757d; text-align: center; padding: 30px;">Keine Daten vorhanden</p>
+                        </div>
+                    </div>
+
+                    <div class="department-chart">
+                        <div class="chart-header">Profil pro Abteilung: Top-3 Stärken & Schwächen</div>
+                        <div id="adminDeptProfiles">
+                            <p style="color: #6c757d; text-align: center; padding: 30px;">Keine Daten vorhanden</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sub: Subcategory Compare -->
+                <div id="adminSubcatCompare" class="sub-section">
+                    <div class="department-chart">
+                        <div class="chart-header">Abteilungsvergleich pro Unterbereich</div>
+                        <p style="color:#6c757d; font-size:0.88em; margin-bottom:15px;">Alle 15 Unterbereiche im direkten Abteilungsvergleich</p>
+                        <div id="adminSubcatBars">
+                            <p style="color: #6c757d; text-align: center; padding: 30px;">Keine Daten vorhanden</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
+
+        <!-- Print Area (hidden, shown only during print) -->
+        <div id="printStatsArea"></div>
 
         <!-- Modal for Details -->
         <div id="detailModal" class="modal">
@@ -1618,151 +2205,680 @@ const categoryNames = [
             }).join('');
         }
 
-        // Load Statistics Data
-        function loadStatisticsData() {
-            console.log("Loading statistics data...");
-            const departmentCodes = currentDepartment === 'admin' 
-                ? generatedCodes 
-                : generatedCodes.filter(c => c.department === currentDepartment);
-            
+        // ── Helper utilities for extended statistics ──
+        function median(arr) {
+            if (!arr.length) return 0;
+            const s = [...arr].sort((a, b) => a - b);
+            const mid = Math.floor(s.length / 2);
+            return s.length % 2 ? s[mid] : Math.round((s[mid - 1] + s[mid]) / 2);
+        }
+
+        function stddev(arr) {
+            if (arr.length < 2) return 0;
+            const m = arr.reduce((a, b) => a + b, 0) / arr.length;
+            return Math.round(Math.sqrt(arr.reduce((s, v) => s + (v - m) ** 2, 0) / arr.length));
+        }
+
+        function barColor(pct) {
+            if (pct >= 80) return '#28a745';
+            if (pct >= 60) return '#ffc107';
+            if (pct >= 40) return '#ff9800';
+            return '#ff69b4';
+        }
+
+        function heatColor(pct) {
+            if (pct >= 80) return { bg: '#d4edda', fg: '#155724' };
+            if (pct >= 70) return { bg: '#d1ecf1', fg: '#0c5460' };
+            if (pct >= 60) return { bg: '#fff3cd', fg: '#856404' };
+            if (pct >= 50) return { bg: '#ffe0b2', fg: '#e65100' };
+            if (pct >= 40) return { bg: '#f8d7da', fg: '#721c24' };
+            return { bg: '#f5c6cb', fg: '#721c24' };
+        }
+
+        function getRelevantResults() {
+            const isAdmin = currentRole === 'admin';
+            const departmentCodes = isAdmin ? generatedCodes : generatedCodes.filter(c => c.department === currentDepartment);
             const codeList = departmentCodes.map(c => c.code);
-            const relevantResults = testResults.filter(r => r && r.testCode && codeList.includes(r.testCode));
-            
-            console.log("Statistics - Relevant results:", relevantResults.length);
-            
-            if (relevantResults.length > 0) {
-                for (let i = 1; i <= 5; i++) {
-                    const scores = relevantResults
-                        .map(r => getCat(r, i) || 0)
-                        .filter(score => !isNaN(score));
-                    
-                    const avg = scores.length > 0 
-                        ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
-                        : 0;
-                    
-                    const bar = document.getElementById(`bar${i}`);
-                    if (bar) {
-                        bar.style.width = avg + '%';
-                        bar.textContent = avg + '%';
-                    }
-                }
-            } else {
-                for (let i = 1; i <= 5; i++) {
-                    const bar = document.getElementById(`bar${i}`);
-                    if (bar) {
-                        bar.style.width = '0%';
-                        bar.textContent = '0%';
-                    }
-                }
+            return testResults.filter(r => r && r.testCode && codeList.includes(r.testCode));
+        }
+
+        function calcSubcatPct(result, sub) {
+            if (!result.answers) return null;
+            let s = 0, m = 0;
+            sub.questions.forEach(q => {
+                const v = result.answers[q.id];
+                if (v !== undefined) { s += v; m += 4; }
+            });
+            return m > 0 ? Math.round((s / m) * 100) : 0;
+        }
+
+        function getDeptResults(deptKey) {
+            const deptCodes = generatedCodes.filter(c => c.department === deptKey).map(c => c.code);
+            return testResults.filter(r => r && r.testCode && deptCodes.includes(r.testCode));
+        }
+
+        const deptColors = {
+            'bau': '#e74c3c',
+            'technik': '#3498db',
+            'maschinenbau': '#2ecc71',
+            'informatik': '#9b59b6'
+        };
+
+        // Load Statistics Data (Extended)
+        function loadStatisticsData() {
+            console.log("Loading extended statistics data...");
+            const relevantResults = getRelevantResults();
+
+            // ── Overview bars (unchanged logic) ──
+            for (let i = 1; i <= 5; i++) {
+                const scores = relevantResults.map(r => getCat(r, i) || 0).filter(s => !isNaN(s));
+                const avg = scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
+                const bar = document.getElementById(`bar${i}`);
+                if (bar) { bar.style.width = avg + '%'; bar.textContent = avg + '%'; }
             }
+
+            // ── Overview stat cards ──
+            const totalPcts = relevantResults.filter(r => typeof r.totalPercentage === 'number').map(r => r.totalPercentage);
+            document.getElementById('statsTotalN').textContent = relevantResults.length;
+            document.getElementById('statsAvgTotal').textContent = totalPcts.length ? Math.round(totalPcts.reduce((a, b) => a + b, 0) / totalPcts.length) + '%' : '0%';
+            document.getElementById('statsMedian').textContent = totalPcts.length ? median(totalPcts) + '%' : '0%';
+            document.getElementById('statsSpread').textContent = totalPcts.length ? stddev(totalPcts) : '0';
+
+            // ── Strengths / Weaknesses ──
+            const catAvgs = [];
+            for (let i = 1; i <= 5; i++) {
+                const scores = relevantResults.map(r => getCat(r, i)).filter(s => !isNaN(s) && s > 0);
+                catAvgs.push({ idx: i, name: categoryNames[i - 1], avg: scores.length ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0 });
+            }
+            const sorted = [...catAvgs].sort((a, b) => b.avg - a.avg);
+            const strengthsEl = document.getElementById('statsStrengths');
+            const weaknessesEl = document.getElementById('statsWeaknesses');
+            if (sorted.length && sorted[0].avg > 0) {
+                strengthsEl.innerHTML = sorted.slice(0, 2).map(c => `<div class="insight-card strength"><div class="insight-title">${c.name}</div><div class="insight-text">${c.avg}% Durchschnitt</div></div>`).join('');
+                weaknessesEl.innerHTML = sorted.slice(-2).reverse().map(c => `<div class="insight-card weakness"><div class="insight-title">${c.name}</div><div class="insight-text">${c.avg}% Durchschnitt</div></div>`).join('');
+            } else {
+                strengthsEl.innerHTML = '<p style="color: #6c757d;">Keine Daten vorhanden</p>';
+                weaknessesEl.innerHTML = '<p style="color: #6c757d;">Keine Daten vorhanden</p>';
+            }
+
+            // ── Subcategories ──
+            loadStatsSubcategories(relevantResults);
+            // ── Distribution ──
+            loadStatsDistribution(relevantResults);
+            // ── Timeline ──
+            loadStatsTimeline(relevantResults);
+        }
+
+        function loadStatsSubcategories(results) {
+            const container = document.getElementById('statsSubBars');
+            if (!results.length) { container.innerHTML = '<p style="color:#6c757d; text-align:center; padding:30px;">Keine Daten vorhanden</p>'; return; }
+
+            let html = '';
+            sections.forEach(section => {
+                html += `<h4 style="margin: 20px 0 10px; color: #495057;">${section.name}</h4>`;
+                section.subbereiche.forEach(sub => {
+                    const pcts = results.map(r => calcSubcatPct(r, sub)).filter(v => v !== null);
+                    const avg = pcts.length ? Math.round(pcts.reduce((a, b) => a + b, 0) / pcts.length) : 0;
+                    html += `<div class="sub-bar-row">
+                        <div class="sub-bar-label">${sub.title}</div>
+                        <div class="sub-bar-track"><div class="sub-bar-fill" style="width:${avg}%; background:${barColor(avg)};">${avg}%</div></div>
+                    </div>`;
+                });
+            });
+            container.innerHTML = html;
+        }
+
+        function loadStatsDistribution(results) {
+            const container = document.getElementById('statsDistBars');
+            const catContainer = document.getElementById('statsCatDist');
+            if (!results.length) {
+                container.innerHTML = '<p style="color:#6c757d; text-align:center; padding:30px;">Keine Daten vorhanden</p>';
+                catContainer.innerHTML = '<p style="color:#6c757d; text-align:center; padding:30px;">Keine Daten vorhanden</p>';
+                return;
+            }
+
+            const buckets = [
+                { label: 'Ausgezeichnet (≥80%)', min: 80, max: 101, color: '#28a745' },
+                { label: 'Gut (60–79%)', min: 60, max: 80, color: '#ffc107' },
+                { label: 'Aufbau (40–59%)', min: 40, max: 60, color: '#ff9800' },
+                { label: 'Basis (<40%)', min: 0, max: 40, color: '#ff69b4' }
+            ];
+
+            const totalPcts = results.filter(r => typeof r.totalPercentage === 'number').map(r => r.totalPercentage);
+            const maxCount = Math.max(...buckets.map(b => totalPcts.filter(p => p >= b.min && p < b.max).length), 1);
+
+            container.innerHTML = buckets.map(b => {
+                const count = totalPcts.filter(p => p >= b.min && p < b.max).length;
+                const pct = totalPcts.length ? Math.round((count / totalPcts.length) * 100) : 0;
+                const barW = Math.max((count / maxCount) * 100, count > 0 ? 8 : 0);
+                return `<div class="distribution-row">
+                    <div class="distribution-label">${b.label}</div>
+                    <div class="distribution-bar-track"><div class="distribution-bar-fill" style="width:${barW}%; background:${b.color};">${count} (${pct}%)</div></div>
+                </div>`;
+            }).join('');
+
+            // Per-category distribution table
+            let tableHTML = '<table class="heatmap-table"><thead><tr><th>Kompetenzbereich</th>';
+            buckets.forEach(b => { tableHTML += `<th>${b.label.split('(')[0].trim()}</th>`; });
+            tableHTML += '</tr></thead><tbody>';
+            for (let i = 1; i <= 5; i++) {
+                const scores = results.map(r => getCat(r, i)).filter(s => !isNaN(s));
+                tableHTML += `<tr><td>${categoryNames[i - 1]}</td>`;
+                buckets.forEach(b => {
+                    const count = scores.filter(p => p >= b.min && p < b.max).length;
+                    const pct = scores.length ? Math.round((count / scores.length) * 100) : 0;
+                    const hc = heatColor(b.min + 10);
+                    tableHTML += `<td style="background:${count > 0 ? hc.bg : '#f8f9fa'}; color:${count > 0 ? hc.fg : '#adb5bd'};">${count} (${pct}%)</td>`;
+                });
+                tableHTML += '</tr>';
+            }
+            tableHTML += '</tbody></table>';
+            catContainer.innerHTML = tableHTML;
+        }
+
+        function loadStatsTimeline(results) {
+            const container = document.getElementById('statsTimelineChart');
+            if (!results.length) { container.innerHTML = '<p style="color:#6c757d; text-align:center; padding:30px;">Keine Daten vorhanden</p>'; return; }
+
+            const byMonth = {};
+            results.forEach(r => {
+                const d = toJsDate(r.timestamp);
+                if (!d) return;
+                const key = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+                if (!byMonth[key]) byMonth[key] = [];
+                if (typeof r.totalPercentage === 'number') byMonth[key].push(r.totalPercentage);
+            });
+
+            const months = Object.keys(byMonth).sort();
+            if (!months.length) { container.innerHTML = '<p style="color:#6c757d; text-align:center; padding:30px;">Keine zeitlichen Daten vorhanden</p>'; return; }
+
+            container.innerHTML = months.map(m => {
+                const vals = byMonth[m];
+                const avg = Math.round(vals.reduce((a, b) => a + b, 0) / vals.length);
+                const [y, mo] = m.split('-');
+                const label = new Date(parseInt(y), parseInt(mo) - 1).toLocaleDateString('de-CH', { month: 'short', year: 'numeric' });
+                return `<div class="timeline-row">
+                    <div class="timeline-date">${label}</div>
+                    <div class="timeline-bar-track"><div class="timeline-bar-fill" style="width:${avg}%; background:${barColor(avg)};">${avg}% (n=${vals.length})</div></div>
+                </div>`;
+            }).join('');
         }
         
-        // Load Admin specific data with improved department comparison
+        // Load Admin specific data (Extended)
         function loadAdminData() {
-            console.log("Loading admin data...");
+            console.log("Loading extended admin data...");
             const adminTableBody = document.getElementById('adminTableBody');
             const departments = Object.keys(deptNames).filter(d => d !== 'admin');
             document.getElementById('allDepartmentsCount').textContent = departments.length;
-            
+
             let bestDept = { name: '-', score: 0 };
             const deptStats = [];
-            
-            const tableRows = departments.map(deptKey => {
-                const deptCodes = generatedCodes.filter(c => c.department === deptKey).map(c => c.code);
-                const deptResults = testResults.filter(r => r && r.testCode && deptCodes.includes(r.testCode));
-                
-                if (deptResults.length === 0) {
-                    deptStats.push({ dept: deptKey, name: deptNames[deptKey], score: 0, tests: 0 });
-                    return `<tr><td>${deptNames[deptKey]}</td><td>0</td><td>N/A</td><td>N/A</td><td>N/A</td><td>-</td></tr>`;
-                }
+            const catNames = ["Grundkenntnisse IKT", "Anwendung im Unterricht", "Medien- & Infokompetenz", "Daten & Sicherheit", "Kommunikation"];
 
-                const validResults = deptResults.filter(r => r.totalPercentage !== undefined);
-                if (validResults.length === 0) {
-                    deptStats.push({ dept: deptKey, name: deptNames[deptKey], score: 0, tests: 0 });
-                    return `<tr><td>${deptNames[deptKey]}</td><td>0</td><td>N/A</td><td>N/A</td><td>N/A</td><td>-</td></tr>`;
-                }
+            // Build per-department stats
+            departments.forEach(deptKey => {
+                const deptResults = getDeptResults(deptKey);
+                const valid = deptResults.filter(r => typeof r.totalPercentage === 'number');
+                const pcts = valid.map(r => r.totalPercentage);
+                const avg = pcts.length ? Math.round(pcts.reduce((a, b) => a + b, 0) / pcts.length) : 0;
 
-                const avgScore = Math.round(validResults.reduce((sum, r) => sum + (r.totalPercentage || 0), 0) / validResults.length);
-                const scoreClass = avgScore >= 80 ? 'score-high' : 
-                   avgScore >= 60 ? 'score-medium' : 
-                   avgScore >= 40 ? 'score-needs-improvement' : 
-                   'score-low';
-                
-                // Track best department
-                if (avgScore > bestDept.score) {
-                    bestDept = { name: deptNames[deptKey], score: avgScore };
-                }
-                
-                deptStats.push({ dept: deptKey, name: deptNames[deptKey], score: avgScore, tests: deptResults.length });
-                
-                const categoryAvgs = [];
+                const catAvgs = {};
                 for (let i = 1; i <= 5; i++) {
-                    const scores = validResults
-                        .filter(r => r.categoryPercentages && r.categoryPercentages[i] !== undefined)
-                        .map(r => r.categoryPercentages[i]);
-                    
-                    if (scores.length > 0) {
-                        categoryAvgs.push({
-                            name: i,
-                            avg: Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
-                        });
-                    }
+                    const scores = valid.map(r => getCat(r, i)).filter(s => !isNaN(s) && s > 0);
+                    catAvgs[i] = scores.length ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
                 }
-                
-                if (categoryAvgs.length === 0) {
-                    return `<tr><td>${deptNames[deptKey]}</td><td>${deptResults.length}</td><td><span class="score-badge ${scoreClass}">${avgScore}%</span></td><td>N/A</td><td>N/A</td><td>-</td></tr>`;
-                }
-                
-                categoryAvgs.sort((a,b) => b.avg - a.avg);
-                const bestCat = categoryAvgs[0].name;
-                const worstCat = categoryAvgs[categoryAvgs.length - 1].name;
-                const catNames = ["Grundkenntnisse IKT", "Anwendung im Unterricht", "Medien- & Infokompetenz", "Daten & Sicherheit", "Kommunikation"];
-                
-                // Calculate trend (simplified - just showing if above or below average)
-                const overallAvg = deptStats.filter(d => d.score > 0).reduce((sum, d) => sum + d.score, 0) / deptStats.filter(d => d.score > 0).length || 0;
-                const trend = avgScore > overallAvg ? '📈' : avgScore < overallAvg ? '📉' : '➡️';
 
-                return `
-                    <tr>
-                        <td>${deptNames[deptKey]}</td>
-                        <td>${deptResults.length}</td>
-                        <td><span class="score-badge ${scoreClass}">${avgScore}%</span></td>
-                        <td>${catNames[bestCat-1]}</td>
-                        <td>${catNames[worstCat-1]}</td>
-                        <td style="font-size: 1.2em;">${trend}</td>
-                    </tr>`;
-            }).join('');
-            
-            adminTableBody.innerHTML = tableRows;
-            
-            // Update best department
+                const subAvgs = {};
+                sections.forEach(sec => {
+                    sec.subbereiche.forEach(sub => {
+                        const vals = valid.map(r => calcSubcatPct(r, sub)).filter(v => v !== null);
+                        subAvgs[sub.title] = vals.length ? Math.round(vals.reduce((a, b) => a + b, 0) / vals.length) : 0;
+                    });
+                });
+
+                if (avg > bestDept.score) bestDept = { name: deptNames[deptKey], score: avg };
+
+                deptStats.push({
+                    dept: deptKey,
+                    name: deptNames[deptKey],
+                    score: avg,
+                    median: median(pcts),
+                    stddev: stddev(pcts),
+                    tests: deptResults.length,
+                    catAvgs,
+                    subAvgs
+                });
+            });
+
             document.getElementById('bestDeptAdmin').textContent = bestDept.name;
-            
-            // Create department comparison bars
+
+            // ── Overview table (extended with median/stddev) ──
+            const overallAvg = deptStats.filter(d => d.score > 0).length
+                ? Math.round(deptStats.filter(d => d.score > 0).reduce((s, d) => s + d.score, 0) / deptStats.filter(d => d.score > 0).length)
+                : 0;
+
+            adminTableBody.innerHTML = deptStats.map(d => {
+                if (!d.tests) return `<tr><td>${d.name}</td><td>0</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>N/A</td><td>-</td></tr>`;
+                const sc = d.score >= 80 ? 'score-high' : d.score >= 60 ? 'score-medium' : d.score >= 40 ? 'score-needs-improvement' : 'score-low';
+                const cats = Object.entries(d.catAvgs).filter(([, v]) => v > 0).sort((a, b) => b[1] - a[1]);
+                const best = cats.length ? catNames[cats[0][0] - 1] : 'N/A';
+                const worst = cats.length ? catNames[cats[cats.length - 1][0] - 1] : 'N/A';
+                const trend = d.score > overallAvg ? '📈' : d.score < overallAvg ? '📉' : '➡️';
+                return `<tr>
+                    <td>${d.name}</td><td>${d.tests}</td>
+                    <td><span class="score-badge ${sc}">${d.score}%</span></td>
+                    <td>${d.median}%</td><td>${d.stddev}</td>
+                    <td>${best}</td><td>${worst}</td>
+                    <td style="font-size:1.2em;">${trend}</td>
+                </tr>`;
+            }).join('');
+
+            // ── Bar chart ──
             const deptBarsChart = document.getElementById('deptBarsChart');
             const maxScore = Math.max(...deptStats.map(d => d.score), 100);
-            
-            deptBarsChart.innerHTML = deptStats.map(dept => {
-                const height = dept.score > 0 ? (dept.score / maxScore) * 100 : 5;
-                const color = dept.score >= 80 ? '#28a745' : dept.score >= 60 ? '#ffc107' : dept.score > 0 ? '#dc3545' : '#dee2e6';
-                
-                return `
-                    <div class="dept-bar-group">
-                        <div class="dept-bar" style="height: ${height}%; background: ${color};">
-                            ${dept.score > 0 ? dept.score + '%' : ''}
-                        </div>
-                        <div class="dept-bar-label">${dept.name}</div>
-                    </div>
-                `;
+            deptBarsChart.innerHTML = deptStats.map(d => {
+                const height = d.score > 0 ? (d.score / maxScore) * 100 : 5;
+                return `<div class="dept-bar-group">
+                    <div class="dept-bar" style="height:${height}%; background:${d.score > 0 ? barColor(d.score) : '#dee2e6'};">${d.score > 0 ? d.score + '%' : ''}</div>
+                    <div class="dept-bar-label">${d.name}</div>
+                </div>`;
             }).join('');
-            
+
+            // ── Heatmap: Categories ──
+            loadAdminHeatmap(deptStats, catNames);
+            // ── Heatmap: Subcategories ──
+            loadAdminSubHeatmap(deptStats);
+            // ── Radar chart ──
+            loadAdminRadar(deptStats, catNames);
+            // ── Insights: Shared strengths/weaknesses & differences ──
+            loadAdminInsights(deptStats, catNames);
+            // ── Subcategory comparison bars ──
+            loadAdminSubcatCompare(deptStats);
+
             updateStatistics();
-            
-            // Load user list for admin
             loadUserList();
         }
 
-        
+        function loadAdminHeatmap(deptStats, catNames) {
+            const table = document.getElementById('adminHeatmapTable');
+            const activeDepts = deptStats.filter(d => d.tests > 0);
+            if (!activeDepts.length) { table.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#6c757d;padding:20px;">Keine Daten</td></tr>'; return; }
+
+            let html = '<thead><tr><th>Kompetenzbereich</th>';
+            activeDepts.forEach(d => { html += `<th>${d.name}</th>`; });
+            html += '<th>Ø Gesamt</th></tr></thead><tbody>';
+
+            for (let i = 1; i <= 5; i++) {
+                html += `<tr><td>${catNames[i - 1]}</td>`;
+                const vals = [];
+                activeDepts.forEach(d => {
+                    const v = d.catAvgs[i] || 0;
+                    vals.push(v);
+                    const hc = heatColor(v);
+                    html += `<td style="background:${hc.bg}; color:${hc.fg};">${v}%</td>`;
+                });
+                const avg = vals.length ? Math.round(vals.reduce((a, b) => a + b, 0) / vals.length) : 0;
+                const hc = heatColor(avg);
+                html += `<td style="background:${hc.bg}; color:${hc.fg}; font-weight:700;">${avg}%</td></tr>`;
+            }
+
+            // Total row
+            html += '<tr style="border-top:3px solid #495057;"><td style="font-weight:700;">Gesamt</td>';
+            activeDepts.forEach(d => {
+                const hc = heatColor(d.score);
+                html += `<td style="background:${hc.bg}; color:${hc.fg}; font-weight:700;">${d.score}%</td>`;
+            });
+            const totalAvg = activeDepts.length ? Math.round(activeDepts.reduce((s, d) => s + d.score, 0) / activeDepts.length) : 0;
+            const thc = heatColor(totalAvg);
+            html += `<td style="background:${thc.bg}; color:${thc.fg}; font-weight:700;">${totalAvg}%</td></tr>`;
+
+            html += '</tbody>';
+            table.innerHTML = html;
+        }
+
+        function loadAdminSubHeatmap(deptStats) {
+            const table = document.getElementById('adminSubHeatmapTable');
+            const activeDepts = deptStats.filter(d => d.tests > 0);
+            if (!activeDepts.length) { table.innerHTML = '<tr><td style="text-align:center;color:#6c757d;padding:20px;">Keine Daten</td></tr>'; return; }
+
+            let html = '<thead><tr><th>Unterbereich</th>';
+            activeDepts.forEach(d => { html += `<th>${d.name}</th>`; });
+            html += '<th>Ø</th></tr></thead><tbody>';
+
+            sections.forEach(sec => {
+                html += `<tr><td colspan="${activeDepts.length + 2}" style="background:#e9ecef; font-weight:700; text-align:left;">${sec.name}</td></tr>`;
+                sec.subbereiche.forEach(sub => {
+                    html += `<tr><td>${sub.title}</td>`;
+                    const vals = [];
+                    activeDepts.forEach(d => {
+                        const v = d.subAvgs[sub.title] || 0;
+                        vals.push(v);
+                        const hc = heatColor(v);
+                        html += `<td style="background:${hc.bg}; color:${hc.fg};">${v}%</td>`;
+                    });
+                    const avg = vals.length ? Math.round(vals.reduce((a, b) => a + b, 0) / vals.length) : 0;
+                    const hc = heatColor(avg);
+                    html += `<td style="background:${hc.bg}; color:${hc.fg}; font-weight:700;">${avg}%</td></tr>`;
+                });
+            });
+
+            html += '</tbody>';
+            table.innerHTML = html;
+        }
+
+        function loadAdminRadar(deptStats, catNames) {
+            const svg = document.getElementById('adminRadarSvg');
+            const legend = document.getElementById('adminRadarLegend');
+            const activeDepts = deptStats.filter(d => d.tests > 0);
+            if (!activeDepts.length) { svg.innerHTML = '<text x="250" y="200" text-anchor="middle" fill="#6c757d">Keine Daten</text>'; legend.innerHTML = ''; return; }
+
+            const cx = 250, cy = 210, maxR = 160;
+            const n = 5;
+            const angleStep = (2 * Math.PI) / n;
+            const startAngle = -Math.PI / 2;
+
+            let svgContent = '';
+            // Grid circles
+            [20, 40, 60, 80, 100].forEach(pct => {
+                const r = (pct / 100) * maxR;
+                svgContent += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#dee2e6" stroke-width="1" stroke-dasharray="${pct < 100 ? '4,4' : '0'}"/>`;
+                if (pct < 100) svgContent += `<text x="${cx + 4}" y="${cy - r + 4}" fill="#adb5bd" font-size="10">${pct}%</text>`;
+            });
+
+            // Axis lines and labels
+            for (let i = 0; i < n; i++) {
+                const angle = startAngle + i * angleStep;
+                const x = cx + Math.cos(angle) * maxR;
+                const y = cy + Math.sin(angle) * maxR;
+                svgContent += `<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="#dee2e6" stroke-width="1"/>`;
+                const lx = cx + Math.cos(angle) * (maxR + 25);
+                const ly = cy + Math.sin(angle) * (maxR + 25);
+                const shortNames = ["GK IKT", "Unterricht", "Medien", "Daten", "Komm."];
+                svgContent += `<text x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="middle" fill="#495057" font-size="11" font-weight="600">${shortNames[i]}</text>`;
+            }
+
+            // Polygons per department
+            activeDepts.forEach(d => {
+                const color = deptColors[d.dept] || '#667eea';
+                let points = '';
+                for (let i = 0; i < n; i++) {
+                    const angle = startAngle + i * angleStep;
+                    const val = d.catAvgs[i + 1] || 0;
+                    const r = (val / 100) * maxR;
+                    const x = cx + Math.cos(angle) * r;
+                    const y = cy + Math.sin(angle) * r;
+                    points += `${x},${y} `;
+                }
+                svgContent += `<polygon points="${points.trim()}" fill="${color}" fill-opacity="0.15" stroke="${color}" stroke-width="2.5"/>`;
+                // Dots
+                for (let i = 0; i < n; i++) {
+                    const angle = startAngle + i * angleStep;
+                    const val = d.catAvgs[i + 1] || 0;
+                    const r = (val / 100) * maxR;
+                    const x = cx + Math.cos(angle) * r;
+                    const y = cy + Math.sin(angle) * r;
+                    svgContent += `<circle cx="${x}" cy="${y}" r="4" fill="${color}"><title>${d.name}: ${val}%</title></circle>`;
+                }
+            });
+
+            svg.innerHTML = svgContent;
+            legend.innerHTML = activeDepts.map(d => `<div class="legend-item"><div class="legend-dot" style="background:${deptColors[d.dept] || '#667eea'};"></div> ${d.name}</div>`).join('');
+        }
+
+        function loadAdminInsights(deptStats, catNames) {
+            const activeDepts = deptStats.filter(d => d.tests > 0);
+
+            // ── Shared strengths / weaknesses (category level) ──
+            const sharedStrengths = document.getElementById('adminSharedStrengths');
+            const sharedWeaknesses = document.getElementById('adminSharedWeaknesses');
+
+            if (activeDepts.length < 2) {
+                sharedStrengths.innerHTML = '<p style="color:#6c757d;">Mindestens 2 Abteilungen mit Daten nötig</p>';
+                sharedWeaknesses.innerHTML = '<p style="color:#6c757d;">Mindestens 2 Abteilungen mit Daten nötig</p>';
+            } else {
+                // Check all subcategories across depts
+                const allSubs = [];
+                sections.forEach(sec => sec.subbereiche.forEach(sub => allSubs.push(sub.title)));
+
+                const sharedStrong = allSubs.filter(title => activeDepts.every(d => (d.subAvgs[title] || 0) >= 65));
+                const sharedWeak = allSubs.filter(title => activeDepts.every(d => (d.subAvgs[title] || 0) < 55 && (d.subAvgs[title] || 0) > 0));
+
+                sharedStrengths.innerHTML = sharedStrong.length
+                    ? sharedStrong.map(t => {
+                        const vals = activeDepts.map(d => d.subAvgs[t] || 0);
+                        const avg = Math.round(vals.reduce((a, b) => a + b, 0) / vals.length);
+                        return `<div class="insight-card shared"><div class="insight-title">${t}</div><div class="insight-text">Alle Abteilungen ≥ 65% — Ø ${avg}%</div></div>`;
+                    }).join('')
+                    : '<p style="color:#6c757d;">Keine Unterbereiche, in denen alle Abteilungen ≥ 65% erreichen</p>';
+
+                sharedWeaknesses.innerHTML = sharedWeak.length
+                    ? sharedWeak.map(t => {
+                        const vals = activeDepts.map(d => d.subAvgs[t] || 0);
+                        const avg = Math.round(vals.reduce((a, b) => a + b, 0) / vals.length);
+                        return `<div class="insight-card weakness"><div class="insight-title">${t}</div><div class="insight-text">Alle Abteilungen &lt; 55% — Ø ${avg}%</div></div>`;
+                    }).join('')
+                    : '<p style="color:#6c757d;">Keine Unterbereiche, in denen alle Abteilungen &lt; 55% liegen</p>';
+            }
+
+            // ── Biggest differences ──
+            const differencesEl = document.getElementById('adminDifferences');
+            if (activeDepts.length < 2) {
+                differencesEl.innerHTML = '<p style="color:#6c757d; text-align:center; padding:30px;">Mindestens 2 Abteilungen mit Daten nötig</p>';
+            } else {
+                const allSubs = [];
+                sections.forEach(sec => sec.subbereiche.forEach(sub => allSubs.push(sub.title)));
+
+                const diffs = allSubs.map(title => {
+                    const vals = activeDepts.map(d => d.subAvgs[title] || 0).filter(v => v > 0);
+                    if (vals.length < 2) return { title, spread: 0, min: 0, max: 0, minDept: '', maxDept: '' };
+                    const min = Math.min(...vals);
+                    const max = Math.max(...vals);
+                    const minDept = activeDepts.find(d => (d.subAvgs[title] || 0) === min)?.name || '';
+                    const maxDept = activeDepts.find(d => (d.subAvgs[title] || 0) === max)?.name || '';
+                    return { title, spread: max - min, min, max, minDept, maxDept };
+                }).sort((a, b) => b.spread - a.spread).filter(d => d.spread > 0);
+
+                differencesEl.innerHTML = diffs.slice(0, 8).map(d => {
+                    return `<div class="insight-card" style="border-left-color: ${d.spread >= 25 ? '#dc3545' : d.spread >= 15 ? '#ffc107' : '#28a745'};">
+                        <div class="insight-title">${d.title} <span style="color:#6c757d; font-weight:400;">(Spannweite: ${d.spread} Pp.)</span></div>
+                        <div class="insight-text">
+                            Höchste: <strong>${d.maxDept}</strong> (${d.max}%) — Niedrigste: <strong>${d.minDept}</strong> (${d.min}%)
+                        </div>
+                    </div>`;
+                }).join('') || '<p style="color:#6c757d; text-align:center; padding:20px;">Keine signifikanten Unterschiede</p>';
+            }
+
+            // ── Per-department profile: top-3 strengths & weaknesses ──
+            const profilesEl = document.getElementById('adminDeptProfiles');
+            if (!activeDepts.length) { profilesEl.innerHTML = '<p style="color:#6c757d; text-align:center; padding:30px;">Keine Daten</p>'; return; }
+
+            profilesEl.innerHTML = activeDepts.map(d => {
+                const subs = Object.entries(d.subAvgs).filter(([, v]) => v > 0).sort((a, b) => b[1] - a[1]);
+                if (!subs.length) return '';
+                const top3 = subs.slice(0, 3);
+                const bottom3 = subs.slice(-3).reverse();
+
+                return `<div class="stats-panel" style="margin-bottom:20px;">
+                    <h4 style="color:${deptColors[d.dept] || '#667eea'};">${d.name} <span style="color:#6c757d; font-weight:400;">(${d.tests} Tests, Ø ${d.score}%)</span></h4>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-top:10px;">
+                        <div>
+                            <strong style="color:#28a745;">Top 3 Stärken</strong>
+                            ${top3.map(([t, v]) => `<div class="insight-card strength" style="margin-top:8px;"><div class="insight-title">${t}</div><div class="insight-text">${v}%</div></div>`).join('')}
+                        </div>
+                        <div>
+                            <strong style="color:#dc3545;">Top 3 Schwächen</strong>
+                            ${bottom3.map(([t, v]) => `<div class="insight-card weakness" style="margin-top:8px;"><div class="insight-title">${t}</div><div class="insight-text">${v}%</div></div>`).join('')}
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function loadAdminSubcatCompare(deptStats) {
+            const container = document.getElementById('adminSubcatBars');
+            const activeDepts = deptStats.filter(d => d.tests > 0);
+            if (!activeDepts.length) { container.innerHTML = '<p style="color:#6c757d; text-align:center; padding:30px;">Keine Daten</p>'; return; }
+
+            let html = '';
+            sections.forEach(sec => {
+                html += `<h4 style="margin: 25px 0 12px; color: #495057;">${sec.name}</h4>`;
+                sec.subbereiche.forEach(sub => {
+                    html += `<div style="margin-bottom:15px;">
+                        <div style="font-weight:500; color:#495057; margin-bottom:6px;">${sub.title}</div>`;
+                    activeDepts.forEach(d => {
+                        const v = d.subAvgs[sub.title] || 0;
+                        const color = deptColors[d.dept] || '#667eea';
+                        html += `<div class="sub-bar-row">
+                            <div class="sub-bar-label" style="width:180px; color:${color}; font-weight:500;">${d.name}</div>
+                            <div class="sub-bar-track"><div class="sub-bar-fill" style="width:${v}%; background:${color};">${v}%</div></div>
+                        </div>`;
+                    });
+                    html += '</div>';
+                });
+            });
+
+            // Legend
+            html += '<div class="legend-row" style="margin-top:20px; justify-content:center;">';
+            activeDepts.forEach(d => {
+                html += `<div class="legend-item"><div class="legend-dot" style="background:${deptColors[d.dept] || '#667eea'};"></div> ${d.name}</div>`;
+            });
+            html += '</div>';
+
+            container.innerHTML = html;
+        }
+
+        // Print Statistics as PDF
+        function printStatistics() {
+            const printArea = document.getElementById('printStatsArea');
+            const isAdmin = currentRole === 'admin';
+            const relevantResults = getRelevantResults();
+            const totalPcts = relevantResults.filter(r => typeof r.totalPercentage === 'number').map(r => r.totalPercentage);
+            const avgTotal = totalPcts.length ? Math.round(totalPcts.reduce((a, b) => a + b, 0) / totalPcts.length) : 0;
+            const now = new Date().toLocaleDateString('de-CH', { day: '2-digit', month: 'long', year: 'numeric' });
+
+            let html = `<div class="print-header">
+                <h2>Statistikbericht – Digitale Kompetenzen BBW</h2>
+                <p>${isAdmin ? 'Alle Abteilungen' : (deptNames[currentDepartment] || currentDepartment)} | ${now} | ${relevantResults.length} Teilnehmende | Ø ${avgTotal}%</p>
+            </div>`;
+
+            // 1) Competency bars overview
+            html += '<h3 class="print-section-title">Übersicht nach Kompetenzbereich</h3>';
+            html += '<div class="results-overview">';
+            html += `<div class="stat-card"><div class="stat-number" style="font-size:1.8em;">${relevantResults.length}</div><div class="stat-label">Teilnehmende</div></div>`;
+            html += `<div class="stat-card"><div class="stat-number" style="font-size:1.8em;">${avgTotal}%</div><div class="stat-label">Durchschnitt</div></div>`;
+            html += `<div class="stat-card"><div class="stat-number" style="font-size:1.8em;">${median(totalPcts)}%</div><div class="stat-label">Median</div></div>`;
+            html += `<div class="stat-card"><div class="stat-number" style="font-size:1.8em;">${stddev(totalPcts)}</div><div class="stat-label">Std.abw.</div></div>`;
+            html += '</div>';
+
+            html += '<div class="department-chart"><div class="chart-header">Kompetenzbereiche</div><div class="chart-bars">';
+            for (let i = 1; i <= 5; i++) {
+                const scores = relevantResults.map(r => getCat(r, i)).filter(s => !isNaN(s) && s > 0);
+                const avg = scores.length ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
+                html += `<div class="chart-bar"><div class="bar-label">${categoryNames[i-1]}</div><div class="bar-container"><div class="bar-fill" style="width:${avg}%; background:linear-gradient(90deg, #667eea, #764ba2);">${avg}%</div></div></div>`;
+            }
+            html += '</div></div>';
+
+            // 2) Subcategories
+            html += '<h3 class="print-section-title">Detaillierte Unterbereiche</h3>';
+            html += '<div class="department-chart">';
+            sections.forEach(sec => {
+                html += `<h4 style="margin:15px 0 8px; color:#495057;">${sec.name}</h4>`;
+                sec.subbereiche.forEach(sub => {
+                    const pcts = relevantResults.map(r => calcSubcatPct(r, sub)).filter(v => v !== null);
+                    const avg = pcts.length ? Math.round(pcts.reduce((a, b) => a + b, 0) / pcts.length) : 0;
+                    html += `<div class="sub-bar-row"><div class="sub-bar-label">${sub.title}</div><div class="sub-bar-track"><div class="sub-bar-fill" style="width:${avg}%; background:${barColor(avg)};">${avg}%</div></div></div>`;
+                });
+            });
+            html += '</div>';
+
+            // 3) Distribution
+            html += '<h3 class="print-section-title">Score-Verteilung</h3>';
+            const buckets = [
+                { label: 'Ausgezeichnet (≥80%)', min: 80, max: 101, color: '#28a745' },
+                { label: 'Gut (60–79%)', min: 60, max: 80, color: '#ffc107' },
+                { label: 'Aufbau (40–59%)', min: 40, max: 60, color: '#ff9800' },
+                { label: 'Basis (<40%)', min: 0, max: 40, color: '#ff69b4' }
+            ];
+            const maxCount = Math.max(...buckets.map(b => totalPcts.filter(p => p >= b.min && p < b.max).length), 1);
+            html += '<div class="department-chart">';
+            buckets.forEach(b => {
+                const count = totalPcts.filter(p => p >= b.min && p < b.max).length;
+                const pct = totalPcts.length ? Math.round((count / totalPcts.length) * 100) : 0;
+                const barW = Math.max((count / maxCount) * 100, count > 0 ? 8 : 0);
+                html += `<div class="distribution-row"><div class="distribution-label">${b.label}</div><div class="distribution-bar-track"><div class="distribution-bar-fill" style="width:${barW}%; background:${b.color};">${count} (${pct}%)</div></div></div>`;
+            });
+            html += '</div>';
+
+            // 4) Admin-only: Heatmap + Radar + Insights
+            if (isAdmin) {
+                const departments = Object.keys(deptNames).filter(d => d !== 'admin');
+                const deptStats = [];
+                departments.forEach(deptKey => {
+                    const deptResults = getDeptResults(deptKey);
+                    const valid = deptResults.filter(r => typeof r.totalPercentage === 'number');
+                    const pcts = valid.map(r => r.totalPercentage);
+                    const avg = pcts.length ? Math.round(pcts.reduce((a, b) => a + b, 0) / pcts.length) : 0;
+                    const catAvgs = {};
+                    for (let i = 1; i <= 5; i++) {
+                        const scores = valid.map(r => getCat(r, i)).filter(s => !isNaN(s) && s > 0);
+                        catAvgs[i] = scores.length ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
+                    }
+                    const subAvgs = {};
+                    sections.forEach(sec => sec.subbereiche.forEach(sub => {
+                        const vals = valid.map(r => calcSubcatPct(r, sub)).filter(v => v !== null);
+                        subAvgs[sub.title] = vals.length ? Math.round(vals.reduce((a, b) => a + b, 0) / vals.length) : 0;
+                    }));
+                    deptStats.push({ dept: deptKey, name: deptNames[deptKey], score: avg, median: median(pcts), stddev: stddev(pcts), tests: deptResults.length, catAvgs, subAvgs });
+                });
+                const activeDepts = deptStats.filter(d => d.tests > 0);
+                const catNames = categoryNames;
+
+                // Heatmap
+                html += '<h3 class="print-section-title">Abteilungsvergleich – Heatmap</h3>';
+                if (activeDepts.length > 0) {
+                    html += '<div class="department-chart" style="overflow-x:auto;"><table class="heatmap-table"><thead><tr><th>Kompetenzbereich</th>';
+                    activeDepts.forEach(d => { html += `<th>${d.name}</th>`; });
+                    html += '<th>Ø</th></tr></thead><tbody>';
+                    for (let i = 1; i <= 5; i++) {
+                        html += `<tr><td>${catNames[i-1]}</td>`;
+                        const vals = [];
+                        activeDepts.forEach(d => {
+                            const v = d.catAvgs[i] || 0; vals.push(v);
+                            const hc = heatColor(v);
+                            html += `<td style="background:${hc.bg}; color:${hc.fg};">${v}%</td>`;
+                        });
+                        const avg = vals.length ? Math.round(vals.reduce((a,b)=>a+b,0)/vals.length) : 0;
+                        const hc = heatColor(avg);
+                        html += `<td style="background:${hc.bg}; color:${hc.fg}; font-weight:700;">${avg}%</td></tr>`;
+                    }
+                    html += '<tr style="border-top:3px solid #495057;"><td style="font-weight:700;">Gesamt</td>';
+                    activeDepts.forEach(d => { const hc = heatColor(d.score); html += `<td style="background:${hc.bg}; color:${hc.fg}; font-weight:700;">${d.score}%</td>`; });
+                    const totalAvg = Math.round(activeDepts.reduce((s,d)=>s+d.score,0)/activeDepts.length);
+                    const thc = heatColor(totalAvg);
+                    html += `<td style="background:${thc.bg}; color:${thc.fg}; font-weight:700;">${totalAvg}%</td></tr>`;
+                    html += '</tbody></table></div>';
+                }
+
+                // Radar SVG
+                html += '<h3 class="print-section-title">Kompetenzprofil-Vergleich (Radar)</h3>';
+                html += '<div class="department-chart"><div style="text-align:center;">';
+                html += document.getElementById('adminRadarSvg').outerHTML;
+                html += '</div>';
+                html += '<div class="legend-row" style="justify-content:center;">';
+                activeDepts.forEach(d => { html += `<div class="legend-item"><div class="legend-dot" style="background:${deptColors[d.dept] || '#667eea'};"></div> ${d.name}</div>`; });
+                html += '</div></div>';
+
+                // Insights
+                html += '<h3 class="print-section-title">Gemeinsamkeiten & Unterschiede</h3>';
+                html += document.getElementById('adminInsights').innerHTML;
+            }
+
+            printArea.innerHTML = html;
+
+            setTimeout(() => { window.print(); }, 200);
+        }
+        window.printStatistics = printStatistics;
+
         // --- Admin User Edit State ---
         let __editingDept = null;
         let __editingUser = null;
@@ -2430,12 +3546,26 @@ function exportResults() {
             document.getElementById('codeFilter').addEventListener('change', filterResults);
 
             document.getElementById('tabNav').addEventListener('click', (e) => {
-                // Find the closest tab-button (in case we clicked on a child element)
                 const tabButton = e.target.closest('.tab-button');
                 if (tabButton) {
                     e.preventDefault();
                     switchTab(tabButton);
                 }
+            });
+
+            // Sub-tab navigation for Statistics and Admin tabs
+            document.querySelectorAll('.tab-sub-nav').forEach(nav => {
+                nav.addEventListener('click', (e) => {
+                    const btn = e.target.closest('.tab-sub-btn');
+                    if (!btn) return;
+                    const subId = btn.dataset.sub;
+                    nav.querySelectorAll('.tab-sub-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    const parentTab = nav.closest('.tab-content');
+                    parentTab.querySelectorAll('.sub-section').forEach(s => s.classList.remove('active'));
+                    const target = document.getElementById(subId);
+                    if (target) target.classList.add('active');
+                });
             });
 
             document.querySelectorAll('.modal-close').forEach(btn => {

@@ -14,7 +14,7 @@ async function verifyAdmin(req) {
   return decoded;
 }
 
-exports.manageUsers = onRequest({ region: "europe-west1" }, (req, res) => {
+exports.manageUsers = onRequest({ region: "europe-west1", invoker: "public" }, (req, res) => {
   cors(req, res, async () => {
     try {
       const caller = await verifyAdmin(req);
@@ -23,7 +23,7 @@ exports.manageUsers = onRequest({ region: "europe-west1" }, (req, res) => {
       }
 
       if (req.method === "GET") {
-        const listResult = await auth.listUsers(100);
+        const listResult = await auth.listUsers(1000);
         const users = listResult.users
           .filter((u) => u.customClaims && u.customClaims.role)
           .map((u) => ({
@@ -96,7 +96,7 @@ exports.manageUsers = onRequest({ region: "europe-west1" }, (req, res) => {
 
         const user = await auth.getUser(uid);
         if (user.customClaims && user.customClaims.role === "admin") {
-          const listResult = await auth.listUsers(100);
+          const listResult = await auth.listUsers(1000);
           const adminCount = listResult.users.filter(
             (u) => u.customClaims && u.customClaims.role === "admin"
           ).length;
@@ -120,7 +120,7 @@ exports.manageUsers = onRequest({ region: "europe-west1" }, (req, res) => {
   });
 });
 
-exports.migrateUsers = onRequest({ region: "europe-west1" }, (req, res) => {
+exports.migrateUsers = onRequest({ region: "europe-west1", invoker: "public" }, (req, res) => {
   cors(req, res, async () => {
     try {
       const caller = await verifyAdmin(req);
